@@ -1,0 +1,43 @@
+extends ../layouts/main
+
+block content
+    h1 Medicamentos Prescritos
+
+    form(method="post", action=`/medico/medicamentos/${admisionId}`)
+        .mb-3
+            label.form-label Nombre
+            input.form-control(type="text", name="nombre", required)
+        .mb-3
+            label.form-label Dosis
+            input.form-control(type="text", name="dosis", required)
+        .mb-3
+            label.form-label Frecuencia
+            input.form-control(type="text", name="frecuencia", required)
+        .mb-3
+            label.form-label Vía
+            input.form-control(type="text", name="via")
+        .mb-3
+            label.form-label Observaciones
+            textarea.form-control(name="observaciones", rows="2")
+        button.btn.btn-primary(type="submit") Prescribir
+
+    if medicamentos && medicamentos.length
+        h2.mt-4 Prescripciones Activas
+        table.table.table-striped
+            thead
+                tr
+                    th Nombre
+                    th Dosis
+                    th Frecuencia
+                    th Vía
+                    th Acciones
+            tbody
+                each med in medicamentos
+                    tr
+                        td= med.nombre
+                        td= med.dosis
+                        td= med.frecuencia
+                        td= med.via
+                        td
+                            form.d-inline(method="post", action=`/medico/medicamentos/${admisionId}/${med.id}/administrar`)
+                                button.btn.btn-sm.btn-success(type="submit") Registrar administración

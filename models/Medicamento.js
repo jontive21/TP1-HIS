@@ -79,13 +79,13 @@ async function prescribirMedicamento(data) {
     return result.insertId;
 }
 
-// Actualizar dosis
-async function actualizarDosis(id, dosis) {
-    const [result] = await pool.query(
-        `UPDATE medicamentos_prescritos SET dosis = ? WHERE id = ?`,
-        [dosis, id]
+// Obtener medicamentos por admisión
+async function getMedicamentosByAdmision(admisionId) {
+    const [rows] = await pool.query(
+        `SELECT * FROM medicamentos_prescritos WHERE admision_id = ? ORDER BY id DESC`,
+        [admisionId]
     );
-    return result.affectedRows > 0;
+    return rows;
 }
 
 // Registrar administración
@@ -100,6 +100,6 @@ async function registrarAdministracion(medicamentoId, fecha, efectos = null) {
 
 module.exports = {
     prescribirMedicamento,
-    actualizarDosis,
+    getMedicamentosByAdmision,
     registrarAdministracion
 };

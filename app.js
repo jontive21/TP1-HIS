@@ -25,11 +25,13 @@ app.use(addUserToViews);
 const authRoutes = require('./routes/auth');
 const indexRoutes = require('./routes/index');
 const dashboardRoutes = require('./routes/dashboard');
+const medicoRoutes = require('./routes/medico');
 
 // Usar rutas
 app.use('/', authRoutes);
 app.use('/', indexRoutes);
 app.use('/', dashboardRoutes);
+app.use('/medico', medicoRoutes);
 
 // Iniciar servidor
 app.listen(PORT, () => {

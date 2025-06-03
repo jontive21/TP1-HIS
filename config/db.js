@@ -3,12 +3,10 @@ require('dotenv').config();
 const mysql = require('mysql2/promise');
 
 const pool = mysql.createPool({
-    host: process.env.DB_HOST,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME,
-    waitForConnections: true,
-    connectionLimit: 10
+    host: 'localhost',
+    user: 'root',
+    password: 'tu_contraseña',
+    database: 'nombre_basedatos'
 });
 
 // Create the pacientes table if it doesn't exist
@@ -195,4 +193,4 @@ const getDailyAdmissionStats = async () => {
     }
 };
 
-module.exports = { pool, countActiveAdmisiones, countFreeCamas, getDailyAdmissionStats };
+module.exports = pool;

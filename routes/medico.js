@@ -1,11 +1,14 @@
 const express = require('express');
 const router = express.Router();
-const estudioController = require('../controllers/estudioController');
+const medicamentoController = require('../controllers/medicamentoController');
 
-// Mostrar formulario y lista de estudios
-router.get('/estudios/:admisionId', estudioController.showEstudios);
+// Mostrar formulario y lista de medicamentos
+router.get('/medicamentos/:admisionId', medicamentoController.showMedicamentos);
 
-// Procesar solicitud de estudio
-router.post('/estudios/:admisionId', estudioController.solicitarEstudio);
+// Prescribir un medicamento
+router.post('/medicamentos/:admisionId', medicamentoController.prescribir);
+
+// Registrar administración
+router.post('/medicamentos/:admisionId/:id/administrar', medicamentoController.registrarAdministracion);
 
 module.exports = router;
