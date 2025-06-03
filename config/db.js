@@ -1,52 +1,198 @@
-require('dotenv').config(); 
+require('dotenv').config();
 
-const mysql = require('mysql2/promise'); 
+const mysql = require('mysql2/promise');
 
 const pool = mysql.createPool({
-    host: process.env.DB_HOST,         
-    user: process.env.DB_USER,         
-    password: process.env.DB_PASSWORD, 
-    database: process.env.DB_NAME,     
-    waitForConnections: true,          
-    connectionLimit: 10                
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME,
+    waitForConnections: true,
+    connectionLimit: 10
 });
 
-module.exports = pool;
+// Create the pacientes table if it doesn't exist
+const createPacientesTable = async () => {
+    const connection = await pool.getConnection();
+    try {
+        await connection.query(`
+            CREATE TABLE IF NOT EXISTS pacientes (
+                id INT PRIMARY KEY AUTO_INCREMENT,
+                nombre VARCHAR(100) NOT NULL,
+                apellido VARCHAR(100) NOT NULL,
+                dni VARCHAR(15) UNIQUE NOT NULL,
+                fecha_nacimiento DATE NOT NULL,
+                sexo ENUM('M', 'F', 'X') NOT NULL,
+                telefono VARCHAR(30),
+                direccion VARCHAR(255),
+                email VARCHAR(100),
+                activo BOOLEAN DEFAULT TRUE,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+        `);
+        console.log('Tabla pacientes verificada o creada con éxito.');
+    } catch (error) {
+        console.error('Error al crear la tabla pacientes:', error);
+    } finally {
+        connection.release();
+    }
+};
 
-// Buscar usuario por email
-static async findByEmail(email) {
-    const query = 'SELECT * FROM usuarios WHERE email = ? AND activo = true';
-    const results = await executeQuery(query, [email]);
-    return results.length > 0 ? new Usuario(results[0]) : null;
-}
+// Create the admisiones table if it doesn't exist
+const createAdmisionesTable = async () => {
+    const connection = await pool.getConnection();
+    try {
+        await connection.query(`
+            CREATE TABLE IF NOT EXISTS admisiones (
+                id INT PRIMARY KEY AUTO_INCREMENT,
+                paciente_id INT NOT NULL,
+                cama_id INT,
+                fecha_admision DATETIME NOT NULL,
+                motivo_internacion VARCHAR(255),
+                estado ENUM('activa', 'alta', 'cancelada') DEFAULT 'activa',
+                fecha_alta DATETIME,
+                FOREIGN KEY (paciente_id) REFERENCES pacientes(id),
+                FOREIGN KEY (cama_id) REFERENCES camas(id)
+            );
+        `);
+        console.log('Tabla admisiones verificada o creada con éxito.');
+    } catch (error) {
+        console.error('Error al crear la tabla admisiones:', error);
+    } finally {
+        connection.release();
+    }
+};
 
-// Buscar usuario por ID
-static async findById(id) {
-    const query = 'SELECT * FROM usuarios WHERE id = ? AND activo = true';
-    const results = await executeQuery(query, [id]);
-    return results.length > 0 ? new Usuario(results[0]) : null;
-}
+// Create the evaluaciones table if it doesn't exist
+const createEvaluacionesTable = async () => {
+    const connection = await pool.getConnection();
+    try {
+        await connection.query(`
+            CREATE TABLE IF NOT EXISTS evaluaciones (
+                id INT PRIMARY KEY AUTO_INCREMENT,
+                admision_id INT NOT NULL,
+                usuario_id INT NOT NULL,
+                tipo ENUM('medica', 'enfermeria') NOT NULL,
+                fecha DATETIME NOT NULL,
+                observaciones TEXT,
+                FOREIGN KEY (admision_id) REFERENCES admisiones(id),
+                FOREIGN KEY (usuario_id) REFERENCES usuarios(id)
+            );
+        `);
+        console.log('Tabla evaluaciones verificada o creada con éxito.');
+    } catch (error) {
+        console.error('Error al crear la tabla evaluaciones:', error);
+    } finally {
+        connection.release();
+    }
+};
 
-// Verificar contraseña
-static async verifyPassword(plainPassword, hashedPassword) {
-    return await bcrypt.compare(plainPassword, hashedPassword);
-}
+// Tabla de pacientes
+const createPacientesTableSQL = `
+    CREATE TABLE IF NOT EXISTS pacientes (
+        id INT PRIMARY KEY AUTO_INCREMENT,
+        nombre VARCHAR(100) NOT NULL,
+        apellido VARCHAR(100) NOT NULL,
+        dni VARCHAR(15) UNIQUE NOT NULL,
+        fecha_nacimiento DATE NOT NULL,
+        sexo ENUM('M', 'F', 'X') NOT NULL,
+        telefono VARCHAR(30),
+        direccion VARCHAR(255),
+        email VARCHAR(100),
+        activo BOOLEAN DEFAULT TRUE,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+`;
 
-// Obtener contraseña hash del usuario
-static async getPasswordHash(email) {
-    const query = 'SELECT password FROM usuarios WHERE email = ? AND activo = true';
-    const results = await executeQuery(query, [email]);
-    return results.length > 0 ? results[0].password : null;
-}
+// Tabla de admisiones
+const createAdmisionesTableSQL = `
+    CREATE TABLE IF NOT EXISTS admisiones (
+        id INT PRIMARY KEY AUTO_INCREMENT,
+        paciente_id INT NOT NULL,
+        cama_id INT,
+        fecha_admision DATETIME NOT NULL,
+        motivo_internacion VARCHAR(255),
+        estado ENUM('activa', 'alta', 'cancelada') DEFAULT 'activa',
+        fecha_alta DATETIME,
+        FOREIGN KEY (paciente_id) REFERENCES pacientes(id),
+        FOREIGN KEY (cama_id) REFERENCES camas(id)
+    );
+`;
 
-// Obtener todos los usuarios
-static async findAll() {
-    const query = 'SELECT id, nombre, apellido, email, rol, telefono, activo, created_at FROM usuarios ORDER BY nombre, apellido';
-    const results = await executeQuery(query);
-    return results.map(user => new Usuario(user));
-}
+// Tabla de evaluaciones
+const createEvaluacionesTableSQL = `
+    CREATE TABLE IF NOT EXISTS evaluaciones (
+        id INT PRIMARY KEY AUTO_INCREMENT,
+        admision_id INT NOT NULL,
+        usuario_id INT NOT NULL,
+        tipo ENUM('medica', 'enfermeria') NOT NULL,
+        fecha DATETIME NOT NULL,
+        observaciones TEXT,
+        FOREIGN KEY (admision_id) REFERENCES admisiones(id),
+        FOREIGN KEY (usuario_id) REFERENCES usuarios(id)
+    );
+`;
 
-// Obtener nombre completo
-getNombreCompleto() {
-    return `${this.nombre} ${this.apellido}`;
-}
+const createTables = async () => {
+    const connection = await pool.getConnection();
+    try {
+        await connection.query(createPacientesTableSQL);
+        console.log('Tabla pacientes verificada o creada con éxito.');
+        await connection.query(createAdmisionesTableSQL);
+        console.log('Tabla admisiones verificada o creada con éxito.');
+        await connection.query(createEvaluacionesTableSQL);
+        console.log('Tabla evaluaciones verificada o creada con éxito.');
+    } catch (error) {
+        console.error('Error al crear las tablas:', error);
+    } finally {
+        connection.release();
+    }
+};
+
+createTables();
+
+// Query to count active admissions
+const countActiveAdmisiones = async () => {
+    const connection = await pool.getConnection();
+    try {
+        const [rows] = await connection.query(`SELECT COUNT(*) as count FROM admisiones WHERE estado = 'activa';`);
+        return rows[0].count;
+    } catch (error) {
+        console.error('Error al contar admisiones activas:', error);
+        return 0;
+    } finally {
+        connection.release();
+    }
+};
+
+// Query to count free beds
+const countFreeCamas = async () => {
+    const connection = await pool.getConnection();
+    try {
+        const [rows] = await connection.query(`SELECT COUNT(*) as count FROM camas WHERE estado = 'libre';`);
+        return rows[0].count;
+    } catch (error) {
+        console.error('Error al contar camas libres:', error);
+        return 0;
+    } finally {
+        connection.release();
+    }
+};
+
+// Query to get daily admission statistics
+const getDailyAdmissionStats = async () => {
+    const connection = await pool.getConnection();
+    try {
+        const [rows] = await connection.query(`
+            SELECT DATE(fecha_admision) as dia, COUNT(*) as total FROM admisiones GROUP BY dia;
+        `);
+        return rows;
+    } catch (error) {
+        console.error('Error al obtener estadísticas diarias de admisiones:', error);
+        return [];
+    } finally {
+        connection.release();
+    }
+};
+
+module.exports = { pool, countActiveAdmisiones, countFreeCamas, getDailyAdmissionStats };

@@ -74,6 +74,55 @@ class Paciente extends BaseModel {
         
         return edad;
     }
+
+    // Buscar pacientes por nombre, apellido o DNI
+    static async searchPacientes(searchTerm) {
+        const searchPattern = `%${searchTerm}%`;
+        const [rows] = await pool.query(
+            `SELECT * FROM pacientes 
+             WHERE (nombre LIKE ? OR apellido LIKE ? OR dni LIKE ?) 
+             AND activo = TRUE
+             ORDER BY apellido, nombre`,
+            [searchPattern, searchPattern, searchPattern]
+        );
+        return rows;
+    }
+
+    // Crear un nuevo paciente
+    static async createPaciente(data) {
+        const { nombre, apellido, dni, fecha_nacimiento, sexo, telefono, direccion, email } = data;
+        const [result] = await pool.query(
+            `INSERT INTO pacientes (nombre, apellido, dni, fecha_nacimiento, sexo, telefono, direccion, email) 
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+            [nombre, apellido, dni, fecha_nacimiento, sexo, telefono, direccion, email]
+        );
+        return result.insertId;
+    }
+
+    // Actualizar paciente existente
+    static async updatePaciente(id, data) {
+        const fields = [];
+        const values = [];
+        for (const key in data) {
+            fields.push(`${key} = ?`);
+            values.push(data[key]);
+        }
+        values.push(id);
+        const [result] = await pool.query(
+            `UPDATE pacientes SET ${fields.join(', ')} WHERE id = ?`,
+            values
+        );
+        return result.affectedRows > 0;
+    }
+
+    // Validar si el DNI ya existe
+    static async validateDNI(dni) {
+        const [rows] = await pool.query(
+            `SELECT id FROM pacientes WHERE dni = ? AND activo = TRUE`,
+            [dni]
+        );
+        return rows.length > 0;
+    }
 }
 
 module.exports = new Paciente();

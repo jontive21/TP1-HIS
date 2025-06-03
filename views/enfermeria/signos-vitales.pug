@@ -1,0 +1,19 @@
+extends ../layouts/main
+
+block content
+    h1 Historial de Evolución
+
+    form(method="post", action="/enfermeria/evolucion")
+        .mb-3
+            label.form-label Evolución
+            textarea.form-control(name="evolucion", rows="3")
+        button.btn.btn-primary(type="submit") Agregar
+
+    if evoluciones && evoluciones.length
+        h2.mt-4 Evolución
+        ul.list-group
+            each ev in evoluciones
+                li.list-group-item
+                    span.fw-bold= ev.fecha
+                    | : 
+                    span= ev.evolucion
