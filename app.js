@@ -24,10 +24,12 @@ app.use(addUserToViews);
 // Importar rutas
 const authRoutes = require('./routes/auth');
 const indexRoutes = require('./routes/index');
+const dashboardRoutes = require('./routes/dashboard');
 
 // Usar rutas
 app.use('/', authRoutes);
 app.use('/', indexRoutes);
+app.use('/', dashboardRoutes);
 
 // Iniciar servidor
 app.listen(PORT, () => {
