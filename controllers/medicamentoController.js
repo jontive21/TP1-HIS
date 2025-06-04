@@ -9,9 +9,8 @@ exports.showMedicamentos = async (req, res) => {
 
 // Prescribir un medicamento
 exports.prescribir = async (req, res) => {
-    const admisionId = req.params.admisionId;
-    await Medicamento.prescribirMedicamento({ ...req.body, admision_id: admisionId });
-    res.redirect(`/medico/medicamentos/${admisionId}`);
+    await Medicamento.prescribirMedicamento(req.body);
+    res.redirect('/medico/medicamentos');
 };
 
 // Registrar administración
