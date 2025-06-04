@@ -2,9 +2,10 @@ extends ../layouts/main
 
 block content
     h1 Detalle de Admisión
+
     dl
         dt Paciente
-        dd= admision.paciente_nombre
+        dd= admision.paciente_nombre + ' ' + admision.paciente_apellido
         dt Cama
         dd= admision.cama_numero
         dt Habitación
@@ -15,4 +16,5 @@ block content
         dd= admision.motivo_internacion
         dt Estado
         dd= admision.estado
+
     a.btn.btn-secondary(href="/admisiones") Volver

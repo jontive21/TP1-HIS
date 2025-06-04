@@ -3,17 +3,52 @@ extends ../layouts/main
 block content
     h1 Historial de Evolución
 
+    if success
+        div.alert.alert-success Registro guardado correctamente.
+    if error
+        div.alert.alert-danger= error
+
     form(method="post", action="/enfermeria/evolucion")
         .mb-3
-            label.form-label Evolución
-            textarea.form-control(name="evolucion", rows="3")
-        button.btn.btn-primary(type="submit") Agregar
+            label.form-label Presión Arterial
+            input.form-control(type="text", name="presion", value=signos?.presion, required)
+        .mb-3
+            label.form-label Frecuencia Cardíaca
+            input.form-control(type="number", name="frecuencia_cardiaca", value=signos?.frecuencia_cardiaca, required)
+        .mb-3
+            label.form-label Frecuencia Respiratoria
+            input.form-control(type="number", name="frecuencia_respiratoria", value=signos?.frecuencia_respiratoria, required)
+        .mb-3
+            label.form-label Temperatura (°C)
+            input.form-control(type="number", step="0.1", name="temperatura", value=signos?.temperatura, required)
+        .mb-3
+            label.form-label Saturación O2 (%)
+            input.form-control(type="number", name="saturacion", value=signos?.saturacion, required)
+        .mb-3
+            label.form-label Observaciones
+            textarea.form-control(name="observaciones", rows="2")= signos?.observaciones
+        button.btn.btn-primary.mb-3(type="submit") Guardar
+        a.btn.btn-secondary.mb-3(href="/admisiones") Cancelar
 
-    if evoluciones && evoluciones.length
-        h2.mt-4 Evolución
-        ul.list-group
-            each ev in evoluciones
-                li.list-group-item
-                    span.fw-bold= ev.fecha
-                    | : 
-                    span= ev.evolucion
+    if historial && historial.length
+        h2.mt-4 Historial de Signos Vitales
+        table.table.table-striped
+            thead
+                tr
+                    th Fecha
+                    th Presión
+                    th FC
+                    th FR
+                    th Temp.
+                    th Sat. O2
+                    th Observaciones
+            tbody
+                each registro in historial
+                    tr
+                        td= registro.fecha // Puedes formatear la fecha en el controlador
+                        td= registro.presion
+                        td= registro.frecuencia_cardiaca
+                        td= registro.frecuencia_respiratoria
+                        td= registro.temperatura
+                        td= registro.saturacion
+                        td= registro.observaciones

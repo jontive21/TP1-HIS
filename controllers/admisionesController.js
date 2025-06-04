@@ -1,17 +1,23 @@
 const Admision = require('../models/Admision');
 const Paciente = require('../models/Paciente');
+const { pool } = require('../config/db');
 
 // Mostrar formulario para nueva admisión
 exports.showNuevaAdmision = async (req, res) => {
-    const pacientes = await require('../config/db').query(
-        `SELECT * FROM pacientes WHERE activo = TRUE ORDER BY apellido, nombre`
-    );
-    const camas = await Admision.getCamasDisponibles();
-    res.render('admisiones/new', {
-        title: 'Nueva Admisión',
-        pacientes: pacientes[0],
-        camas
-    });
+    try {
+        const [pacientes] = await pool.query(
+            `SELECT * FROM pacientes WHERE activo = TRUE ORDER BY apellido, nombre`
+        );
+        const camas = await Admision.getCamasDisponibles();
+        res.render('admisiones/new', {
+            title: 'Nueva Admisión',
+            pacientes,
+            camas
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).render('error/500', { title: 'Error interno del servidor' });
+    }
 };
 
 // Procesar nueva admisión
@@ -36,7 +42,7 @@ exports.processAdmision = async (req, res) => {
 // Cancelar admisión (soft delete y liberar cama)
 exports.cancelarAdmision = async (req, res) => {
     const id = req.params.id;
-    const [rows] = await require('../config/db').query(
+    const [rows] = await pool.query(
         `SELECT cama_id FROM admisiones WHERE id = ? AND estado = 'activa'`, [id]
     );
     if (!rows.length) {
@@ -55,7 +61,7 @@ exports.cancelarAdmision = async (req, res) => {
 // Mostrar detalle de admisión
 exports.showDetalleAdmision = async (req, res) => {
     const id = req.params.id;
-    const [rows] = await require('../config/db').query(
+    const [rows] = await pool.query(
         `SELECT a.*, 
                 p.nombre AS paciente_nombre, p.apellido AS paciente_apellido, 
                 c.numero AS cama_numero, h.numero AS habitacion_numero
@@ -75,21 +81,3 @@ exports.showDetalleAdmision = async (req, res) => {
 };
 
 
-extends ../layouts/main
-
-block content
-    h1 Detalle de Admisión
-    dl
-        dt Paciente
-        dd= admision.paciente_nombre
-        dt Cama
-        dd= admision.cama_numero
-        dt Habitación
-        dd= admision.habitacion_numero
-        dt Fecha de Admisión
-        dd= admision.fecha_admision
-        dt Motivo
-        dd= admision.motivo_internacion
-        dt Estado
-        dd= admision.estado
-    a.btn.btn-secondary(href="/admisiones") Volver
