@@ -60,6 +60,10 @@ app.get('/test-db', async (req, res) => {
     }
 });
 
+// Rutas de médicos
+const medicoRoutes = require('./routes/medico');
+app.use('/medico', medicoRoutes);
+
 // Iniciar servidor
 app.listen(PORT, async () => {
     console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
