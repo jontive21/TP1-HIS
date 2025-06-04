@@ -1,9 +1,10 @@
 extends ../layouts/main
 
 block content
-    h1 Medicamentos Prescritos
+    h1 Medicamentos de la admisión #{admisionId}
 
-    form(method="post", action=`/medico/medicamentos/${admisionId}`)
+    form(method="post", action="/medico/medicamentos")
+        input(type="hidden", name="admision_id", value=admisionId)
         .mb-3
             label.form-label Nombre
             input.form-control(type="text", name="nombre", required)
@@ -15,29 +16,24 @@ block content
             input.form-control(type="text", name="frecuencia", required)
         .mb-3
             label.form-label Vía
-            input.form-control(type="text", name="via")
+            input.form-control(type="text", name="via", required)
         .mb-3
             label.form-label Observaciones
             textarea.form-control(name="observaciones", rows="2")
         button.btn.btn-primary(type="submit") Prescribir
 
     if medicamentos && medicamentos.length
-        h2.mt-4 Prescripciones Activas
-        table.table.table-striped
-            thead
-                tr
-                    th Nombre
-                    th Dosis
-                    th Frecuencia
-                    th Vía
-                    th Acciones
-            tbody
-                each med in medicamentos
-                    tr
-                        td= med.nombre
-                        td= med.dosis
-                        td= med.frecuencia
-                        td= med.via
-                        td
-                            form.d-inline(method="post", action=`/medico/medicamentos/${admisionId}/${med.id}/administrar`)
-                                button.btn.btn-sm.btn-success(type="submit") Registrar administración
+        h2.mt-4 Medicamentos Prescritos
+        ul.list-group
+            each med in medicamentos
+                li.list-group-item
+                    span.fw-bold= med.nombre
+                    |  - 
+                    span= med.dosis
+                    |  - 
+                    span= med.frecuencia
+                    |  - 
+                    span= med.via
+                    if med.observaciones
+                        br
+                        small.text-muted= med.observaciones

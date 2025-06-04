@@ -3,7 +3,7 @@ extends ../layouts/main
 block content
     h1 Solicitud de Estudios
 
-    form(method="post", action=`/medico/estudios/${admisionId}`)
+    form(method="post", action="/medico/estudios")
         .mb-3
             label.form-label Estudio solicitado
             input.form-control(type="text", name="estudio", required)
@@ -23,7 +23,3 @@ block content
                     if est.observaciones
                         br
                         small.text-muted= est.observaciones
-
-script.
-    const medicoRoutes = require('./routes/medico');
-    app.use('/medico', medicoRoutes);
