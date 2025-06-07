@@ -75,3 +75,13 @@ app.listen(PORT, async () => {
 
 // Si usas tests automáticos, deja esto:
 module.exports = app;
+
+// controllers/medicoController.js
+const { pool } = require('../config/db'); // <-- Corrección aquí
+
+// ...el resto igual...
+
+// Antes de usar req.session.user.id
+if (!req.session.user) {
+    return res.redirect('/login');
+}
