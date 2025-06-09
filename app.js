@@ -86,7 +86,7 @@ app.listen(PORT, async () => {
 module.exports = app;
 
 // controllers/medicoController.js
-const { pool } = require('../config/db'); // <-- Corrección aquí
+const pool = require('./config/db');
 
 // ...el resto igual...
 
