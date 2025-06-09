@@ -81,16 +81,6 @@ app.listen(PORT, async () => {
     // Probar conexión a la base de datos al iniciar
     await testConnection();
 });
-
+const pool = require('./config/db');
 // Si usas tests automáticos, deja esto:
 module.exports = app;
-
-// controllers/medicoController.js
-const pool = require('./config/db');
-
-// ...el resto igual...
-
-// Antes de usar req.session.user.id
-if (!req.session.user) {
-    return res.redirect('/login');
-};
