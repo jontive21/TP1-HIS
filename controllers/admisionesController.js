@@ -1,4 +1,4 @@
-const Admision = require('../models/Admision');
+const Admision = require('../models/Admisiones');
 const Paciente = require('../models/Paciente');
 const { pool } = require('../config/db');
 
