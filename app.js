@@ -93,4 +93,4 @@ const pool = require('./config/db');
 // Antes de usar req.session.user.id
 if (!req.session.user) {
     return res.redirect('/login');
-}
+};
