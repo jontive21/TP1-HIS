@@ -36,9 +36,39 @@ cd TP1-HIS
     npm start
 
 5. Acceder a la aplicación:
-- URL: http://localhost:3000
-- Usuario: admin@hospital.com
-- Contraseña: admin123
+- ## 🔐 Usuarios de Prueba
+
+El sistema incluye los siguientes usuarios de prueba con diferentes roles:
+
+### 👨‍💼 Administrador
+- **Email**: admin@hospital.com
+- **Contraseña**: admin123
+- **Permisos**: Acceso completo al sistema, gestión de usuarios, reportes
+
+### 👨‍⚕️ Médicos
+- **Email**: medico1@hospital.com
+- **Contraseña**: medico123
+- **Especialidad**: Medicina Interna
+- **Permisos**: Gestión de pacientes, diagnósticos, evoluciones médicas, altas
+
+- **Email**: medico2@hospital.com
+- **Contraseña**: medico123
+- **Especialidad**: Cardiología
+- **Permisos**: Gestión de pacientes, diagnósticos, evoluciones médicas, altas
+
+### 👩‍⚕️ Enfermeros
+- **Email**: enfermero1@hospital.com
+- **Contraseña**: enfermero123
+- **Permisos**: Evaluaciones de enfermería, signos vitales, administración de medicamentos
+
+- **Email**: enfermero2@hospital.com
+- **Contraseña**: enfermero123
+- **Permisos**: Evaluaciones de enfermería, signos vitales, administración de medicamentos
+
+### 👩‍💼 Recepcionista
+- **Email**: recepcion@hospital.com
+- **Contraseña**: recepcion123
+- **Permisos**: Admisión de pacientes, gestión de habitaciones, recepción
 
 ## Funcionalidades
 
