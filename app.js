@@ -64,6 +64,15 @@ app.get('/test-db', async (req, res) => {
 const medicoRoutes = require('./routes/medico');
 app.use('/medico', medicoRoutes);
 
+// Rutas de admisiones
+const admisionesRoutes = require('./routes/admisiones');
+app.use('/admisiones', admisionesRoutes);
+
+// Manejo de errores 404
+app.use((req, res) => {
+    res.status(404).render('error', { message: 'Página no encontrada' });
+});
+
 // Iniciar servidor
 app.listen(PORT, async () => {
     console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);

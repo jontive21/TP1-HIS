@@ -2,6 +2,7 @@
 const express = require('express');
 const router = express.Router();
 const Paciente = require('../models/Paciente');
+const pacientesController = require('../controllers/pacientesController'); // <-- Agrega esta línea
 
 // Middleware para verificar autenticación
 const isAuthenticated = (req, res, next) => {
@@ -112,5 +113,8 @@ router.get('/search', async (req, res) => {
         });
     }
 });
+
+// Eliminar paciente (baja lógica)
+router.post('/:id/delete', pacientesController.deletePaciente); // <-- Agrega esta línea
 
 module.exports = router;

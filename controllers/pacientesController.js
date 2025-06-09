@@ -1,4 +1,5 @@
 const Paciente = require('../models/Paciente');
+const { pool } = require('../config/db'); // Agrega esta línea al inicio si no está
 
 // Mostrar lista paginada de pacientes
 exports.showPacientes = async (req, res) => {
@@ -64,4 +65,39 @@ exports.updatePaciente = async (req, res) => {
     const data = req.body;
     await Paciente.updatePaciente(id, data);
     res.redirect('/pacientes');
+};
+
+/**
+ * Eliminar paciente (baja lógica)
+ * FUNCIÓN FALTANTE CRÍTICA
+ */
+exports.deletePaciente = async (req, res) => {
+    try {
+        const { id } = req.params;
+        
+        // Verificar si el paciente tiene admisiones activas
+        const [admisionesActivas] = await pool.execute(
+            'SELECT COUNT(*) as count FROM admisiones WHERE paciente_id = ? AND estado = "activa"',
+            [id]
+        );
+        
+        if (admisionesActivas[0].count > 0) {
+            req.session.error = 'No se puede eliminar: el paciente tiene admisiones activas';
+            return res.redirect('/pacientes');
+        }
+        
+        // Baja lógica del paciente
+        await pool.execute(
+            'UPDATE pacientes SET activo = FALSE WHERE id = ?',
+            [id]
+        );
+        
+        req.session.success = 'Paciente eliminado correctamente';
+        res.redirect('/pacientes');
+        
+    } catch (error) {
+        console.error('Error al eliminar paciente:', error);
+        req.session.error = 'Error al eliminar paciente';
+        res.redirect('/pacientes');
+    }
 };
