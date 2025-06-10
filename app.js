@@ -70,6 +70,6 @@ app.listen(PORT, async () => {
     // Probar conexión a la base de datos al iniciar
     await testConnection();
 });
-const pool = require('./config/db');
+
 // Si usas tests automáticos, deja esto:
 module.exports = app;
