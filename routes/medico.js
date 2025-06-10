@@ -1,8 +1,3 @@
-extends ../layout
-
-block content
-  h1 Médicos
-  p Aquí irá el módulo de médicos.
 
 const express = require('express');
 const router = express.Router();

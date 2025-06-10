@@ -1,9 +1,3 @@
-extends ../layout
-
-block content
-  h1 Enfermería
-  p Aquí irá el módulo de enfermería.
-
 const express = require('express');
 const router = express.Router();
 
