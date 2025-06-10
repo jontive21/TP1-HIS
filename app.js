@@ -29,18 +29,7 @@ app.use(session({
 
 // Ruta de prueba para verificar que todo funciona
 app.get('/', (req, res) => {
-    res.send(`
-        <h1>🏥 HIS Internación</h1>
-        <p>Sistema funcionando correctamente</p>
-        <p>Día 1 completado: Configuración inicial ✅</p>
-        <ul>
-            <li>✅ Proyecto Node.js configurado</li>
-            <li>✅ Base de datos creada</li>
-            <li>✅ Conexión a MySQL funcionando</li>
-            <li>✅ Estructura de carpetas lista</li>
-        </ul>
-        <p><strong>Próximo paso:</strong> Implementar sistema de autenticación</p>
-    `);
+    res.render('dashboard');
 });
 
 // Ruta para probar conexión a BD
