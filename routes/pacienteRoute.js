@@ -1,4 +1,4 @@
-// routes/pacienteRoute.js
+// routes/pacientes.js
 const express = require('express');
 const router = express.Router();
 const Paciente = require('../models/Paciente');

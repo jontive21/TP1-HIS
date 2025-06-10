@@ -53,9 +53,9 @@ app.get('/test-db', async (req, res) => {
 const medicoRoutes = require('./routes/medico');
 app.use('/medico', medicoRoutes);
 
-// Rutas de admisiones
-const admisionesRoutes = require('./routes/admisiones');
-app.use('/admisiones', admisionesRoutes);
+// Rutas de enfermería
+const enfermeriaRoutes = require('./routes/enfermeria');
+app.use('/enfermeria', enfermeriaRoutes);
 
 // Manejo de errores 404
 app.use((req, res) => {
