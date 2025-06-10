@@ -18,7 +18,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // Configuración de sesiones
 app.use(session({
-    secret: process.env.SESSION_SECRET,
+    secret: process.env.SESSION_SECRET || 'tu_clave_secreta_aqui',
     resave: false,
     saveUninitialized: false,
     cookie: { 
@@ -27,9 +27,20 @@ app.use(session({
     }
 }));
 
-// Ruta para verificar que todo funciona
+// Middleware para hacer disponible el usuario en todas las vistas
+app.use((req, res, next) => {
+    res.locals.user = req.session.user || null;
+    next();
+});
+
+// Ruta principal
 app.get('/', (req, res) => {
-    res.render('dashboard');
+    res.render('dashboard', { title: 'Dashboard' });
+});
+
+// Ruta dashboard explícita
+app.get('/dashboard', (req, res) => {
+    res.render('dashboard', { title: 'Dashboard' });
 });
 
 // Ruta para probar conexión a BD
@@ -49,25 +60,40 @@ app.get('/test-db', async (req, res) => {
     }
 });
 
-// Rutas de médicos
+// Importar y usar rutas
+const authRoutes = require('./routes/auth');
+const pacientesRoutes = require('./routes/pacientes');
+const admisionesRoutes = require('./routes/admisiones');
 const medicoRoutes = require('./routes/medico');
-app.use('/medico', medicoRoutes);
-
-// Rutas de enfermería
 const enfermeriaRoutes = require('./routes/enfermeria');
+
+app.use('/auth', authRoutes);
+app.use('/pacientes', pacientesRoutes);
+app.use('/admisiones', admisionesRoutes);
+app.use('/medico', medicoRoutes);
 app.use('/enfermeria', enfermeriaRoutes);
 
 // Manejo de errores 404
 app.use((req, res) => {
-    res.status(404).render('error', { message: 'Página no encontrada' });
+    res.status(404).render('error', { 
+        message: 'Página no encontrada',
+        title: 'Error 404'
+    });
+});
+
+// Manejo de errores generales
+app.use((err, req, res, next) => {
+    console.error(err.stack);
+    res.status(500).render('error', { 
+        message: 'Error interno del servidor',
+        title: 'Error 500'
+    });
 });
 
 // Iniciar servidor
 app.listen(PORT, async () => {
     console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
     console.log('🏥 HIS Internación - Sistema Hospitalario');
-    
-    // Probar conexión a la base de datos al iniciar
     await testConnection();
 });
 
