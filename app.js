@@ -66,7 +66,7 @@ app.use((req, res) => {
 app.listen(PORT, async () => {
     console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
     console.log('🏥 HIS Internación - Sistema Hospitalario');
-    console.log('📅 Día 1: Configuración inicial completada');
+    
     // Probar conexión a la base de datos al iniciar
     await testConnection();
 });
