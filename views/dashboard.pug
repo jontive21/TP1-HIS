@@ -1,5 +1,44 @@
 extends layout
 
 block content
-  h1 Bienvenido al HIS Internación
-  p Selecciona una opción del menú para comenzar.
+  .container.mt-4
+    .row
+      .col-12
+        h1.mb-4 Dashboard - Sistema HIS
+        
+        if user
+          .alert.alert-success
+            | Bienvenido, #{user.nombre} #{user.apellido} (#{user.rol})
+        
+        .row
+          .col-md-3
+            .card.text-center.mb-4
+              .card-body
+                i.fas.fa-users.fa-3x.text-primary.mb-3
+                h5.card-title Pacientes
+                p.card-text Gestionar pacientes del hospital
+                a.btn.btn-primary(href="/pacientes") Ver Pacientes
+          
+          .col-md-3
+            .card.text-center.mb-4
+              .card-body
+                i.fas.fa-bed.fa-3x.text-success.mb-3
+                h5.card-title Admisiones
+                p.card-text Gestionar admisiones y altas
+                a.btn.btn-success(href="/admisiones") Ver Admisiones
+          
+          .col-md-3
+            .card.text-center.mb-4
+              .card-body
+                i.fas.fa-user-nurse.fa-3x.text-info.mb-3
+                h5.card-title Enfermería
+                p.card-text Evaluaciones de enfermería
+                a.btn.btn-info(href="/enfermeria") Ir a Enfermería
+          
+          .col-md-3
+            .card.text-center.mb-4
+              .card-body
+                i.fas.fa-user-md.fa-3x.text-warning.mb-3
+                h5.card-title Médicos
+                p.card-text Evaluaciones médicas
+                a.btn.btn-warning(href="/medico") Ir a Médicos
