@@ -27,7 +27,7 @@ app.use(session({
     }
 }));
 
-// Ruta de prueba para verificar que todo funciona
+// Ruta para verificar que todo funciona
 app.get('/', (req, res) => {
     res.render('dashboard');
 });
