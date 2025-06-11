@@ -8,9 +8,7 @@ router.get('/', (req, res) => {
 });
 
 // Formulario para crear admisión
-router.get('/crear', (req, res) => {
-    res.render('admisiones/crear');
-});
+router.get('/crear', admisionesController.showNuevaAdmision);
 
 // Guardar admisión (puedes conectar aquí tu lógica real)
 router.post('/crear', (req, res) => {

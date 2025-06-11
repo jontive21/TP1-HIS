@@ -6,17 +6,18 @@ const { pool } = require('../config/db');
 exports.showNuevaAdmision = async (req, res) => {
     try {
         const [pacientes] = await pool.query(
-            `SELECT * FROM pacientes WHERE activo = TRUE ORDER BY apellido, nombre`
+            'SELECT * FROM pacientes WHERE activo = TRUE ORDER BY apellido, nombre'
         );
-        const camas = await Admision.getCamasDisponibles();
-        res.render('admisiones/new', {
-            title: 'Nueva Admisión',
+        const [camas] = await pool.query(
+            'SELECT c.*, h.numero AS habitacion_numero FROM camas c JOIN habitaciones h ON c.habitacion_id = h.id WHERE c.limpia = TRUE AND c.ocupada = FALSE'
+        );
+        res.render('admisiones/crear', {
             pacientes,
             camas
         });
     } catch (error) {
         console.error(error);
-        res.status(500).render('error/500', { title: 'Error interno del servidor' });
+        res.status(500).render('error', { message: 'Error al cargar el formulario de admisión' });
     }
 };
 
