@@ -1,25 +1,17 @@
 extends ../layout
 
 block content
-    h1 Detalle de Admisión
+  h1 Detalle de Admisión
+  p Paciente: #{admision.paciente_nombre} #{admision.paciente_apellido}
+  p Cama: #{admision.cama_numero}
+  p Habitación: #{admision.habitacion_numero}
+  p Fecha de Admisión: #{admision.fecha_admision}
+  p Motivo: #{admision.motivo_internacion}
+  p Estado: #{admision.estado}
 
-    dl
-        dt Paciente
-        dd= admision.paciente_nombre + ' ' + admision.paciente_apellido
-        dt Cama
-        dd= admision.cama_numero
-        dt Habitación
-        dd= admision.habitacion_numero
-        dt Fecha de Admisión
-        dd= admision.fecha_admision
-        dt Motivo
-        dd= admision.motivo_internacion
-        dt Estado
-        dd= admision.estado
-
-    a.btn.btn-primary(href="/admisiones") Volver      // Azul
-    a.btn.btn-success(href="/admisiones") Volver      // Verde
-    a.btn.btn-danger(href="/admisiones") Volver       // Rojo
-    a.btn.btn-warning(href="/admisiones") Volver      // Amarillo
-    a.btn.btn-info(href="/admisiones") Volver         // Celeste
-    a.btn.btn-dark(href="/admisiones") Volver         // Negro
+  a.btn.btn-primary(href="/admisiones") Volver      // Azul
+  a.btn.btn-success(href="/admisiones") Volver      // Verde
+  a.btn.btn-danger(href="/admisiones") Volver       // Rojo
+  a.btn.btn-warning(href="/admisiones") Volver      // Amarillo
+  a.btn.btn-info(href="/admisiones") Volver         // Celeste
+  a.btn.btn-dark(href="/admisiones") Volver         // Negro

@@ -1,0 +1,8 @@
+extends ../layout
+
+block content
+  h1 Nuevo Paciente
+  form(action="/pacientes/crear" method="POST")
+    input.form-control(type="text" name="nombre" placeholder="Nombre" required)
+    input.form-control(type="text" name="apellido" placeholder="Apellido" required)
+    button.btn.btn-success(type="submit") Guardar

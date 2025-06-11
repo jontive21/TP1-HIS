@@ -1,20 +1,26 @@
 const express = require('express');
 const router = express.Router();
-const admisionesController = require('../controllers/admisionesController');
 
-// Listar admisiones (puedes implementar este método en el controlador si no existe)
-router.get('/', admisionesController.listAdmisiones || ((req, res) => res.send('Listado de admisiones pendiente')));
+// Listar admisiones
+router.get('/', (req, res) => {
+    res.render('admisiones/index');
+});
 
-// Mostrar formulario de nueva admisión
-router.get('/new', admisionesController.showNuevaAdmision);
+// Formulario para crear admisión
+router.get('/crear', (req, res) => {
+    res.render('admisiones/crear');
+});
 
-// Procesar nueva admisión
-router.post('/new', admisionesController.processAdmision);
+// Guardar admisión (simulado)
+router.post('/crear', (req, res) => {
+    // Aquí iría la lógica para guardar la admisión en la base de datos
+    res.redirect('/admisiones');
+});
 
-// Cancelar admisión (soft delete y liberar cama)
-router.post('/:id/cancelar', admisionesController.cancelarAdmision);
-
-// Detalle de una admisión
-router.get('/:id', admisionesController.showDetalleAdmision);
+// Detalle de admisión (simulado)
+router.get('/:id', (req, res) => {
+    // Aquí iría la lógica para buscar la admisión por id
+    res.render('admisiones/detalle', { admision: { paciente_nombre: "Ejemplo", paciente_apellido: "Paciente" } });
+});
 
 module.exports = router;
