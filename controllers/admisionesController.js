@@ -223,4 +223,88 @@ exports.asignarCama = async (req, res) => {
     }
 };
 
+exports.cancelarAdmision = async (req, res) => {
+  const admisionId = req.params.id;
+  try {
+    // Buscar la admisión y obtener la cama asociada
+    const [admisiones] = await pool.query(
+      'SELECT cama_id FROM admisiones WHERE id = ?', [admisionId]
+    );
+    if (!admisiones.length) {
+      req.session.error = 'Admisión no encontrada';
+      return res.redirect('/admisiones');
+    }
+    const camaId = admisiones[0].cama_id;
+
+    // Marcar fecha de cancelación y liberar cama (transacción)
+    await pool.beginTransaction();
+    try {
+      await pool.query(
+        'UPDATE admisiones SET fecha_cancelacion = NOW() WHERE id = ?', [admisionId]
+      );
+      await pool.query(
+        'UPDATE camas SET ocupada = FALSE WHERE id = ?', [camaId]
+      );
+      await pool.commit();
+      req.session.success = 'Admisión cancelada correctamente';
+      res.redirect('/admisiones');
+    } catch (error) {
+      await pool.rollback();
+      req.session.error = 'Error al cancelar la admisión';
+      res.redirect('/admisiones');
+    }
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
+};
+
+exports.listarAdmisiones = async (req, res) => {
+  try {
+    const [admisiones] = await pool.query(`
+      SELECT a.*, 
+             p.nombre AS paciente_nombre, p.apellido AS paciente_apellido, 
+             c.numero AS cama_numero, h.numero AS habitacion_numero
+      FROM admisiones a
+      JOIN pacientes p ON a.paciente_id = p.id
+      JOIN camas c ON a.cama_id = c.id
+      JOIN habitaciones h ON c.habitacion_id = h.id
+      WHERE a.fecha_cancelacion IS NULL
+      ORDER BY a.id DESC
+    `);
+    res.render('admisiones/list', { admisiones });
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
+};
+
+exports.detalleAdmision = async (req, res) => {
+  const id = req.params.id;
+  try {
+    const [rows] = await pool.query(`
+      SELECT a.*, 
+             p.nombre AS paciente_nombre, p.apellido AS paciente_apellido, 
+             c.numero AS cama_numero, h.numero AS habitacion_numero
+      FROM admisiones a
+      JOIN pacientes p ON a.paciente_id = p.id
+      JOIN camas c ON a.cama_id = c.id
+      JOIN habitaciones h ON c.habitacion_id = h.id
+      WHERE a.id = ?
+      LIMIT 1
+    `, [id]);
+
+    if (!rows.length) {
+      return res.render('admisiones/detalle', { admision: null });
+    }
+
+    // Si tienes fechas como string, puedes convertirlas a Date:
+    if (rows[0].fecha_ingreso) rows[0].fecha_ingreso = new Date(rows[0].fecha_ingreso);
+    if (rows[0].fecha_cancelacion) rows[0].fecha_cancelacion = new Date(rows[0].fecha_cancelacion);
+
+    res.render('admisiones/detalle', { admision: rows[0] });
+  } catch (error) {
+    console.error(error);
+    res.status(500).render('error', { message: 'Error al cargar el detalle de la admisión' });
+  }
+};
+
 

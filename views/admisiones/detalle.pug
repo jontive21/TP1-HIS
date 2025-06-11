@@ -1,0 +1,39 @@
+extends ../layout
+
+block content
+  h1 Detalle de Admisión
+
+  if admision
+    ul.list-group
+      li.list-group-item
+        b ID: 
+        | #{admision.id}
+      li.list-group-item
+        b Paciente: 
+        | #{admision.paciente_apellido}, #{admision.paciente_nombre}
+      li.list-group-item
+        b Cama: 
+        | #{admision.cama_numero}
+      li.list-group-item
+        b Habitación: 
+        | #{admision.habitacion_numero}
+      li.list-group-item
+        b Tipo de Admisión: 
+        | #{admision.tipo_admision}
+      li.list-group-item
+        b Médico Referente: 
+        | #{admision.medico_referente}
+      li.list-group-item
+        b Diagnóstico Inicial: 
+        | #{admision.diagnostico_inicial}
+      li.list-group-item
+        b Fecha de Ingreso: 
+        | #{admision.fecha_ingreso ? admision.fecha_ingreso.toLocaleString() : ''}
+      if admision.fecha_cancelacion
+        li.list-group-item
+          b Fecha de Cancelación: 
+          | #{admision.fecha_cancelacion.toLocaleString()}
+  else
+    .alert.alert-warning No se encontró la admisión.
+
+  a.btn.btn-secondary.mt-3(href="/admisiones") Volver al listado

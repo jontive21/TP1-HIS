@@ -2,6 +2,31 @@ extends ../layout
 
 block content
   h1 Nueva Admisión
+
+  if error
+    .alert.alert-danger= error
+
   form(action="/admisiones/crear" method="POST")
-    input.form-control(type="text" name="paciente" placeholder="Paciente" required)
+    .mb-3
+      label.form-label(for="paciente_id") Paciente
+      select.form-select(name="paciente_id" required)
+        option(value="" selected disabled) Selecciona un paciente
+        each paciente in pacientes
+          option(value=paciente.id)= paciente.apellido + ', ' + paciente.nombre
+    .mb-3
+      label.form-label(for="cama_id") Cama
+      select.form-select(name="cama_id" required)
+        option(value="" selected disabled) Selecciona una cama
+        each cama in camas
+          option(value=cama.id)= 'Habitación ' + cama.habitacion_numero + ' - Cama ' + cama.numero
+    .mb-3
+      label.form-label(for="tipo_admision") Tipo de Admisión
+      input.form-control(type="text" name="tipo_admision" required)
+    .mb-3
+      label.form-label(for="medico_referente") Médico Referente
+      input.form-control(type="text" name="medico_referente" required)
+    .mb-3
+      label.form-label(for="diagnostico_inicial") Diagnóstico Inicial
+      input.form-control(type="text" name="diagnostico_inicial" required)
     button.btn.btn-success(type="submit") Guardar
+    a.btn.btn-secondary.ms-2(href="/admisiones") Cancelar

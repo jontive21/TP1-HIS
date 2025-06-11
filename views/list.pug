@@ -1,0 +1,36 @@
+extends ../layout
+
+block content
+  h1 Lista de Admisiones
+
+  if admisiones.length === 0
+    p No hay admisiones activas.
+  else
+    table.table.table-striped
+      thead
+        tr
+          th ID
+          th Paciente
+          th Cama
+          th Habitación
+          th Tipo de Admisión
+          th Médico Referente
+          th Diagnóstico Inicial
+          th Fecha de Ingreso
+          th Acciones
+      tbody
+        each admision in admisiones
+          tr
+            td= admision.id
+            td= admision.paciente_apellido + ', ' + admision.paciente_nombre
+            td= admision.cama_numero
+            td= admision.habitacion_numero
+            td= admision.tipo_admision
+            td= admision.medico_referente
+            td= admision.diagnostico_inicial
+            td= admision.fecha_ingreso ? admision.fecha_ingreso.toLocaleString() : ''
+            td
+              a.btn.btn-info.btn-sm(href=`/admisiones/${admision.id}`) Ver
+              form(action=`/admisiones/cancelar` method="POST" style="display:inline")
+                input(type="hidden" name="paciente_id" value=admision.paciente_id)
+                button.btn.btn-danger.btn-sm(type="submit" onclick="return confirm('¿Cancelar admisión?')") Cancelar

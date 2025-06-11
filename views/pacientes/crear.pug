@@ -2,6 +2,27 @@ extends ../layout
 
 block content
   h1 Nuevo Paciente
+
+  if error
+    .alert.alert-danger= error
+  if success
+    .alert.alert-success= success
+
   form(action="/pacientes/crear" method="POST")
-    input.form-control(type="text" name="nombre" placeholder="Nombre" required)
+    .mb-3
+      label.form-label(for="dni") DNI
+      input.form-control(type="text" name="dni" required)
+    .mb-3
+      label.form-label(for="nombre") Nombre
+      input.form-control(type="text" name="nombre" required)
+    .mb-3
+      label.form-label(for="apellido") Apellido
+      input.form-control(type="text" name="apellido" required)
+    .mb-3
+      label.form-label(for="telefono") Teléfono
+      input.form-control(type="text" name="telefono" required)
+    .mb-3
+      label.form-label(for="sexo") Sexo
+      input.form-control(type="text" name="sexo" required)
     button.btn.btn-success(type="submit") Guardar
+    a.btn.btn-secondary.ms-2(href="/pacientes") Cancelar

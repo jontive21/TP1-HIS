@@ -19,10 +19,7 @@ router.post('/crear', (req, res) => {
 });
 
 // Detalle de admisión (puedes conectar aquí tu lógica real)
-router.get('/:id', (req, res) => {
-    // Lógica para buscar la admisión por id
-    res.render('admisiones/detalle', { admision: { paciente_nombre: "Ejemplo", paciente_apellido: "Paciente" } });
-});
+router.get('/:id', admisionesController.detalleAdmision);
 
 // Asignar cama
 router.post('/asignar-cama', admisionesController.asignarCama);

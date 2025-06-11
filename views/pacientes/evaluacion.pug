@@ -1,0 +1,14 @@
+form(method="POST" action=`/pacientes/${paciente.id}/evaluacion`)
+  .form-group
+    label Alergias
+    textarea.form-control(name="alergias")= paciente.alergias || ''
+  
+  .form-group
+    label Medicamentos Actuales
+    textarea.form-control(name="medicamentos_actuales")= paciente.medicamentos_actuales || ''
+  
+  .row
+    .col-md-4
+      label Presión Arterial
+      input.form-control(type="text" name="presion_arterial" value=paciente.presion_arterial || '')
+    .col-md-
