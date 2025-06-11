@@ -57,13 +57,16 @@ app.use('/medico', medicoRoutes);
 const enfermeriaRoutes = require('./routes/enfermeria');
 app.use('/enfermeria', enfermeriaRoutes);
 
-// Rutas de dashboard, pacientes y admisiones
+// Rutas de dashboard
 const dashboardRoutes = require('./routes/dashboard.js');
-const pacientesRoutes = require('./routes/pacientes');
-const admisionesRoutes = require('./routes/admisiones');
-
 app.use('/dashboard', dashboardRoutes);
+
+// Rutas de pacientes 
+const pacientesRoutes = require('./routes/pacientes');
 app.use('/pacientes', pacientesRoutes);
+
+// Rutas de admisiones
+const admisionesRoutes = require('./routes/admisiones');
 app.use('/admisiones', admisionesRoutes);
 
 // Manejo de errores 404
