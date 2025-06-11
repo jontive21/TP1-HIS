@@ -14,7 +14,7 @@ router.get('/crear', (req, res) => {
 });
 
 // Guardar paciente (puedes conectar aquí tu lógica real)
-router.post('/crear', pacientesController.registrarPaciente);
+router.post('/crear', pacientesController.crearPaciente);
 
 // Detalle de paciente (puedes conectar aquí tu lógica real)
 router.get('/:id', (req, res) => {

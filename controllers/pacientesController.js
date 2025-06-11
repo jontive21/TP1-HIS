@@ -102,6 +102,7 @@ exports.deletePaciente = async (req, res) => {
     }
 };
 
+// Crear o actualizar paciente por DNI
 exports.crearPaciente = async (req, res) => {
     const { dni, nombre, apellido, telefono, sexo } = req.body;
 
