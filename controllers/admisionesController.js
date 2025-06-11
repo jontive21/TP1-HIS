@@ -259,23 +259,37 @@ exports.cancelarAdmision = async (req, res) => {
   }
 };
 
+// Listar admisiones activas
 exports.listarAdmisiones = async (req, res) => {
-  try {
-    const [admisiones] = await pool.query(`
-      SELECT a.*, 
-             p.nombre AS paciente_nombre, p.apellido AS paciente_apellido, 
-             c.numero AS cama_numero, h.numero AS habitacion_numero
-      FROM admisiones a
-      JOIN pacientes p ON a.paciente_id = p.id
-      JOIN camas c ON a.cama_id = c.id
-      JOIN habitaciones h ON c.habitacion_id = h.id
-      WHERE a.fecha_cancelacion IS NULL
-      ORDER BY a.id DESC
-    `);
-    res.render('admisiones/list', { admisiones });
-  } catch (error) {
-    res.status(500).send(error.message);
-  }
+    try {
+        const [admisiones] = await pool.query(`
+            SELECT a.id, 
+                   p.nombre AS paciente_nombre, 
+                   p.apellido AS paciente_apellido, 
+                   c.numero AS cama_numero, 
+                   h.numero AS habitacion_numero,
+                   a.tipo_admision,
+                   a.medico_referente,
+                   a.diagnostico_inicial,
+                   a.fecha_ingreso
+            FROM admisiones a
+            JOIN pacientes p ON a.paciente_id = p.id
+            JOIN camas c ON a.cama_id = c.id
+            JOIN habitaciones h ON c.habitacion_id = h.id
+            WHERE a.fecha_cancelacion IS NULL
+            ORDER BY a.id DESC
+        `);
+
+        // Si necesitas formatear la fecha en el controlador:
+        admisiones.forEach(a => {
+            if (a.fecha_ingreso) a.fecha_ingreso = new Date(a.fecha_ingreso);
+        });
+
+        res.render('admisiones/list', { admisiones });
+    } catch (error) {
+        console.error(error);
+        res.status(500).render('error', { message: 'Error al cargar el listado de admisiones' });
+    }
 };
 
 exports.detalleAdmision = async (req, res) => {

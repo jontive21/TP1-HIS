@@ -10,13 +10,10 @@ router.get('/', (req, res) => {
 // Formulario para crear admisión
 router.get('/crear', admisionesController.showNuevaAdmision);
 
-// Guardar admisión (puedes conectar aquí tu lógica real)
-router.post('/crear', (req, res) => {
-    // Lógica para guardar la admisión en la base de datos
-    res.redirect('/admisiones');
-});
+// Guardar admisión
+router.post('/crear', admisionesController.processAdmision);
 
-// Detalle de admisión (puedes conectar aquí tu lógica real)
+// Detalle de admisión
 router.get('/:id', admisionesController.detalleAdmision);
 
 // Asignar cama
@@ -24,5 +21,8 @@ router.post('/asignar-cama', admisionesController.asignarCama);
 
 // Cancelar admisión
 router.post('/cancelar', admisionesController.cancelarAdmision);
+
+// Listar todas las admisiones (nuevo endpoint)
+router.get('/list', admisionesController.listarAdmisiones);
 
 module.exports = router;
