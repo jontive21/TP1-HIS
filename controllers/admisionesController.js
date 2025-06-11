@@ -108,21 +108,48 @@ exports.processAdmision = async (req, res) => {
 
 // Cancelar admisión (soft delete y liberar cama)
 exports.cancelarAdmision = async (req, res) => {
-    const id = req.params.id;
-    const [rows] = await pool.query(
-        `SELECT cama_id FROM admisiones WHERE id = ? AND estado = 'activa'`, [id]
-    );
-    if (!rows.length) {
-        return res.status(404).render('error/404', { title: 'Admisión no encontrada' });
+    const { paciente_id } = req.body;
+
+    try {
+        // Obtener cama del paciente
+        const [pacienteRows] = await pool.query(
+            'SELECT cama_id FROM pacientes WHERE id = ?', 
+            [paciente_id]
+        );
+        const paciente = pacienteRows[0];
+
+        if (!paciente || !paciente.cama_id) {
+            req.session.error = 'El paciente no tiene una cama asignada';
+            return res.redirect('/admisiones');
+        }
+
+        // Usar transacción para mantener consistencia
+        await pool.beginTransaction();
+        try {
+            // Liberar cama
+            await pool.query(
+                'UPDATE camas SET ocupada = FALSE WHERE id = ?', 
+                [paciente.cama_id]
+            );
+            // Actualizar estado del paciente
+            await pool.query(
+                'UPDATE pacientes SET cama_id = NULL, estado = "cancelado" WHERE id = ?', 
+                [paciente_id]
+            );
+            await pool.commit();
+            req.session.success = 'Admisión cancelada correctamente';
+            res.redirect('/admisiones');
+        } catch (error) {
+            await pool.rollback();
+            console.error('Error al cancelar la admisión:', error);
+            req.session.error = 'Error al cancelar la admisión';
+            res.redirect('/admisiones');
+        }
+    } catch (error) {
+        console.error('Error al cancelar la admisión:', error);
+        req.session.error = 'Error al cancelar la admisión';
+        res.redirect('/admisiones');
     }
-    const cama_id = rows[0].cama_id;
-    await require('../config/db').query(
-        `UPDATE admisiones SET estado = 'cancelada' WHERE id = ?`, [id]
-    );
-    await require('../config/db').query(
-        `UPDATE camas SET estado = 'libre' WHERE id = ?`, [cama_id]
-    );
-    res.redirect('/admisiones');
 };
 
 // Mostrar detalle de admisión
@@ -145,6 +172,62 @@ exports.showDetalleAdmision = async (req, res) => {
         title: 'Detalle de Admisión', 
         admision: rows[0] 
     });
+};
+
+exports.asignarCama = async (req, res) => {
+    const { paciente_id, tipo_habitacion, sexo_paciente } = req.body;
+
+    try {
+        // Buscar cama disponible (limpia y compatible con género)
+        const [camas] = await pool.query(`
+            SELECT c.id, h.tipo 
+            FROM camas c
+            JOIN habitaciones h ON c.habitacion_id = h.id
+            WHERE c.limpia = TRUE
+              AND c.ocupada = FALSE
+              AND h.tipo = ?
+              AND NOT EXISTS (
+                SELECT 1 FROM pacientes p 
+                WHERE p.cama_id = c.id 
+                  AND p.sexo != ?
+              )
+            LIMIT 1
+        `, [tipo_habitacion, sexo_paciente]);
+
+        if (!camas.length) {
+            req.session.error = 'No hay camas disponibles para su selección';
+            return res.redirect('/admisiones');
+        }
+
+        const camaId = camas[0].id;
+
+        // Usar transacción para evitar conflictos
+        await pool.beginTransaction();
+        try {
+            // Actualizar estado del paciente
+            await pool.query(
+                'UPDATE pacientes SET cama_id = ?, estado = "internado" WHERE id = ?', 
+                [camaId, paciente_id]
+            );
+            // Marcar cama como ocupada
+            await pool.query(
+                'UPDATE camas SET ocupada = TRUE WHERE id = ?', 
+                [camaId]
+            );
+            await pool.commit();
+            req.session.success = 'Cama asignada correctamente';
+            res.redirect('/admisiones');
+        } catch (error) {
+            await pool.rollback();
+            console.error('Error en la transacción de asignar cama:', error);
+            req.session.error = 'Error al asignar la cama';
+            res.redirect('/admisiones');
+        }
+    } catch (error) {
+        console.error('Error al buscar cama:', error);
+        req.session.error = 'Error al buscar cama disponible';
+        res.redirect('/admisiones');
+    }
 };
 
 

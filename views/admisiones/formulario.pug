@@ -1,0 +1,12 @@
+form(method="POST")
+  .form-group
+    label Tipo de Habitación
+    select(name="tipo_habitacion")
+      option(value="simple") Simple
+      option(value="doble") Doble
+  .form-group
+    label Sexo del Paciente
+    select(name="sexo_paciente")
+      option(value="M") Masculino
+      option(value="F") Femenino
+  button.btn.btn-primary(type="submit") Asignar Cama

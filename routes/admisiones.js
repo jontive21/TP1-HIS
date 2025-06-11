@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const admisionesController = require('../controllers/admisionesController');
 
 // Listar admisiones
 router.get('/', (req, res) => {
@@ -22,5 +23,11 @@ router.get('/:id', (req, res) => {
     // Aquí iría la lógica para buscar la admisión por id
     res.render('admisiones/detalle', { admision: { paciente_nombre: "Ejemplo", paciente_apellido: "Paciente" } });
 });
+
+// Asignar cama
+router.post('/asignar-cama', admisionesController.asignarCama);
+
+// Cancelar admisión
+router.post('/cancelar', admisionesController.cancelarAdmision);
 
 module.exports = router;

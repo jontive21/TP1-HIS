@@ -1,0 +1,22 @@
+if message
+  .alert.alert-danger #{message}
+
+form(method="POST")
+  .form-group
+    label DNI
+    input(type="text" name="dni" required)
+  .form-group
+    label Nombre
+    input(type="text" name="nombre" required)
+  .form-group
+    label Apellido
+    input(type="text" name="apellido" required)
+  .form-group
+    label Teléfono
+    input(type="tel" name="telefono" required)
+  .form-group
+    label Sexo
+    select(name="sexo")
+      option(value="M") Masculino
+      option(value="F") Femenino
+  button.btn.btn-primary(type="submit") Registrar
