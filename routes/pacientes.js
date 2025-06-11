@@ -22,4 +22,10 @@ router.get('/:id', (req, res) => {
     res.render('pacientes/detalle', { paciente: { nombre: "Ejemplo", apellido: "Paciente" } });
 });
 
+// Mostrar formulario de evaluación de enfermería
+router.get('/:id/evaluacion', pacientesController.showEvaluacion);
+
+// Guardar evaluación de enfermería
+router.post('/:id/evaluacion', pacientesController.guardarEvaluacion);
+
 module.exports = router;
