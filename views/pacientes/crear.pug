@@ -2,15 +2,6 @@ extends ../layout
 
 block content
   h1 Nuevo Paciente
-  if error
-    .alert.alert-danger= error
   form(action="/pacientes/crear" method="POST")
     input.form-control(type="text" name="nombre" placeholder="Nombre" required)
-    input.form-control(type="text" name="apellido" placeholder="Apellido" required)
-    input.form-control(type="text" name="dni" placeholder="DNI" required)
-    input.form-control(type="date" name="fecha_nacimiento" placeholder="Fecha de nacimiento" required)
-    input.form-control(type="text" name="sexo" placeholder="Sexo" required)
-    input.form-control(type="text" name="telefono" placeholder="Teléfono")
-    input.form-control(type="text" name="direccion" placeholder="Dirección")
-    input.form-control(type="email" name="email" placeholder="Email")
     button.btn.btn-success(type="submit") Guardar
