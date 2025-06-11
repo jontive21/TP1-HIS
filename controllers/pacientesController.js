@@ -149,14 +149,3 @@ exports.showEvaluacion = async (req, res) => {
     }
     res.render('pacientes/evaluacion', { paciente: pacientes[0] });
 };
-
-exports.guardarEvaluacion = async (req, res) => {
-    const { id } = req.params;
-    const { alergias, medicamentos_actuales, presion_arterial, frecuencia_cardiaca, temperatura } = req.body;
-    await pool.query(
-        `UPDATE pacientes SET alergias = ?, medicamentos_actuales = ?, presion_arterial = ?, frecuencia_cardiaca = ?, temperatura = ? WHERE id = ?`,
-        [alergias, medicamentos_actuales, presion_arterial, frecuencia_cardiaca, temperatura, id]
-    );
-    req.session.success = 'Evaluación guardada correctamente';
-    res.redirect(`/pacientes/${id}`);
-};
