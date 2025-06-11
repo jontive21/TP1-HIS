@@ -16,19 +16,8 @@ const isAuthenticated = (req, res, next) => {
 router.use(isAuthenticated);
 
 // Listar pacientes
-router.get('/', async (req, res) => {
-    try {
-        const pacientes = await Paciente.searchPacientes('');
-        res.render('pacientes/index', { 
-            title: 'Pacientes', 
-            pacientes 
-        });
-    } catch (error) {
-        console.error(error);
-        res.status(500).render('error', { 
-            message: 'Error al obtener pacientes' 
-        });
-    }
+router.get('/', (req, res) => {
+    res.render('pacientes/index'); 
 });
 
 // Formulario para crear paciente
