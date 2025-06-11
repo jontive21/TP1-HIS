@@ -11,14 +11,20 @@ block content
       label.form-label(for="paciente_id") Paciente
       select.form-select(name="paciente_id" required)
         option(value="" selected disabled) Selecciona un paciente
-        each paciente in pacientes
-          option(value=paciente.id)= paciente.apellido + ', ' + paciente.nombre
+        if pacientes && pacientes.length
+          each paciente in pacientes
+            option(value=paciente.id)= paciente.apellido + ', ' + paciente.nombre
+        else
+          option(value="" disabled) No hay pacientes disponibles
     .mb-3
       label.form-label(for="cama_id") Cama
       select.form-select(name="cama_id" required)
         option(value="" selected disabled) Selecciona una cama
-        each cama in camas
-          option(value=cama.id)= 'Habitación ' + cama.habitacion_numero + ' - Cama ' + cama.numero
+        if camas && camas.length
+          each cama in camas
+            option(value=cama.id)= 'Habitación ' + cama.habitacion_numero + ' - Cama ' + cama.numero
+        else
+          option(value="" disabled) No hay camas disponibles
     .mb-3
       label.form-label(for="tipo_admision") Tipo de Admisión
       input.form-control(type="text" name="tipo_admision" required)
