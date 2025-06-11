@@ -2,7 +2,7 @@
 const express = require('express');
 const router = express.Router();
 const Paciente = require('../models/Paciente');
-const pacientesController = require('../controllers/pacientesController'); // <-- Agrega esta línea
+const pacientesController = require('../controllers/pacientesController');
 
 // Middleware para verificar autenticación
 const isAuthenticated = (req, res, next) => {
@@ -32,20 +32,20 @@ router.get('/', async (req, res) => {
 });
 
 // Formulario para crear paciente
-router.get('/create', (req, res) => {
-    res.render('pacientes/create', { 
+router.get('/crear', (req, res) => {
+    res.render('pacientes/crear', { 
         title: 'Nuevo Paciente' 
     });
 });
 
 // Guardar nuevo paciente
-router.post('/', async (req, res) => {
+router.post('/crear', async (req, res) => {
     try {
         const { nombre, apellido, dni, fecha_nacimiento, sexo, telefono, direccion, email } = req.body;
         
         // Validaciones básicas
         if (!nombre || !apellido || !dni || !fecha_nacimiento || !sexo) {
-            return res.render('pacientes/create', { 
+            return res.render('pacientes/crear', { 
                 title: 'Nuevo Paciente',
                 error: 'Todos los campos marcados con * son obligatorios',
                 paciente: req.body
@@ -55,7 +55,7 @@ router.post('/', async (req, res) => {
         // Verificar si el DNI ya existe
         const dniExists = await Paciente.validateDNI(dni);
         if (dniExists) {
-            return res.render('pacientes/create', { 
+            return res.render('pacientes/crear', { 
                 title: 'Nuevo Paciente',
                 error: 'El DNI ya está registrado',
                 paciente: req.body
@@ -115,10 +115,6 @@ router.get('/search', async (req, res) => {
 });
 
 // Eliminar paciente (baja lógica)
-router.post('/:id/delete', pacientesController.deletePaciente); // <-- Agrega esta línea
-
-router.get('/', (req, res) => {
-    res.render('pacientes/index'); 
-});
+router.post('/:id/delete', pacientesController.deletePaciente);
 
 module.exports = router;
