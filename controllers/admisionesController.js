@@ -119,19 +119,17 @@ exports.cancelarAdmision = async (req, res) => {
         const paciente = pacienteRows[0];
 
         if (!paciente || !paciente.cama_id) {
-            req.session.error = 'El paciente no tiene una cama asignada';
+            req.session.error = 'El paciente no tiene cama asignada';
             return res.redirect('/admisiones');
         }
 
         // Usar transacción para mantener consistencia
         await pool.beginTransaction();
         try {
-            // Liberar cama
             await pool.query(
                 'UPDATE camas SET ocupada = FALSE WHERE id = ?', 
                 [paciente.cama_id]
             );
-            // Actualizar estado del paciente
             await pool.query(
                 'UPDATE pacientes SET cama_id = NULL, estado = "cancelado" WHERE id = ?', 
                 [paciente_id]
@@ -175,41 +173,36 @@ exports.showDetalleAdmision = async (req, res) => {
 };
 
 exports.asignarCama = async (req, res) => {
-    const { paciente_id, tipo_habitacion, sexo_paciente } = req.body;
+    const { paciente_id, tipo_habitacion, sexo } = req.body;
 
     try {
-        // Buscar cama disponible (limpia y compatible con género)
+        // Buscar cama limpia y compatible
         const [camas] = await pool.query(`
-            SELECT c.id, h.tipo 
-            FROM camas c
+            SELECT c.id FROM camas c
             JOIN habitaciones h ON c.habitacion_id = h.id
-            WHERE c.limpia = TRUE
-              AND c.ocupada = FALSE
-              AND h.tipo = ?
+            WHERE c.limpia = TRUE AND c.ocupada = FALSE
               AND NOT EXISTS (
                 SELECT 1 FROM pacientes p 
-                WHERE p.cama_id = c.id 
-                  AND p.sexo != ?
+                WHERE p.cama_id = c.id AND p.sexo != ?
               )
+              AND h.tipo = ?
             LIMIT 1
-        `, [tipo_habitacion, sexo_paciente]);
+        `, [sexo, tipo_habitacion]);
 
         if (!camas.length) {
-            req.session.error = 'No hay camas disponibles para su selección';
+            req.session.error = 'No hay camas disponibles';
             return res.redirect('/admisiones');
         }
 
         const camaId = camas[0].id;
 
-        // Usar transacción para evitar conflictos
+        // Transacción para mantener consistencia
         await pool.beginTransaction();
         try {
-            // Actualizar estado del paciente
             await pool.query(
                 'UPDATE pacientes SET cama_id = ?, estado = "internado" WHERE id = ?', 
                 [camaId, paciente_id]
             );
-            // Marcar cama como ocupada
             await pool.query(
                 'UPDATE camas SET ocupada = TRUE WHERE id = ?', 
                 [camaId]
@@ -219,8 +212,8 @@ exports.asignarCama = async (req, res) => {
             res.redirect('/admisiones');
         } catch (error) {
             await pool.rollback();
-            console.error('Error en la transacción de asignar cama:', error);
-            req.session.error = 'Error al asignar la cama';
+            console.error('Error al asignar cama:', error);
+            req.session.error = 'Error al asignar cama';
             res.redirect('/admisiones');
         }
     } catch (error) {
