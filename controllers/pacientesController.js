@@ -104,35 +104,35 @@ exports.deletePaciente = async (req, res) => {
 
 // Crear o actualizar paciente por DNI
 exports.crearPaciente = async (req, res) => {
-    const { dni, nombre, apellido, telefono, sexo } = req.body;
-
-    if (!dni || !nombre || !apellido || !telefono || !sexo) {
-        req.session.error = 'Todos los campos son obligatorios';
-        return res.redirect('/pacientes/crear');
-    }
-
     try {
-        // Buscar paciente por DNI
-        const [pacientes] = await pool.query(
-            'SELECT * FROM pacientes WHERE dni = ?', [dni]
-        );
+        const { dni } = req.body;
+
+        // Verificar si paciente ya existe
+        const [pacientes] = await pool.query('SELECT * FROM pacientes WHERE dni = ?', [dni]);
 
         if (pacientes.length > 0) {
             // Actualizar existente
             await pool.query(
-                'UPDATE pacientes SET nombre = ?, apellido = ?, telefono = ?, sexo = ? WHERE dni = ?',
-                [nombre, apellido, telefono, sexo, dni]
+                `UPDATE pacientes SET nombre = ?, apellido = ?, telefono = ?, sexo = ?, fecha_nacimiento = ?, direccion = ?, email = ?, 
+                alergias = ?, medicamentos_actuales = ?, antecedentes_familiares = ?, presion_arterial = ?, frecuencia_cardiaca = ?, temperatura = ?
+                WHERE dni = ?`,
+                [
+                    req.body.nombre, req.body.apellido, req.body.telefono, req.body.sexo, req.body.fecha_nacimiento, req.body.direccion, req.body.email,
+                    req.body.alergias, req.body.medicamentos_actuales, req.body.antecedentes_familiares, req.body.presion_arterial, req.body.frecuencia_cardiaca, req.body.temperatura,
+                    dni
+                ]
             );
             req.session.success = 'Paciente actualizado correctamente';
+            // Redirige al detalle del paciente actualizado
+            const pacienteId = pacientes[0].id;
+            return res.redirect(`/pacientes/${pacienteId}`);
         } else {
             // Crear nuevo
-            await pool.query(
-                'INSERT INTO pacientes (dni, nombre, apellido, telefono, sexo) VALUES (?, ?, ?, ?, ?)', 
-                [dni, nombre, apellido, telefono, sexo]
-            );
+            const pacienteId = await Paciente.createPaciente(req.body);
             req.session.success = 'Paciente creado correctamente';
+            // Redirige al detalle del paciente creado
+            return res.redirect(`/pacientes/${pacienteId}`);
         }
-        res.redirect('/pacientes');
     } catch (error) {
         console.error('Error al crear/actualizar paciente:', error);
         req.session.error = 'Error al crear o actualizar paciente';

@@ -90,11 +90,15 @@ class Paciente extends BaseModel {
 
     // Crear un nuevo paciente
     static async createPaciente(data) {
-        const { nombre, apellido, dni, fecha_nacimiento, sexo, telefono, direccion, email } = data;
+        const {
+            nombre, apellido, dni, fecha_nacimiento, sexo, telefono, direccion, email,
+            alergias, medicamentos_actuales, antecedentes_familiares, presion_arterial, frecuencia_cardiaca, temperatura
+        } = data;
         const [result] = await pool.query(
-            `INSERT INTO pacientes (nombre, apellido, dni, fecha_nacimiento, sexo, telefono, direccion, email) 
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-            [nombre, apellido, dni, fecha_nacimiento, sexo, telefono, direccion, email]
+            `INSERT INTO pacientes 
+            (nombre, apellido, dni, fecha_nacimiento, sexo, telefono, direccion, email, alergias, medicamentos_actuales, antecedentes_familiares, presion_arterial, frecuencia_cardiaca, temperatura) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            [nombre, apellido, dni, fecha_nacimiento, sexo, telefono, direccion, email, alergias, medicamentos_actuales, antecedentes_familiares, presion_arterial, frecuencia_cardiaca, temperatura]
         );
         return result.insertId;
     }
@@ -103,9 +107,16 @@ class Paciente extends BaseModel {
     static async updatePaciente(id, data) {
         const fields = [];
         const values = [];
-        for (const key in data) {
-            fields.push(`${key} = ?`);
-            values.push(data[key]);
+        // Solo actualiza los campos que estén presentes en data
+        const allowedFields = [
+            'nombre', 'apellido', 'dni', 'fecha_nacimiento', 'sexo', 'telefono', 'direccion', 'email',
+            'alergias', 'medicamentos_actuales', 'antecedentes_familiares', 'presion_arterial', 'frecuencia_cardiaca', 'temperatura'
+        ];
+        for (const key of allowedFields) {
+            if (data[key] !== undefined) {
+                fields.push(`${key} = ?`);
+                values.push(data[key]);
+            }
         }
         values.push(id);
         const [result] = await pool.query(
