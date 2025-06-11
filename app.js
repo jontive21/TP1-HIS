@@ -58,7 +58,7 @@ const enfermeriaRoutes = require('./routes/enfermeria');
 app.use('/enfermeria', enfermeriaRoutes);
 
 // Rutas de dashboard, pacientes y admisiones
-const dashboardRoutes = require('./routes/dashboard');
+const dashboardRoutes = require('./routes/dashboard.js');
 const pacientesRoutes = require('./routes/pacientes');
 const admisionesRoutes = require('./routes/admisiones');
 

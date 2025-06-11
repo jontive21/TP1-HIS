@@ -117,4 +117,8 @@ router.get('/search', async (req, res) => {
 // Eliminar paciente (baja lógica)
 router.post('/:id/delete', pacientesController.deletePaciente); // <-- Agrega esta línea
 
+router.get('/', (req, res) => {
+    res.render('pacientes/index'); 
+});
+
 module.exports = router;
