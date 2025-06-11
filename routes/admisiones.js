@@ -12,15 +12,15 @@ router.get('/crear', (req, res) => {
     res.render('admisiones/crear');
 });
 
-// Guardar admisión (puedes conectar aquí tu lógica real)
+// Guardar admisión (conecta aquí tu lógica real si tienes controlador)
 router.post('/crear', (req, res) => {
-    // Lógica para guardar la admisión en la base de datos
+    // TODO: Lógica para guardar la admisión en la base de datos
     res.redirect('/admisiones');
 });
 
-// Detalle de admisión (puedes conectar aquí tu lógica real)
+// Detalle de admisión
 router.get('/:id', (req, res) => {
-    // Lógica para buscar la admisión por id
+    // TODO: Lógica para buscar la admisión por id
     res.render('admisiones/detalle', { admision: { paciente_nombre: "Ejemplo", paciente_apellido: "Paciente" } });
 });
 

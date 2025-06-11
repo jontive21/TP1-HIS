@@ -102,37 +102,38 @@ exports.deletePaciente = async (req, res) => {
     }
 };
 
+const pool = require('../database');
+
+exports.mostrarFormularioRegistro = (req, res) => {
+  res.render('pacientes/crear', { message: req.session.error });
+};
+
 exports.registrarPaciente = async (req, res) => {
-    const { dni, nombre, apellido, telefono, sexo } = req.body;
+  const { dni, nombre, apellido, telefono, sexo } = req.body;
 
-    // Validar campos obligatorios
-    if (!dni || !nombre || !apellido || !telefono || !sexo) {
-        req.session.error = 'Todos los campos son obligatorios';
-        return res.redirect('/pacientes/crear');
-    }
+  // Validación de campos obligatorios
+  if (!dni || !nombre || !apellido || !telefono || !sexo) {
+    req.session.error = 'Todos los campos son obligatorios';
+    return res.redirect('/pacientes/crear');
+  }
 
-    try {
-        // Verificar duplicados
-        const [pacienteExistente] = await pool.query(
-            'SELECT * FROM pacientes WHERE dni = ?', 
-            [dni]
-        );
+  // Verificar duplicados por DNI
+  const [pacienteExistente] = await pool.query(
+    'SELECT * FROM pacientes WHERE dni = ?', 
+    [dni]
+  );
 
-        if (pacienteExistente.length > 0) {
-            req.session.error = 'Ya existe un paciente con este DNI';
-            return res.redirect('/pacientes/crear');
-        }
+  if (pacienteExistente.length > 0) {
+    req.session.error = 'Ya existe un paciente con este DNI';
+    return res.redirect('/pacientes/crear');
+  }
 
-        // Registrar paciente
-        await pool.query(
-            'INSERT INTO pacientes (dni, nombre, apellido, telefono, sexo) VALUES (?, ?, ?, ?, ?)', 
-            [dni, nombre, apellido, telefono, sexo]
-        );
-        req.session.success = 'Paciente registrado correctamente';
-        res.redirect('/pacientes');
-    } catch (error) {
-        console.error('Error al registrar paciente:', error);
-        req.session.error = 'Error al registrar paciente';
-        res.redirect('/pacientes/crear');
-    }
+  // Registrar paciente
+  await pool.query(
+    'INSERT INTO pacientes (dni, nombre, apellido, telefono, sexo) VALUES (?, ?, ?, ?, ?)', 
+    [dni, nombre, apellido, telefono, sexo]
+  );
+  
+  req.session.success = 'Paciente registrado exitosamente';
+  res.redirect('/pacientes');
 };

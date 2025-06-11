@@ -9,16 +9,14 @@ router.get('/', (req, res) => {
 });
 
 // Formulario para crear paciente
-router.get('/crear', (req, res) => {
-    res.render('pacientes/crear');
-});
+router.get('/crear', pacientesController.mostrarFormularioRegistro);
 
-// Guardar paciente (puedes conectar aquí tu lógica real)
+// Guardar paciente (conecta aquí tu lógica real si tienes controlador)
 router.post('/crear', pacientesController.registrarPaciente);
 
-// Detalle de paciente (puedes conectar aquí tu lógica real)
+// Detalle de paciente
 router.get('/:id', (req, res) => {
-    // Lógica para buscar el paciente por id
+    // TODO: Lógica para buscar el paciente por id
     res.render('pacientes/detalle', { paciente: { nombre: "Ejemplo", apellido: "Paciente" } });
 });
 
