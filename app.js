@@ -57,6 +57,15 @@ app.use('/medico', medicoRoutes);
 const enfermeriaRoutes = require('./routes/enfermeria');
 app.use('/enfermeria', enfermeriaRoutes);
 
+// Rutas de dashboard, pacientes y admisiones
+const dashboardRoutes = require('./routes/dashboard'); // si tienes un archivo de rutas para dashboard
+const pacientesRoutes = require('./routes/pacientes');
+const admisionesRoutes = require('./routes/admisiones');
+
+app.use('/dashboard', dashboardRoutes); // si usas un archivo de rutas para dashboard
+app.use('/pacientes', pacientesRoutes);
+app.use('/admisiones', admisionesRoutes);
+
 // Manejo de errores 404
 app.use((req, res) => {
     res.status(404).render('error', { message: 'Página no encontrada' });
