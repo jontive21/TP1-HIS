@@ -1,6 +1,7 @@
 const Admision = require('../models/Admisiones');
 const Paciente = require('../models/Paciente');
 const { pool } = require('../config/db');
+const camaService = require('../services/camaService');
 
 // Listar admisiones activas
 exports.listarAdmisiones = async (req, res) => {
@@ -71,17 +72,23 @@ exports.processAdmision = async (req, res) => {
         // Crear admisión y marcar cama como ocupada
         await pool.beginTransaction();
         try {
-            await pool.query(
-                'INSERT INTO admisiones (paciente_id, cama_id, tipo_admision, medico_referente, diagnostico_inicial, fecha_ingreso) VALUES (?, ?, ?, ?, ?, NOW())',
-                [paciente_id, cama_id, tipo_admision, medico_referente, diagnostico_inicial]
-            );
-            await pool.query(
-                'UPDATE camas SET ocupada = TRUE WHERE id = ?',
-                [cama_id]
-            );
-            await pool.commit();
-            req.session.success = 'Admisión creada correctamente';
-            res.redirect('/admisiones');
+            if (await camaService.camaDisponible(camaId)) {
+                await camaService.asignarCama(camaId);
+                await pool.query(
+                    'INSERT INTO admisiones (paciente_id, cama_id, tipo_admision, medico_referente, diagnostico_inicial, fecha_ingreso) VALUES (?, ?, ?, ?, ?, NOW())',
+                    [paciente_id, cama_id, tipo_admision, medico_referente, diagnostico_inicial]
+                );
+                await pool.query(
+                    'UPDATE camas SET ocupada = TRUE WHERE id = ?',
+                    [cama_id]
+                );
+                await pool.commit();
+                req.session.success = 'Admisión creada correctamente';
+                res.redirect('/admisiones');
+            } else {
+                req.session.error = 'La cama seleccionada no está disponible.';
+                return res.redirect('/admisiones/crear');
+            }
         } catch (error) {
             await pool.rollback();
             req.session.error = 'Error al crear la admisión';
