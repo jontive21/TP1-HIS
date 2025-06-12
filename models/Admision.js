@@ -7,20 +7,21 @@ class Admision {
             paciente_id,
             cama_id,
             fecha_admision = new Date(),
-            fecha_cancelacion = null
+            fecha_cancelacion = null,
+            estado = 'activa'
         } = data;
         const [result] = await pool.query(
-            `INSERT INTO admisiones (paciente_id, cama_id, fecha_admision, fecha_cancelacion)
-             VALUES (?, ?, ?, ?)`,
-            [paciente_id, cama_id, fecha_admision, fecha_cancelacion]
+            `INSERT INTO admisiones (paciente_id, cama_id, fecha_admision, fecha_cancelacion, estado)
+             VALUES (?, ?, ?, ?, ?)`,
+            [paciente_id, cama_id, fecha_admision, fecha_cancelacion, estado]
         );
         return result.insertId;
     }
 
-    // Cancelar una admisión (setear fecha_cancelacion)
+    // Cancelar una admisión (setear fecha_cancelacion y estado)
     static async cancelarAdmision(id) {
         const [result] = await pool.query(
-            `UPDATE admisiones SET fecha_cancelacion = NOW() WHERE id = ?`,
+            `UPDATE admisiones SET fecha_cancelacion = NOW(), estado = 'cancelada' WHERE id = ?`,
             [id]
         );
         return result.affectedRows > 0;
@@ -50,7 +51,7 @@ class Admision {
              FROM admisiones a
              JOIN pacientes p ON a.paciente_id = p.id
              JOIN camas c ON a.cama_id = c.id
-             WHERE a.fecha_cancelacion IS NULL
+             WHERE a.estado = 'activa'
              ORDER BY a.id DESC`
         );
         return rows;

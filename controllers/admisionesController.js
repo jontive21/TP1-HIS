@@ -1,7 +1,6 @@
-const Admision = require('../models/Admisiones');
-const Paciente = require('../models/Paciente');
-const { pool } = require('../config/db');
+const Admision = require('../models/Admision');
 const camaService = require('../services/camaService');
+const { pool } = require('../config/db');
 
 // Listar admisiones activas
 exports.listarAdmisiones = async (req, res) => {
@@ -170,5 +169,38 @@ exports.cancelarAdmision = async (req, res) => {
         res.redirect('/admisiones');
     }
 };
+
+const asignarCama = async (req, res) => {
+  try {
+    const { pacienteId, camaId } = req.body;
+
+    // 1. Validar regla de sexo (servicio reutilizable)
+    if (camaService.validarSexoHabitacion) {
+      const error = await camaService.validarSexoHabitacion(pacienteId, camaId);
+      if (error) {
+        req.session.error = error;
+        return res.redirect('/camas');
+      }
+    }
+
+    // 2. Crear admisión
+    await Admision.createAdmision({
+      paciente_id: pacienteId,
+      cama_id: camaId,
+      fecha_admision: new Date()
+    });
+
+    // 3. Marcar cama como ocupada
+    await camaService.asignarCama(camaId);
+
+    req.session.success = 'Paciente admitido correctamente';
+    res.redirect('/pacientes');
+  } catch (error) {
+    console.error(error);
+    res.status(500).render('error', { message: 'Error en asignación' });
+  }
+};
+
+module.exports = { asignarCama };
 
 
