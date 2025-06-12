@@ -1,0 +1,52 @@
+extends ../layout
+
+block content
+  .container
+    h1= title
+
+    //- Display messages using res.locals set by addUserToViews middleware
+    if error_msg
+      .alert.alert-danger!= error_msg
+    if success_msg
+      .alert.alert-success!= success_msg
+
+    form(method="POST", action=`/pacientes/${paciente.id}/edit`)
+      //- Hidden input for DNI if non-editable, or display it
+      //- For simplicity, let's assume DNI is not editable after creation, or it's part of the general form.
+      //- The 'formulario.pug' could be included here if made generic enough.
+      //- For now, replicate fields from 'crear.pug' but pre-fill them.
+
+      .mb-3
+        label.form-label(for="dni") DNI
+        input.form-control(type="text", name="dni", value=paciente.dni, required)
+      .mb-3
+        label.form-label(for="nombre") Nombre
+        input.form-control(type="text", name="nombre", value=paciente.nombre, required)
+      .mb-3
+        label.form-label(for="apellido") Apellido
+        input.form-control(type="text", name="apellido", value=paciente.apellido, required)
+      .mb-3
+        label.form-label(for="telefono") Teléfono
+        input.form-control(type="text", name="telefono", value=paciente.telefono, required)
+      .mb-3
+        label.form-label(for="sexo") Sexo
+        //- Consider a select for Sexo if values are fixed
+        input.form-control(type="text", name="sexo", value=paciente.sexo, required)
+      
+      // Add other fields from Paciente model as needed for editing
+      // Example: fecha_nacimiento, direccion, email, alergias, etc.
+      // For now, keeping it to the basic fields shown in crear.pug for simplicity.
+      // You would expand this in a real scenario.
+      .mb-3
+        label.form-label(for="fecha_nacimiento") Fecha de Nacimiento
+        input.form-control(type="date", name="fecha_nacimiento", value=(paciente.fecha_nacimiento ? paciente.fecha_nacimiento.toISOString().split('T')[0] : ''))
+      .mb-3
+        label.form-label(for="direccion") Dirección
+        input.form-control(type="text", name="direccion", value=paciente.direccion)
+      .mb-3
+        label.form-label(for="email") Email
+        input.form-control(type="email", name="email", value=paciente.email)
+      //- Add more fields as they are in the upsertPaciente logic for consistency
+
+      button.btn.btn-primary(type="submit") Guardar Cambios
+      a.btn.btn-secondary.ms-2(href=`/pacientes/${paciente.id}`) Cancelar

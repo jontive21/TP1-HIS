@@ -29,7 +29,7 @@ form(method="POST" action=`/pacientes/${paciente.id}/evaluacion`)
   
   button.btn.btn-primary(type="submit") Guardar Evaluación
 
-if success
-  .alert.alert-success= success
-if error
-  .alert.alert-danger= error
+if success_msg
+  .alert.alert-success= success_msg
+if error_msg
+  .alert.alert-danger= error_msg
