@@ -3,22 +3,20 @@ const express = require('express');
 const router = express.Router();
 const pacientesController = require('../controllers/pacientesController');
 
-// Listar pacientes
-router.get('/', (req, res) => {
-    res.render('pacientes/index');
-});
+router.get('/', pacientesController.showPacientes);
 
 // Formulario para crear paciente
-router.get('/crear', (req, res) => {
-    res.render('pacientes/crear');
-});
+router.get('/crear', pacientesController.showNewPaciente);
 
-// Guardar paciente (puedes conectar aquí tu lógica real)
-router.post('/crear', pacientesController.crearPaciente);
+router.post('/crear', pacientesController.upsertPaciente);
 
 // Detalle de paciente (puedes conectar aquí tu lógica real)
 router.get('/:id', pacientesController.detallePaciente);
+// Mostrar formulario de edición de paciente
+router.get('/:id/edit', pacientesController.showEditPaciente); 
 
+// Procesar actualización de paciente
+router.post('/:id/edit', pacientesController.updatePaciente);
 // Mostrar formulario de evaluación de enfermería
 router.get('/:id/evaluacion', pacientesController.showEvaluacion);
 

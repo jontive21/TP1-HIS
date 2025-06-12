@@ -2,6 +2,7 @@ const express = require('express');
 const path = require('path');
 const session = require('express-session');
 const { testConnection } = require('./config/db');
+const { addUserToViews } = require('./middleware/auth');
 require('dotenv').config();
 
 const app = express();
@@ -26,12 +27,7 @@ app.use(session({
         maxAge: 24 * 60 * 60 * 1000 // 24 horas
     }
 }));
-
-// Ruta para verificar que todo funciona
-app.get('/', (req, res) => {
-    res.render('dashboard');
-});
-
+app.use(addUserToViews);
 // Ruta para probar conexión a BD
 app.get('/test-db', async (req, res) => {
     const connectionOk = await testConnection();
@@ -61,9 +57,9 @@ app.use('/enfermeria', enfermeriaRoutes);
 const dashboardRoutes = require('./routes/dashboard.js');
 app.use('/dashboard', dashboardRoutes);
 
-// Rutas de pacientes 
-const pacientesRoutes = require('./routes/pacientes');
-app.use('/pacientes', pacientesRoutes);
+// Rutas principales (index y dashboard)
+const indexRoutes = require('./routes/index.js');
+app.use('/', indexRoutes);
 
 // Rutas de admisiones
 const admisionesRoutes = require('./routes/admisiones');
