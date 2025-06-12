@@ -71,13 +71,10 @@ app.use((req, res) => {
 });
 
 // Iniciar servidor
-app.listen(PORT, async () => {
-    console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
+app.listen(3000, async () => {
+    console.log(`🚀 Servidor corriendo en http://localhost:${3000}`);
     console.log('🏥 HIS Internación - Sistema Hospitalario');
     
     // Probar conexión a la base de datos al iniciar
     await testConnection();
 });
-
-// Si usas tests automáticos, deja esto:
-module.exports = app;

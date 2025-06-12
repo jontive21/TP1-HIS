@@ -14,3 +14,5 @@ router.get('/', (req, res) => {
 
 // Dashboard principal (requiere autenticación)
 router.get('/dashboard', requireAuth, dashboardController.showDashboard);
+
+module.exports = router;
