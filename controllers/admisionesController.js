@@ -202,7 +202,7 @@ const asignarCama = async (req, res) => {
 };
 
 module.exports = {
-    listarAdmisiones,
+    listarAdmision,
     showNuevaAdmision,
     processAdmision,
     detalleAdmision,
