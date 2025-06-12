@@ -152,11 +152,31 @@ exports.showEvaluacion = async (req, res) => {
 
 exports.guardarEvaluacion = async (req, res) => {
     const { id } = req.params;
-    const { alergias, medicamentos_actuales, presion_arterial, frecuencia_cardiaca, temperatura } = req.body;
-    await pool.query(
-        `UPDATE pacientes SET alergias = ?, medicamentos_actuales = ?, presion_arterial = ?, frecuencia_cardiaca = ?, temperatura = ? WHERE id = ?`,
-        [alergias, medicamentos_actuales, presion_arterial, frecuencia_cardiaca, temperatura, id]
-    );
-    req.session.success = 'Evaluación guardada correctamente';
-    res.redirect(`/pacientes/${id}`);
+    const { alergias, presion_arterial, frecuencia_cardiaca } = req.body;
+    try {
+        await pool.query(
+            `UPDATE pacientes SET alergias = ?, presion_arterial = ?, frecuencia_cardiaca = ? WHERE id = ?`,
+            [alergias, presion_arterial, frecuencia_cardiaca, id]
+        );
+        req.session.success = 'Evaluación guardada correctamente';
+        res.redirect(`/pacientes/${id}`);
+    } catch (error) {
+        req.session.error = 'Error al guardar la evaluación';
+        res.redirect(`/pacientes/${id}`);
+    }
+};
+
+exports.detallePaciente = async (req, res) => {
+    const { id } = req.params;
+    const [pacientes] = await pool.query('SELECT * FROM pacientes WHERE id = ?', [id]);
+    if (!pacientes.length) {
+        req.session.error = 'Paciente no encontrado';
+        return res.redirect('/pacientes');
+    }
+    // Pasa los mensajes y luego bórralos para que no se repitan
+    const success = req.session.success;
+    const error = req.session.error;
+    delete req.session.success;
+    delete req.session.error;
+    res.render('pacientes/detalle', { paciente: pacientes[0], success, error });
 };

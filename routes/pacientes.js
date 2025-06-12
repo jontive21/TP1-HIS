@@ -17,10 +17,7 @@ router.get('/crear', (req, res) => {
 router.post('/crear', pacientesController.crearPaciente);
 
 // Detalle de paciente (puedes conectar aquí tu lógica real)
-router.get('/:id', (req, res) => {
-    // Lógica para buscar el paciente por id
-    res.render('pacientes/detalle', { paciente: { nombre: "Ejemplo", apellido: "Paciente" } });
-});
+router.get('/:id', pacientesController.detallePaciente);
 
 // Mostrar formulario de evaluación de enfermería
 router.get('/:id/evaluacion', pacientesController.showEvaluacion);
