@@ -71,8 +71,8 @@ exports.processAdmision = async (req, res) => {
         // Crear admisión y marcar cama como ocupada
         await pool.beginTransaction();
         try {
-            if (await camaService.camaDisponible(camaId)) {
-                await camaService.asignarCama(camaId);
+            if (await camaService.camaDisponible(cama_id)) {
+                await camaService.asignarCama(cama_id);
                 await pool.query(
                     'INSERT INTO admisiones (paciente_id, cama_id, tipo_admision, medico_referente, diagnostico_inicial, fecha_ingreso) VALUES (?, ?, ?, ?, ?, NOW())',
                     [paciente_id, cama_id, tipo_admision, medico_referente, diagnostico_inicial]
