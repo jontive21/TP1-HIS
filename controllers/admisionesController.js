@@ -201,6 +201,13 @@ const asignarCama = async (req, res) => {
   }
 };
 
-module.exports = { asignarCama };
+module.exports = {
+    listarAdmisiones,
+    showNuevaAdmision,
+    processAdmision,
+    detalleAdmision,
+    cancelarAdmision,
+    asignarCama
+};
 
 
