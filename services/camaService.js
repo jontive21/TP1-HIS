@@ -10,10 +10,9 @@ async function camaDisponible(camaId) {
 }
 
 // Asigna una cama a un paciente (marca como ocupada)
-exports.asignarCama = async (pacienteId, camaId) => {
-    // Lógica para asignar cama a paciente
+async function asignarCama(camaId) {
     await pool.query('UPDATE camas SET ocupada = TRUE WHERE id = ?', [camaId]);
-};
+}
 
 // Libera una cama (marca como desocupada)
 async function liberarCama(camaId) {
