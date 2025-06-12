@@ -200,13 +200,6 @@ const asignarCama = async (req, res) => {
     res.status(500).render('error', { message: 'Error en asignación' });
   }
 };
-module.exports = {
-    listarAdmisiones,
-    showNuevaAdmision,
-    processAdmision,
-    detalleAdmision,
-    cancelarAdmision,
-    asignarCama
-};
+
 
 
