@@ -1,5 +1,4 @@
-const pool = require('../database');
-
+const pool = require('../database/connection');
 // Mostrar formulario de diagnóstico
 exports.mostrarFormularioDiagnostico = async (req, res) => {
   const { id } = req.params;

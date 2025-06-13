@@ -1,5 +1,4 @@
-const pool = require('../database');
-
+const pool = require('../database/connection');
 // Mostrar formulario de evaluación
 exports.mostrarFormularioEvaluacion = async (req, res) => {
   const { id } = req.params;
