@@ -1,0 +1,32 @@
+extends ../layout
+
+block content
+  h2 Evaluación Inicial por Enfermería
+
+  if message
+    .alert.alert-danger #{message}
+
+  form(method="POST" action="/enfermeria/evaluar")
+    input(type="hidden" name="paciente_id" value=paciente.id)
+
+    .form-group
+      label Motivo de Internación
+      textarea.form-control(name="motivo" rows="3") 
+
+    .form-group
+      label Síntomas Principales
+      textarea.form-control(name="sintomas" rows="3")
+
+    .form-group
+      label Presión Arterial
+      input.form-control(type="text" name="presion" placeholder="Ej: 120/80")
+
+    .form-group
+      label Temperatura (°C)
+      input.form-control(type="number" step="0.1" name="temperatura")
+
+    .form-group
+      label Frecuencia Cardíaca (ppm)
+      input.form-control(type="number" name="frecuencia")
+
+    button.btn.btn-primary(type="submit") Registrar Evaluación

@@ -1,3 +1,6 @@
-form(action="/admision/cancelar" method="POST")
-  input(type="hidden" name="paciente_id" value=paciente.id)
-  button.btn.btn-danger(type="submit") Cancelar Admisión
+each paciente in pacientes
+  tr
+    td= paciente.nombre
+    td= paciente.estado
+    td
+      a.btn.btn-info(href=`/enfermeria/evaluar/${paciente.id}`) Evaluar
