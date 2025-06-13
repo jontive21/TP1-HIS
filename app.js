@@ -78,22 +78,3 @@ app.listen(3000, async () => {
     // Probar conexión a la base de datos al iniciar
     await testConnection();
 });
-// Configurar sesiones
-app.use(session({
-  secret: process.env.SESSION_SECRET || 'tu_secreto_seguro',
-  resave: false,
-  saveUninitialized: true,
-  cookie: { 
-    secure: process.env.NODE_ENV === 'production',
-    maxAge: 24 * 60 * 60 * 1000 // 24 horas
-  }
-}));
-
-// Middleware para mensajes flash
-app.use((req, res, next) => {
-  res.locals.success = req.session.success;
-  res.locals.error = req.session.error;
-  delete req.session.success;
-  delete req.session.error;
-  next();
-});

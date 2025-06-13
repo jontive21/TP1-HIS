@@ -34,49 +34,5 @@ const Paciente = {
         return rows;
     }
 };
-class Paciente {
-  constructor(db) {
-    this.db = db;
-  }
 
-  async getAll() {
-    try {
-      const [pacientes] = await this.db.promise().query('SELECT * FROM pacientes');
-      return pacientes;
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  async create(pacienteData) {
-    try {
-      const { nombre, apellido, dni, fecha_nacimiento, genero, direccion, telefono, seguro_medico } = pacienteData;
-      const [result] = await this.db.promise().execute(
-        `INSERT INTO pacientes 
-        (nombre, apellido, dni, fecha_nacimiento, genero, direccion, telefono, seguro_medico) 
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-        [nombre, apellido, dni, fecha_nacimiento, genero, direccion, telefono, seguro_medico]
-      );
-      return result.insertId;
-    } catch (error) {
-      throw error;
-    }
-  }
-  
-  // ... otros métodos
-}
-async create(pacienteData) {
-  try {
-    const { nombre, apellido, dni, fecha_nacimiento, genero, direccion, telefono, seguro_medico } = pacienteData;
-    const [result] = await this.db.promise().execute(
-      `INSERT INTO pacientes 
-      (nombre, apellido, dni, fecha_nacimiento, genero, direccion, telefono, seguro_medico) 
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-      [nombre, apellido, dni, fecha_nacimiento, genero, direccion || null, telefono || null, seguro_medico || null]
-    );
-    return result.insertId;
-  } catch (error) {
-    throw error;
-  }
-}
 module.exports = Paciente;
