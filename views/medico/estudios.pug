@@ -1,0 +1,25 @@
+extends ../layouts/main
+
+block content
+    h1 Solicitud de Estudios
+
+    form(method="post", action="/medico/estudios")
+        .mb-3
+            label.form-label Estudio solicitado
+            input.form-control(type="text", name="estudio", required)
+        .mb-3
+            label.form-label Observaciones
+            textarea.form-control(name="observaciones", rows="2")
+        button.btn.btn-primary(type="submit") Solicitar
+
+    if estudios && estudios.length
+        h2.mt-4 Estudios Solicitados
+        ul.list-group
+            each est in estudios
+                li.list-group-item
+                    span.fw-bold= est.fecha
+                    | : 
+                    span= est.estudio
+                    if est.observaciones
+                        br
+                        small.text-muted= est.observaciones

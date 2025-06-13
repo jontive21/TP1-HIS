@@ -4,10 +4,3 @@ each paciente in pacientes
     td= paciente.estado
     td
       a.btn.btn-info(href=`/enfermeria/evaluar/${paciente.id}`) Evaluar
-
-each paciente in pacientes
-  tr
-    td= paciente.nombre
-    td= paciente.estado
-    td
-      a.btn.btn-success(href=`/medico/diagnostico/${paciente.id}`) Diagnóstico
