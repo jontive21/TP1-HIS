@@ -11,3 +11,11 @@ each paciente in pacientes
     td= paciente.estado
     td
       a.btn.btn-success(href=`/medico/diagnostico/${paciente.id}`) Diagnóstico
+
+      each paciente in pacientes
+  tr
+    td= paciente.nombre
+    td= paciente.estado
+    td
+      if paciente.estado == 'internado'
+        a.btn.btn-warning(href=`/medico/alta/${paciente.id}`) Dar Alta

@@ -6,3 +6,5 @@ router.get('/diagnostico/:id', medicoController.mostrarFormularioDiagnostico);
 router.post('/diagnostico', medicoController.registrarDiagnostico);
 
 module.exports = router;
+router.get('/alta/:id', medicoController.mostrarFormularioAlta);
+router.post('/alta', medicoController.registrarAlta);
