@@ -62,7 +62,7 @@ const indexRoutes = require('./routes/index.js');
 app.use('/', indexRoutes);
 
 // Rutas de admisiones
-const admisionesRoutes = require('./routes/admisiones');
+const admisionesRoutes = require('./routes/admisionRoutes.js');
 app.use('/admisiones', admisionesRoutes);
 
 // Manejo de errores 404
