@@ -13,16 +13,3 @@ exports.requireAuth = (req, res, next) => {
   }
   next();
 };
-/**
- * Restringe el acceso a ciertas rutas
- * solo a usuarios con roles específicos
- */
-exports.restrictTo = (...roles) => {
-  return (req, res, next) => {
-    if (!req.session.user || !roles.includes(req.session.user.rol)) {
-      req.flash('error', 'No tienes permiso para acceder a esta página');
-      return res.redirect('/login');
-    }
-    next();
-  };
-};

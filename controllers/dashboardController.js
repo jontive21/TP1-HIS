@@ -1,3 +1,11 @@
+// controllers/dashboardController.js
+
+exports.showDashboard = (req, res) => {
+  res.render('dashboard', {
+    title: 'Dashboard Principal',
+    message: null
+  });
+};
 exports.showDashboard = (req, res) => {
     res.render('dashboard/index', {
         title: 'Dashboard - HIS Internación',

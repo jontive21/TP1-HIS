@@ -1,6 +1,38 @@
 extends layout
 
 block content
+  h2 Dashboard Principal
+
+  if user
+    p ¡Hola #{user.usuario}!
+    ul
+      li Rol: #{user.rol}
+      li Email: #{user.email}
+
+    hr
+
+    h3 Acciones disponibles:
+    ul
+      if user.rol == 'administrador'
+        li Registro de usuarios
+        li Gestión de camas
+        li Alta hospitalaria
+      if user.rol == 'enfermeria'
+        li Evaluación inicial
+        li Signos vitales
+        li Plan de cuidados
+      if user.rol == 'medico'
+        li Diagnóstico médico
+        li Recetas médicas
+        li Dar alta al paciente
+
+    a(href="/logout") Cerrar sesión
+  else
+    p Por favor, inicia sesión primero
+    
+extends layout
+
+block content
   .container.mt-4
     h1.mb-4 Bienvenido al HIS Internación
     p Selecciona una opción del menú para comenzar.
