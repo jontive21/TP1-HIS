@@ -1,0 +1,24 @@
+extends ../layout
+
+block content
+  h2 Evaluación Médica y Diagnóstico
+
+  if message
+    .alert.alert-danger #{message}
+
+  form(method="POST" action="/medico/diagnostico")
+    input(type="hidden" name="paciente_id" value=paciente.id)
+
+    .form-group
+      label Diagnóstico
+      textarea.form-control(name="diagnostico" rows="5" required)
+
+    .form-group
+      label Tratamiento
+      textarea.form-control(name="tratamiento" rows="4")
+
+    .form-group
+      label Observaciones
+      textarea.form-control(name="observaciones" rows="3")
+
+    button.btn.btn-primary(type="submit") Registrar Diagnóstico

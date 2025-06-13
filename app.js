@@ -46,7 +46,7 @@ app.get('/test-db', async (req, res) => {
 });
 
 // Rutas de médicos
-const medicoRoutes = require('./routes/medico');
+const medicoRoutes = require('./routes/medicoRoutes.js');
 app.use('/medico', medicoRoutes);
 
 // Rutas de enfermería
