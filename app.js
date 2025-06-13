@@ -81,7 +81,7 @@ app.listen(3000, async () => {
 // Configurar sesiones
 
 // Middleware para mensajes flash
-    app.use((req, res, next) => {
+
   res.locals.success = req.session.success;
   res.locals.error = req.session.error;
   delete req.session.success;
