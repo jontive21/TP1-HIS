@@ -2,14 +2,28 @@ function requireAuth(req, res, next) {
     if (req.session && req.session.user) {
         return next();
     } else {
-        // Optionally, you can add a flash message here if your setup supports it
-        // req.flash('error', 'Por favor, inicie sesión para acceder a esta página.');
         res.redirect('/login');
     }
 }
- requireAuth,
-    addUserToViews
 
+function addUserToViews(req, res, next) {
+    if (req.session?.user) {
+        res.locals.user = req.session.user;
+    } else {
+        res.locals.user = null;
+    }
+
+    res.locals.success = req.session?.success || null;
+    res.locals.error = req.session?.error || null;
+
+    delete req.session?.success;
+    delete req.session?.error;
+
+    next();
+}
+
+// ✅ Exportamos ambas funciones
 module.exports = {
-   
+    requireAuth,
+    addUserToViews
 };
