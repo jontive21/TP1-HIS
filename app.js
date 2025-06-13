@@ -50,7 +50,7 @@ const medicoRoutes = require('./routes/medico');
 app.use('/medico', medicoRoutes);
 
 // Rutas de enfermería
-const enfermeriaRoutes = require('./routes/enfermeriaRoutes.js');
+const enfermeriaRoutes = require('./routes/enfermeria');
 app.use('/enfermeria', enfermeriaRoutes);
 
 // Rutas de dashboard

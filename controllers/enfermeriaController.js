@@ -1,38 +1,30 @@
-const pool = require('../database');
+const express = require('express');
+const router = express.Router();
+const Evolucion = require('../models/EvolucionEnfermeria');
 
-// Mostrar formulario de evaluación
-exports.mostrarFormularioEvaluacion = async (req, res) => {
-  const { id } = req.params;
-  const [paciente] = await pool.query('SELECT * FROM pacientes WHERE id = ?', [id]);
-  res.render('enfermeria/evaluacion', { paciente, message: req.flash('error') });
+// Mostrar historial de evolución
+const showEvolucion = async (req, res) => {
+    const admisionId = req.params.admisionId;
+    const evoluciones = await Evolucion.getEvolucionesByAdmision(admisionId);
+    res.render('enfermeria/signos-vitales', { evoluciones });
 };
 
-// Registrar evaluación
-exports.registrarEvaluacion = async (req, res) => {
-  const { paciente_id, presion, temperatura, frecuencia, motivo, sintomas } = req.body;
+// Procesar nueva evolución
+const agregarEvolucion = async (req, res) => {
+    const admisionId = req.params.admisionId;
+    const usuarioId = req.session.user.id; // Ajusta según tu sistema de sesiones
+    const { evolucion } = req.body;
+    const fecha = new Date();
+    await Evolucion.agregarEvolucion({
+        admision_id: admisionId,
+        usuario_id: usuarioId,
+        fecha,
+        evolucion
+    });
+    res.redirect(`/enfermeria/signos-vitales/${admisionId}`);
+};
 
-  if (!presion || !temperatura || !frecuencia) {
-    req.flash('error', 'Los signos vitales son obligatorios');
-    return res.redirect(`/enfermeria/evaluar/${paciente_id}`);
-  }
-
-  try {
-    await pool.query(
-      'INSERT INTO signos_vitales SET ?', 
-      {
-        paciente_id,
-        presion,
-        temperatura,
-        frecuencia_cardiaca: frecuencia,
-        motivo_internacion: motivo,
-        sintomas
-      }
-    );
-    req.flash('success', 'Evaluación registrada correctamente');
-    res.redirect('/dashboard');
-  } catch (error) {
-    console.error(error);
-    req.flash('error', 'Error al registrar la evaluación');
-    res.redirect(`/enfermeria/evaluar/${paciente_id}`);
-  }
+module.exports = {
+    showEvolucion,
+    agregarEvolucion
 };
