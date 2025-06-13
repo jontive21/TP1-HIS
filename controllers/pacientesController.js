@@ -29,8 +29,22 @@ exports.showPacientes = async (req, res) => {
 
 // Mostrar formulario para nuevo paciente
 exports.showNewPaciente = (req, res) => {
-    
-    res.render('pacientes/crear', { title: 'Nuevo Paciente', paciente: {} });
+    res.render('pacientes/new', { title: 'Nuevo Paciente' });
+};
+
+// Procesar creación de paciente
+exports.createPaciente = async (req, res) => {
+    const data = req.body;
+    const dniExists = await Paciente.validateDNI(data.dni);
+    if (dniExists) {
+        return res.render('pacientes/new', { 
+            title: 'Nuevo Paciente', 
+            error: 'El DNI ya está registrado.', 
+            paciente: data 
+        });
+    }
+    await Paciente.createPaciente(data);
+    res.redirect('/pacientes');
 };
 
 // Mostrar formulario de edición
@@ -50,10 +64,13 @@ exports.updatePaciente = async (req, res) => {
     const id = req.params.id;
     const data = req.body;
     await Paciente.updatePaciente(id, data);
-    res.redirect(`/pacientes/${id}`);
+    res.redirect('/pacientes');
 };
 
-// Eliminar paciente (baja lógica)
+/**
+ * Eliminar paciente (baja lógica)
+ * FUNCIÓN FALTANTE CRÍTICA
+ */
 exports.deletePaciente = async (req, res) => {
     try {
         const { id } = req.params;
@@ -85,8 +102,8 @@ exports.deletePaciente = async (req, res) => {
     }
 };
 
-// Crear o actualizar paciente (upsert)
-exports.upsertPaciente = async (req, res) => {
+// Crear o actualizar paciente por DNI
+exports.crearPaciente = async (req, res) => {
     try {
         const { dni } = req.body;
 
@@ -117,13 +134,9 @@ exports.upsertPaciente = async (req, res) => {
             return res.redirect(`/pacientes/${pacienteId}`);
         }
     } catch (error) {
-        console.error('Error al procesar paciente:', error);
-        // Re-render the creation form with an error message and submitted data
-        res.render('pacientes/crear', { 
-            title: 'Registrar Paciente', 
-            error: 'Error al procesar paciente. Verifique los datos.', 
-            paciente: req.body 
-        });
+        console.error('Error al crear/actualizar paciente:', error);
+        req.session.error = 'Error al crear o actualizar paciente';
+        res.redirect('/pacientes/crear');
     }
 };
 
@@ -160,5 +173,10 @@ exports.detallePaciente = async (req, res) => {
         req.session.error = 'Paciente no encontrado';
         return res.redirect('/pacientes');
     }
-    res.render('pacientes/detalle', { paciente: pacientes[0] });
+    // Pasa los mensajes y luego bórralos para que no se repitan
+    const success = req.session.success;
+    const error = req.session.error;
+    delete req.session.success;
+    delete req.session.error;
+    res.render('pacientes/detalle', { paciente: pacientes[0], success, error });
 };
