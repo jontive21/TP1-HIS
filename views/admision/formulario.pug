@@ -10,11 +10,11 @@ block content
 
   form(method="POST" action="/admision/asignar")
     input(type="hidden" name="paciente_id" value=paciente.id)
+    input(type="hidden" name="sexo" value=paciente.sexo)
 
-    .form-group
-      label Selecciona una cama
-      select.form-control(name="cama_id")
-        each cama in camas
-          option(value=cama.id) Habitación #{cama.habitacion_numero}, Cama #{cama.cama_numero}
+    label Selecciona una cama:
+    select.form-control(name="cama_id")
+      each cama in camas
+        option(value=cama.id) Habitación #{cama.habitacion_numero}, Cama #{cama.cama_numero}
 
     button.btn.btn-primary(type="submit") Asignar Cama
