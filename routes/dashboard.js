@@ -1,22 +1,20 @@
-const express = require('express');
-const router = express.Router(); // Aquí defines 'router'
-
-// Ruta del dashboard
 router.get('/', (req, res) => {
+  // Verificar si el usuario está autenticado
   if (!req.session.user) {
     return res.redirect('/login');
   }
 
-  const camasDisponibles = 15;
-  const camasTotal = 30;
+  // Obtener datos de camas
+  const camasDisponibles = 15; // Ejemplo, deberías obtener de la BD
+  const camasTotal = 30; // Ejemplo, deberías obtener de la BD
+  
+  // Asegurar que lastAccess tenga un valor por defecto
   const lastAccess = req.session.lastAccess || new Date().toLocaleString();
-
+  
   res.render('dashboard/index', {
-    user: req.session.user,
+    user: req.session.user, // Usar el usuario de la sesión
     lastAccess: lastAccess,
-    camasDisponibles,
-    camasTotal
+    camasDisponibles: camasDisponibles,
+    camasTotal: camasTotal
   });
 });
-
-module.exports = router; // Exportamos el router

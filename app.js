@@ -79,6 +79,15 @@ app.listen(3000, async () => {
     await testConnection();
 });
 // Configurar sesiones
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'tu_secreto_seguro',
+  resave: false,
+  saveUninitialized: true,
+  cookie: { 
+    secure: process.env.NODE_ENV === 'production',
+    maxAge: 24 * 60 * 60 * 1000 // 24 horas
+  }
+}));
 
 // Middleware para mensajes flash
 app.use((req, res, next) => {
