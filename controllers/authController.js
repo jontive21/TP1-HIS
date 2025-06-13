@@ -82,3 +82,44 @@ module.exports = {
         }
     }
 };
+exports.login = async (req, res) => {
+  const { email, password } = req.body;
+  
+  try {
+    // Buscar usuario en la base de datos
+    const [users] = await db.promise().query('SELECT * FROM usuarios WHERE email = ?', [email]);
+    
+    if (users.length === 0) {
+      req.session.error = 'Credenciales inválidas';
+      return res.redirect('/login');
+    }
+    
+    const user = users[0];
+    
+    // Verificar contraseña
+    const passwordMatch = await bcrypt.compare(password, user.password);
+    
+    if (!passwordMatch) {
+      req.session.error = 'Credenciales inválidas';
+      return res.redirect('/login');
+    }
+    
+    // Establecer sesión
+    req.session.user = {
+      id: user.id,
+      nombre: user.nombre,
+      apellido: user.apellido,
+      email: user.email,
+      rol: user.rol
+    };
+    
+    req.session.lastAccess = new Date().toLocaleString();
+    req.session.success = 'Inicio de sesión exitoso';
+    
+    res.redirect('/dashboard');
+  } catch (error) {
+    console.error(error);
+    req.session.error = 'Error en el servidor';
+    res.redirect('/login');
+  }
+};

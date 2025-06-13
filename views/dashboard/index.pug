@@ -12,4 +12,135 @@ block content
   .display-4#admisiones-hoy #{admisionesHoy}
   .display-4#altas-hoy #{altasHoy}
 
+extends ../layout
+
+block content
+  .container.mt-4
+    .d-flex.justify-content-between.align-items-center.mb-4
+      h1 Dashboard
+      .user-info
+        .d-flex.align-items-center
+          .avatar.bg-primary.text-white.rounded-circle.d-flex.align-items-center.justify-content-center(style="width: 40px; height: 40px;")
+            | #{user.nombre.charAt(0)}#{user.apellido.charAt(0)}
+          .ms-2
+            .fw-bold #{user.nombre} #{user.apellido}
+            small.text-muted Rol: #{user.rol} | Último acceso: #{lastAccess}
+    
+    if success
+      .alert.alert-success.alert-dismissible.fade.show
+        | #{success}
+        button.btn-close(type="button", data-bs-dismiss="alert")
+    
+    if error
+      .alert.alert-danger.alert-dismissible.fade.show
+        | #{error}
+        button.btn-close(type="button", data-bs-dismiss="alert")
+    
+    .row
+      .col-md-3.mb-4
+        .card.h-100
+          .card-body
+            .d-flex.justify-content-between
+              .card-title Camas Disponibles
+              .card-icon.bg-primary.bg-opacity-10.text-primary.rounded-circle.d-flex.align-items-center.justify-content-center(style="width: 50px; height: 50px;")
+                i.bi.bi-hospital
+            .display-4.fw-bold.mt-3 #{camasDisponibles}
+            small.text-muted de #{camasTotal} total
+      
+      .col-md-3.mb-4
+        .card.h-100
+          .card-body
+            .d-flex.justify-content-between
+              .card-title Pacientes Activos
+              .card-icon.bg-success.bg-opacity-10.text-success.rounded-circle.d-flex.align-items-center.justify-content-center(style="width: 50px; height: 50px;")
+                i.bi.bi-people
+            .display-4.fw-bold.mt-3 86
+            small.text-muted 12 en cuidados intensivos
+      
+      .col-md-3.mb-4
+        .card.h-100
+          .card-body
+            .d-flex.justify-content-between
+              .card-title Personal Activo
+              .card-icon.bg-warning.bg-opacity-10.text-warning.rounded-circle.d-flex.align-items-center.justify-content-center(style="width: 50px; height: 50px;")
+                i.bi.bi-person-badge
+            .display-4.fw-bold.mt-3 42
+            small.text-muted 15 médicos, 27 enfermeros
+      
+      .col-md-3.mb-4
+        .card.h-100
+          .card-body
+            .d-flex.justify-content-between
+              .card-title Alertas
+              .card-icon.bg-danger.bg-opacity-10.text-danger.rounded-circle.d-flex.align-items-center.justify-content-center(style="width: 50px; height: 50px;")
+                i.bi.bi-exclamation-triangle
+            .display-4.fw-bold.mt-3 3
+            small.text-muted Necesidad de insumos en UCI
+    
+    .row.mt-4
+      .col-md-8
+        .card
+          .card-body
+            h5.card-title Ocupación de Camas por Área
+            canvas#ocupacionChart(height="300")
+      
+      .col-md-4
+        .card
+          .card-body
+            h5.card-title Actividad Reciente
+            .activity-list
+              .activity-item.mb-3
+                .d-flex
+                  .avatar.bg-light.text-primary.rounded-circle.d-flex.align-items-center.justify-content-center(style="width: 40px; height: 40px;")
+                    i.bi.bi-hospital
+                  .ms-3
+                    .fw-bold Admisión de paciente
+                    small.text-muted Juan Pérez ingresó al ala de Medicina
+                    .text-end.small.text-muted Hace 15 minutos
+              .activity-item.mb-3
+                .d-flex
+                  .avatar.bg-light.text-success.rounded-circle.d-flex.align-items-center.justify-content-center(style="width: 40px; height: 40px;")
+                    i.bi.bi-clipboard-check
+                  .ms-3
+                    .fw-bold Evaluación médica
+                    small.text-muted Dra. Martínez completó evaluación
+                    .text-end.small.text-muted Hace 45 minutos
+    
+    script(src="https://cdn.jsdelivr.net/npm/chart.js")
+    script.
+      document.addEventListener('DOMContentLoaded', function() {
+        // Gráfico de ocupación de camas
+        const ctx = document.getElementById('ocupacionChart').getContext('2d');
+        const chart = new Chart(ctx, {
+          type: 'bar',
+          data: {
+            labels: ['Medicina', 'Cirugía', 'Cuidados Intensivos', 'Pediatría'],
+            datasets: [{
+              label: 'Camas Ocupadas',
+              data: [85, 72, 95, 60],
+              backgroundColor: 'rgba(54, 162, 235, 0.5)',
+              borderColor: 'rgba(54, 162, 235, 1)',
+              borderWidth: 1
+            }, {
+              label: 'Camas Disponibles',
+              data: [15, 28, 5, 40],
+              backgroundColor: 'rgba(75, 192, 192, 0.5)',
+              borderColor: 'rgba(75, 192, 192, 1)',
+              borderWidth: 1
+            }]
+          },
+          options: {
+            responsive: true,
+            scales: {
+              y: {
+                beginAtZero: true,
+                title: {
+                  display: true,
+                  text: 'Cantidad de Camas'
+                }
+              }
+            }
+          }
+        });
+      });
   // ...resto de tu plantilla...
