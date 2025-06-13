@@ -1,5 +1,5 @@
+const { pool } = require('../config/db'); // Asegúrate de exportar el pool correctamente
 const Paciente = require('../models/Paciente');
-const { pool } = require('../config/db'); // Agrega esta línea al inicio si no está
 
 // Mostrar lista paginada de pacientes
 exports.showPacientes = async (req, res) => {
@@ -12,8 +12,7 @@ exports.showPacientes = async (req, res) => {
     if (search) {
         pacientes = await Paciente.searchPacientes(search);
     } else {
-        const [rows] = awaitpool.consulta 
-        
+        const [rows] = await pool.query(
             `SELECT * FROM pacientes WHERE activo = TRUE ORDER BY apellido, nombre LIMIT ? OFFSET ?`,
             [limit, offset]
         );
@@ -30,15 +29,13 @@ exports.showPacientes = async (req, res) => {
 
 // Mostrar formulario para nuevo paciente
 exports.showNewPaciente = (req, res) => {
-    
     res.render('pacientes/crear', { title: 'Nuevo Paciente', paciente: {} });
 };
 
 // Mostrar formulario de edición
 exports.showEditPaciente = async (req, res) => {
     const id = req.params.id;
-    const [rows] = awaitpool.consulta 
-            
+    const [rows] = await pool.query(
         `SELECT * FROM pacientes WHERE id = ? AND activo = TRUE`, [id]
     );
     if (!rows.length) {
@@ -51,7 +48,7 @@ exports.showEditPaciente = async (req, res) => {
 exports.updatePaciente = async (req, res) => {
     const id = req.params.id;
     const data = req.body;
-    await Paciente.updatePaciente(id, data);
+    await Paciente.updatePaciente(id, data); // Asegúrate de que este método exista
     res.redirect(`/pacientes/${id}`);
 };
 
@@ -164,11 +161,12 @@ exports.detallePaciente = async (req, res) => {
     }
     res.render('pacientes/detalle', { paciente: pacientes[0] });
 };
-const Paciente = require('../models/pacienteModel');
+
+// Controlador alternativo usando modelo (si corresponde)
 
 exports.listPacientes = async (req, res) => {
   try {
-    const pacienteModel = new Paciente(req.db);
+    const pacienteModel = new Paciente(); // Ajusta según tu modelo
     const pacientes = await pacienteModel.getAll();
     res.render('pacientes/list', { pacientes });
   } catch (error) {
@@ -179,18 +177,6 @@ exports.listPacientes = async (req, res) => {
 };
 
 exports.createPaciente = async (req, res) => {
-  try {
-    const pacienteModel = new Paciente(req.db);
-    await pacienteModel.create(req.body);
-    req.session.success = 'Paciente creado exitosamente';
-    res.redirect('/pacientes');
-  } catch (error) {
-    console.error(error);
-    req.session.error = 'Error al crear paciente: ' + error.message;
-    res.redirect('/pacientes/create');
-  }
-};
-exports.createPaciente = async (req, res) => {
   const { nombre, apellido, dni, fecha_nacimiento, genero } = req.body;
   
   // Validación básica
@@ -200,7 +186,7 @@ exports.createPaciente = async (req, res) => {
   }
   
   try {
-    const pacienteModel = new Paciente(req.db);
+    const pacienteModel = new Paciente();
     await pacienteModel.create(req.body);
     req.session.success = 'Paciente creado exitosamente';
     res.redirect('/pacientes');

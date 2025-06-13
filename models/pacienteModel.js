@@ -1,82 +1,69 @@
-const db = require('../config/db.js');
-const Paciente = {
+const db = require('../config/db');
 
+class Paciente {
+    constructor(db) {
+        this.db = db;
+    }
+
+    // Insertar paciente
     async insertar(paciente) {
-        const { nombre, apellido, dni}= paciente;
-        await db.query(
+        const { nombre, apellido, dni } = paciente;
+        await this.db.query(
             'INSERT INTO pacientes (nombre, apellido, dni) VALUES (?, ?, ?)',
             [nombre, apellido, dni]
-        )
-    },
+        );
+    }
 
+    // Actualizar paciente
     async actualizar(id, paciente) {
         const { nombre, apellido, dni } = paciente;
-        await db.query('UPDATE pacientes SET nombre = ?, apellido = ?, dni = ? WHERE id = ?',
-            [nombre, apellido, dni, id]);
-    },
-    
+        await this.db.query(
+            'UPDATE pacientes SET nombre = ?, apellido = ?, dni = ? WHERE id = ?',
+            [nombre, apellido, dni, id]
+        );
+    }
+
+    // Eliminar paciente
     async eliminar(id) {
-        await db.query('DELETE FROM pacientes WHERE id = ?', [id]);
-    },
+        await this.db.query('DELETE FROM pacientes WHERE id = ?', [id]);
+    }
 
+    // Obtener por ID
     async obtenerPorId(id) {
-        const [rows] = await db.query('SELECT * FROM pacientes WHERE id = ?', [id]);
+        const [rows] = await this.db.query('SELECT * FROM pacientes WHERE id = ?', [id]);
         return rows[0];
-    },
+    }
 
+    // Obtener todos
     async obtenerTodos() {
-        const [rows] = await db.query('SELECT * FROM pacientes');
-        return rows;
-    },
-
-    async obtenerPorNombre (nombre) {
-        const [rows] = await db.query('SELECT * FROM pacientes WHERE nombre LIKE ?', [`%${nombre}%`]);
+        const [rows] = await this.db.query('SELECT * FROM pacientes');
         return rows;
     }
-};
-class Paciente {
-  constructor(db) {
-    this.db = db;
-  }
 
-  async getAll() {
-    try {
-      const [pacientes] = await this.db.promise().query('SELECT * FROM pacientes');
-      return pacientes;
-    } catch (error) {
-      throw error;
+    // Buscar por nombre
+    async obtenerPorNombre(nombre) {
+        const [rows] = await this.db.query('SELECT * FROM pacientes WHERE nombre LIKE ?', [`%${nombre}%`]);
+        return rows;
     }
-  }
 
-  async create(pacienteData) {
-    try {
-      const { nombre, apellido, dni, fecha_nacimiento, genero, direccion, telefono, seguro_medico } = pacienteData;
-      const [result] = await this.db.promise().execute(
-        `INSERT INTO pacientes 
-        (nombre, apellido, dni, fecha_nacimiento, genero, direccion, telefono, seguro_medico) 
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-        [nombre, apellido, dni, fecha_nacimiento, genero, direccion, telefono, seguro_medico]
-      );
-      return result.insertId;
-    } catch (error) {
-      throw error;
+    // Método alternativo usando promesas (si usas mysql2/promise)
+    async getAll() {
+        const [pacientes] = await this.db.promise().query('SELECT * FROM pacientes');
+        return pacientes;
     }
-  }
-  
-  // ... otros métodos
+
+    async create(pacienteData) {
+        const { nombre, apellido, dni, fecha_nacimiento, genero, direccion, telefono, seguro_medico } = pacienteData;
+        const [result] = await this.db.promise().execute(
+            `INSERT INTO pacientes 
+            (nombre, apellido, dni, fecha_nacimiento, genero, direccion, telefono, seguro_medico) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+            [nombre, apellido, dni, fecha_nacimiento, genero, direccion || null, telefono || null, seguro_medico || null]
+        );
+        return result.insertId;
+    }
 }
-async create(pacienteData) {
-  try {
-    const { nombre, apellido, dni, fecha_nacimiento, genero, direccion, telefono, seguro_medico } = pacienteData;
-    const [result] = await this.db.promise().execute(
-      `INSERT INTO pacientes 
-      (nombre, apellido, dni, fecha_nacimiento, genero, direccion, telefono, seguro_medico) 
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-      [nombre, apellido, dni, fecha_nacimiento, genero, direccion || null, telefono || null, seguro_medico || null]
-    );
-    return result.insertId;
-  } catch (error) {
-    throw error;
-  }
-}
-module.exports = Paciente;
+
+module.exports = new Paciente(db); // Exportamos instancia directamente
+// o si prefieres exportar la clase para instanciarla después:
+// module.exports = Paciente;
