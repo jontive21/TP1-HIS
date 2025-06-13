@@ -4,12 +4,13 @@ block content
   h1 
   p Texto de ejemplo.
 
-  small Rol: #{user.rol} | Último acceso: #{lastAccess}
-  .display-4#camas-disponibles #{camasDisponibles}
-  small.text-muted de #{camasTotal} total
+small Rol: #{user.rol} | Último acceso: #{lastAccess}
 
-  .display-4#pacientes-internados #{pacientesInternados}
-  .display-4#admisiones-hoy #{admisionesHoy}
-  .display-4#altas-hoy #{altasHoy}
+.display-4#camas-disponibles #{camasDisponibles}
+small.text-muted de #{camasTotal} total
 
-  // ...resto de tu plantilla...
+.display-4#pacientes-internados #{pacientesInternados}
+.display-4#admisiones-hoy #{admisionesHoy}
+.display-4#altas-hoy #{altasHoy}
+
+// ...resto de tu plantilla...
