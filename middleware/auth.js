@@ -13,7 +13,8 @@ function requireAuth(req, res, next) {
         res.redirect('/login');
     }
 }
-
+ requireAuth,
+    addUserToViews
 /**
  * Middleware to make user information available to all views if logged in.
  * It also makes session messages (error, success) available to views and clears them.
@@ -39,6 +40,5 @@ function addUserToViews(req, res, next) {
 }
 
 module.exports = {
-    requireAuth,
-    addUserToViews
+   
 };
