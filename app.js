@@ -45,7 +45,7 @@ app.use((req, res, next) => {
 // Rutas principales
 app.use('/', require('./routes/index'));
 app.use('/login', require('./routes/auth'));
-app.use('/logout', require('./routes/logout'));
+
 app.use('/dashboard', require('./routes/dashboard'));
 app.use('/pacientes', require('./routes/pacientes'));
 app.use('/admision', require('./routes/admision'));
