@@ -1,51 +1,36 @@
-// Importar modelos y librerías necesarias
-const Usuario = require('../models/Usuario');
+// controllers/authController.js
+const bcrypt = require('bcryptjs');
 
-// Controlador de autenticación
-module.exports = {
-    // Procesar login
-    processLogin: async (req, res) => {
-        try {
-            const { email, password } = req.body;
+exports.loginGet = (req, res) => {
+  const message = req.flash('error') || null;
+  res.render('login', { message });
+};
 
-            // Validaciones básicas
-            if (!email || !password) {
-                req.session.error = 'Email y contraseña son obligatorios';
-                return res.redirect('/login');
-            }
+exports.loginPost = async (req, res) => {
+  const { usuario, password } = req.body;
 
-            // Buscar usuario (incluyendo el hash de la contraseña)
-            const usuario = await Usuario.findByEmail(email);
-            if (!usuario) {
-                req.session.error = 'Credenciales inválidas';
-                return res.redirect('/login');
-            }
+  const [rows] = await pool.query('SELECT * FROM usuarios WHERE usuario = ?', [usuario]);
 
-            // Verificar contraseña
-            const isValidPassword = await Usuario.verifyPassword(password, usuario.password);
-            if (!isValidPassword) {
-                req.session.error = 'Credenciales inválidas';
-                return res.redirect('/login');
-            }
+  if (!rows.length) {
+    req.flash('error', 'Usuario o contraseña incorrectos');
+    return res.redirect('/login');
+  }
 
-            // Guardar usuario en sesión (sin la contraseña)
-            req.session.user = {
-                id: usuario.id,
-                nombre: usuario.nombre,
-                apellido: usuario.apellido,
-                email: usuario.email,
-                rol: usuario.rol
-            };
+  const user = rows[0];
+  const isValidPassword = await bcrypt.compare(password, user.password);
 
-            console.log(`✅ Login exitoso: ${usuario.email} (${usuario.rol})`);
-            res.redirect('/dashboard');
+  if (!isValidPassword) {
+    req.flash('error', 'Contraseña incorrecta');
+    return res.redirect('/login');
+  }
 
-        } catch (error) {
-            console.error('Error en login:', error);
-            req.session.error = 'Error interno del servidor';
-            res.redirect('/login');
-        }
-    },
+  req.session.user = user;
+  res.redirect('/dashboard');
+};
 
-    // ...otros métodos del controlador...
+exports.logout = (req, res) => {
+  req.session.destroy(err => {
+    if (err) throw err;
+    res.redirect('/login');
+  });
 };
