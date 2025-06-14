@@ -1,25 +1,27 @@
-// /database/connection.js
+// database/connection.js
 const mysql = require('mysql2/promise');
 require('dotenv').config();
 
 const pool = mysql.createPool({
   host: process.env.DB_HOST || 'localhost',
   user: process.env.DB_USER || 'root',
-  password: process.env.DB_PASSWORD || '',
+  password: process.env.DB_PASSWORD || '', // ← Reemplaza con tu contraseña real
   database: process.env.DB_NAME || 'his_db',
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0
 });
+
 async function testConnection() {
   try {
-    const connection = await pool.getConnection();
+    const conn = await pool.getConnection();
     console.log('MySQL conectado');
-    connection.release();
+    conn.release();
     return true;
-  } catch (error) {
-    console.error('Error al conectar a MySQL:', error.message);
+  } catch (err) {
+    console.error('Error al conectar a MySQL:', err.message);
     return false;
   }
 }
+
 module.exports = { pool, testConnection };

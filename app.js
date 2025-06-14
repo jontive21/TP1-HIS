@@ -1,73 +1,73 @@
+// app.js
 const express = require('express');
 const path = require('path');
 const session = require('express-session');
-const { testConnection } = require('./config/db');
+const { pool, testConnection } = require('./database/connection'); // ✅ Bien hecho
 require('dotenv').config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Configuración de PUG como motor de plantillas
+// Motor de vistas
 app.set('view engine', 'pug');
 app.set('views', path.join(__dirname, 'views'));
 
 // Middlewares básicos
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Configuración de sesiones
+// Sesiones
 app.use(session({
-    secret: process.env.SESSION_SECRET,
+    secret: process.env.SESSION_SECRET || 'una_clave_segura',
     resave: false,
     saveUninitialized: false,
-    cookie: { 
-        secure: false, // cambiar a true en producción con HTTPS
+    cookie: {
         maxAge: 24 * 60 * 60 * 1000 // 24 horas
     }
 }));
 
-// Ruta para verificar que todo funciona
-app.get('/', (req, res) => {
-    res.render('dashboard');
+// Middleware para compartir usuario y mensajes en vistas
+app.use((req, res, next) => {
+    res.locals.user = req.session.user || null;
+    res.locals.error = req.session.error || null;
+    delete req.session.error;
+    next();
 });
 
-// Ruta para probar conexión a BD
+// Ruta principal
+app.get('/', (req, res) => {
+    if (res.locals.user) {
+        res.redirect('/dashboard');
+    } else {
+        res.redirect('/login');
+    }
+});
+
+// Test de conexión a BD
 app.get('/test-db', async (req, res) => {
     const connectionOk = await testConnection();
     if (connectionOk) {
         res.json({ 
             status: 'success', 
-            message: 'Conexión a base de datos exitosa',
-            timestamp: new Date().toISOString()
+            message: 'Conexión a base de datos exitosa'
         });
     } else {
         res.status(500).json({ 
             status: 'error', 
-            message: 'Error conectando a la base de datos' 
+            message: 'Error conectando a la BD' 
         });
     }
 });
 
-// Rutas de médicos
-const medicoRoutes = require('./routes/medico');
-app.use('/medico', medicoRoutes);
-
-// Rutas de enfermería
-const enfermeriaRoutes = require('./routes/enfermeria');
-app.use('/enfermeria', enfermeriaRoutes);
-
-// Rutas de dashboard
-const dashboardRoutes = require('./routes/dashboard.js');
-app.use('/dashboard', dashboardRoutes);
-
-// Rutas de pacientes 
-const pacientesRoutes = require('./routes/pacientes');
-app.use('/pacientes', pacientesRoutes);
-
-// Rutas de admisiones
-const admisionesRoutes = require('./routes/admisionRoutes.js');
-app.use('/admisiones', admisionesRoutes);
+// Rutas principales
+app.use('/login', require('./routes/auth'));
+app.use('/logout', require('./routes/logout'));
+app.use('/dashboard', require('./routes/dashboard'));
+app.use('/pacientes', require('./routes/pacientes'));
+app.use('/admisiones', require('./routes/admisionRoutes'));
+app.use('/enfermeria', require('./routes/enfermeria'));
+app.use('/medico', require('./routes/medico'));
 
 // Manejo de errores 404
 app.use((req, res) => {
@@ -78,10 +78,6 @@ app.use((req, res) => {
 app.listen(PORT, async () => {
     console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
     console.log('🏥 HIS Internación - Sistema Hospitalario');
-    
-    // Probar conexión a la base de datos al iniciar
-    await testConnection();
-});
 
-// Si usas tests automáticos, deja esto:
-module.exports = app;
+    await testConnection(); // Probar conexión a BD al iniciar
+});

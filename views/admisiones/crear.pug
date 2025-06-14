@@ -1,16 +1,15 @@
 extends ../layout
 
 block content
-  h2 Nueva Admisión
+  h2 Asignar Cama
 
-  if message
-    .alert.alert-danger #{message}
-  if success
-    .alert.alert-success #{success}
+  if error
+    .alert.alert-danger #{error}
 
   form(method="POST" action="/admisiones/asignar")
     input(type="hidden" name="paciente_id" value=paciente.id)
-    
+    input(type="hidden" name="sexo" value=paciente.sexo)
+
     label Selecciona una cama:
     select.form-control(name="cama_id")
       each cama in camas
