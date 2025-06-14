@@ -36,7 +36,7 @@ app.listen(PORT, () => {
     console.log(`Servidor corriendo en http://localhost:${PORT}`);
 });
 
-
+const express = require('express');
 const router = express.Router();
 const { requireAuth } = require('../middleware/auth');
 const dashboardController = require('../controllers/dashboardController');
