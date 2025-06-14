@@ -1,23 +1,25 @@
 extends ../layout
 
 block content
-  h2 Listado de Admisiones Activas
+  h2 Admisiones Activas
 
-  if message
-    .alert.alert-danger #{message}
+  if error
+    .alert.alert-danger #{error}
 
   table.table
     thead
       tr
+        th ID
         th Paciente
         th Habitación
         th Cama
-        th Médico Referente
-        th Diagnóstico Inicial
-        th Fecha Ingreso
+        th Médico referente
+        th Diagnóstico inicial
+        th Fecha ingreso
     tbody
       each admision in admisiones
         tr
+          td= admision.id
           td= `${admision.paciente_nombre} ${admision.paciente_apellido}`
           td= admision.habitacion_numero
           td= admision.cama_numero
@@ -25,4 +27,5 @@ block content
           td= admision.diagnostico_inicial
           td= admision.fecha_ingreso
 
+  hr
   a(href="/admisiones/crear") + Nueva Admisión
