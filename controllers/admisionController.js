@@ -17,7 +17,7 @@ exports.showNuevaAdmision = async (req, res) => {
     res.render('admisiones/crear', { pacientes, camas });
 
   } catch (err) {
-    console.error('Error al cargar formulario de admisión:', err.message);
+    console.error('Error al cargar formulario:', err.message);
     req.session.error = 'No se pudo cargar el formulario de admisión';
     res.redirect('/');
   }
@@ -33,7 +33,7 @@ exports.asignarCama = async (req, res) => {
   }
 
   try {
-    // Validar disponibilidad de la cama
+    // Validar disponibilidad de cama
     const [camas] = await pool.query(
       'SELECT * FROM camas WHERE id = ? AND limpia = TRUE AND ocupada = FALSE',
       [cama_id]
@@ -41,10 +41,10 @@ exports.asignarCama = async (req, res) => {
 
     if (!camas.length) {
       req.session.error = 'La cama seleccionada no está disponible.';
-      return res.redirect(`/admisiones/${paciente_id}`);
+      return res.redirect('/admisiones/crear');
     }
 
-    // Validar género en habitaciones dobles
+    // Validar género en habitación doble
     const [paciente] = await pool.query(`
       SELECT p.sexo 
       FROM pacientes p
