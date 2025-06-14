@@ -1,5 +1,7 @@
+// middleware/auth.js
+
 /**
- * Comparte los datos del usuario logueado
+ * Middleware que comparte los datos del usuario logueado
  * con todas las vistas Pug
  */
 exports.addUserToViews = (req, res, next) => {
@@ -8,7 +10,7 @@ exports.addUserToViews = (req, res, next) => {
 };
 
 /**
- * Restringe el acceso a ciertas rutas
+ * Middleware que restringe el acceso a ciertas rutas
  * solo a usuarios con roles específicos
  */
 exports.restrictTo = (...roles) => {
