@@ -62,7 +62,6 @@ app.get('/test-db', async (req, res) => {
 
 // Rutas principales
 app.use('/login', require('./routes/auth'));
-app.use('/logout', require('./routes/logout'));
 app.use('/dashboard', require('./routes/dashboard'));
 app.use('/pacientes', require('./routes/pacientes'));
 app.use('/admisiones', require('./routes/admisionRoutes'));
