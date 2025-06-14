@@ -1,14 +1,15 @@
 // controllers/admisionController.js
-const { pool } = require('../database/connection'); // Importa el pool desde connection.js
-const camaService = require('../services/camaService');
+const pool = require('../database/connection');  // Usamos el pool desde database/connection.js
 
 // Mostrar formulario de admisión
 exports.mostrarFormularioAdmision = async (req, res) => {
-  const { id } = req.params;
-
   try {
+    const { id } = req.params;
+
+    // Obtener paciente para mostrar nombre
     const [paciente] = await pool.query('SELECT * FROM pacientes WHERE id = ?', [id]);
 
+    // Obtener camas disponibles (limpias y no ocupadas)
     const [camas] = await pool.query(`
       SELECT c.id, h.numero AS habitacion_numero, c.numero AS cama_numero 
       FROM camas c
@@ -17,14 +18,14 @@ exports.mostrarFormularioAdmision = async (req, res) => {
     `);
 
     res.render('admision/formulario', { 
-      paciente: paciente[0], 
+      paciente, 
       camas,
       message: req.flash('error'),
       success: req.flash('success')
     });
 
   } catch (err) {
-    console.error('Error al cargar formulario de admisión:', err.message);
+    console.error(err);
     req.flash('error', 'Error al cargar el formulario de admisión');
     res.redirect('/dashboard');
   }
@@ -32,20 +33,42 @@ exports.mostrarFormularioAdmision = async (req, res) => {
 
 // Asignar cama al paciente
 exports.asignarCama = async (req, res) => {
-  const { paciente_id, cama_id, sexo } = req.body;
+  const { paciente_id, cama_id, tipo_admision, medico_referente } = req.body;
 
   // Validar campos obligatorios
-  if (!paciente_id || !cama_id || !sexo) {
+  if (!paciente_id || !cama_id) {
     req.flash('error', 'Datos incompletos');
     return res.redirect('/admision');
   }
 
   // Verificar disponibilidad de la cama
-  const disponible = await camaService.camaDisponible(cama_id, sexo);
+  const [camas] = await pool.query(
+    'SELECT * FROM camas WHERE id = ? AND limpia = TRUE AND ocupada = FALSE',
+    [cama_id]
+  );
 
-  if (!disponible) {
-    req.flash('error', 'La cama no está disponible o no se puede asignar por género');
-    return res.redirect(`/admision/${paciente_id}`);
+  if (!camas.length) {
+    req.flash('error', 'La cama seleccionada no está disponible');
+    return res.redirect('/admision');
+  }
+
+  // Verificar género en habitaciones dobles
+  const [paciente] = await pool.query(
+    'SELECT sexo FROM pacientes WHERE id = ?', 
+    [paciente_id]
+  );
+
+  const [cama] = await pool.query(`
+    SELECT p.sexo 
+    FROM pacientes p
+    JOIN camas c ON p.cama_id = c.id
+    WHERE c.id = ?
+    LIMIT 1`, [cama_id]
+  );
+
+  if (cama.length > 0 && cama[0].sexo && cama[0].sexo !== paciente[0].sexo) {
+    req.flash('error', 'No se pueden mezclar géneros en habitaciones dobles');
+    return res.redirect('/admision');
   }
 
   // Iniciar transacción
@@ -60,7 +83,10 @@ exports.asignarCama = async (req, res) => {
     );
 
     // Marcar cama como ocupada
-    await camaService.asignarCama(conn, cama_id);
+    await conn.query(
+      'UPDATE camas SET ocupada = TRUE WHERE id = ?', 
+      [cama_id]
+    );
 
     await conn.commit();
     req.flash('success', 'Paciente admitido correctamente');
@@ -68,10 +94,9 @@ exports.asignarCama = async (req, res) => {
 
   } catch (err) {
     await conn.rollback();
-    console.error('Error al asignar cama:', err.message);
+    console.error(err);
     req.flash('error', 'Error al asignar cama');
     res.redirect(`/admision/${paciente_id}`);
-
   } finally {
     conn.release();
   }
@@ -86,7 +111,7 @@ exports.cancelarAdmision = async (req, res) => {
     [paciente_id]
   );
 
-  if (!paciente.length || !paciente[0].cama_id) {
+  if (!paciente || !paciente.cama_id) {
     req.flash('error', 'El paciente no tiene cama asignada');
     return res.redirect('/admision');
   }
@@ -96,16 +121,10 @@ exports.cancelarAdmision = async (req, res) => {
     await conn.beginTransaction();
 
     // Liberar cama
-    await conn.query(
-      'UPDATE camas SET ocupada = FALSE WHERE id = ?', 
-      [paciente[0].cama_id]
-    );
+    await conn.query('UPDATE camas SET ocupada = FALSE WHERE id = ?', [paciente.cama_id]);
 
     // Actualizar estado del paciente
-    await conn.query(
-      'UPDATE pacientes SET cama_id = NULL, estado = "cancelado" WHERE id = ?', 
-      [paciente_id]
-    );
+    await conn.query('UPDATE pacientes SET cama_id = NULL, estado = "cancelado" WHERE id = ?', [paciente_id]);
 
     await conn.commit();
     req.flash('success', 'Admisión cancelada correctamente');
@@ -113,10 +132,9 @@ exports.cancelarAdmision = async (req, res) => {
 
   } catch (err) {
     await conn.rollback();
-    console.error('Error al cancelar admisión:', err.message);
-    req.flash('error', 'No se pudo cancelar la admisión');
+    console.error(err);
+    req.flash('error', 'Error al cancelar la admisión');
     res.redirect('/admision');
-
   } finally {
     conn.release();
   }
