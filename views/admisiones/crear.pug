@@ -1,10 +1,12 @@
 extends ../layout
 
 block content
-  h2 Asignar Cama
+  h2 Nueva Admisión
 
   if error
     .alert.alert-danger #{error}
+  if success
+    .alert.alert-success #{success}
 
   form(method="POST" action="/admisiones/asignar")
     input(type="hidden" name="paciente_id" value=paciente.id)
