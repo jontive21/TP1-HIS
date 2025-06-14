@@ -1,4 +1,3 @@
-app.use('/admision', require('./routes/admisionRoutes'));
 const express = require('express');
 const path = require('path');
 const session = require('express-session');
@@ -67,7 +66,7 @@ const pacientesRoutes = require('./routes/pacientes');
 app.use('/pacientes', pacientesRoutes);
 
 // Rutas de admisiones
-const admisionesRoutes = require('./routes/admisionRoutes.js');
+const admisionesRoutes = require('./routes/admisiones');
 app.use('/admisiones', admisionesRoutes);
 
 // Manejo de errores 404
