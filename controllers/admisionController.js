@@ -1,37 +1,4 @@
-// controllers/admisionController.js
-const pool = require('../database/connection');
-
-// Listar admisiones activas
-exports.listarAdmisiones = async (req, res) => {
-    try {
-        const [admisiones] = await pool.query(`
-            SELECT a.id, 
-                   p.nombre AS paciente_nombre, 
-                   p.apellido AS paciente_apellido, 
-                   c.numero AS cama_numero, 
-                   h.numero AS habitacion_numero,
-                   a.tipo_admision,
-                   a.medico_referente,
-                   a.diagnostico_inicial,
-                   a.fecha_ingreso
-            FROM admisiones a
-            JOIN pacientes p ON a.paciente_id = p.id
-            JOIN camas c ON a.cama_id = c.id
-            JOIN habitaciones h ON c.habitacion_id = h.id
-            WHERE a.fecha_cancelacion IS NULL
-            ORDER BY a.id DESC
-        `);
-
-        admisiones.forEach(a => {
-            if (a.fecha_ingreso) a.fecha_ingreso = new Date(a.fecha_ingreso);
-        });
-
-        res.render('admisiones/list', { admisiones });
-    } catch (error) {
-        console.error(error);
-        res.status(500).render('error', { message: 'Error al cargar el listado de admisiones' });
-    }
-};
+const { pool } = require('../database/connection');
 
 // Mostrar formulario para nueva admisión
 exports.showNuevaAdmision = async (req, res) => {
@@ -52,13 +19,14 @@ exports.showNuevaAdmision = async (req, res) => {
         });
     } catch (error) {
         console.error(error);
-        res.status(500).render('error', { message: 'Error al cargar el formulario de admisión' });
+        req.flash('error', 'Error al cargar el formulario de admisión');
+        res.redirect('/');
     }
 };
 
 // Procesar nueva admisión
 exports.processAdmision = async (req, res) => {
-    const { paciente_id, cama_id, tipo_admision, medico_referente, diagnostico_inicial } = req.body;
+    const { paciente_id, cama_id } = req.body;
 
     if (!paciente_id || !cama_id) {
         req.flash('error', 'Datos incompletos');
@@ -68,7 +36,7 @@ exports.processAdmision = async (req, res) => {
     try {
         await pool.beginTransaction();
 
-        // Verificar disponibilidad de la cama
+        // Verificar si la cama está disponible y limpia
         const [camas] = await pool.query(
             'SELECT * FROM camas WHERE id = ? AND limpia = TRUE AND ocupada = FALSE',
             [cama_id]
@@ -79,31 +47,46 @@ exports.processAdmision = async (req, res) => {
             return res.redirect('/admisiones/crear');
         }
 
-        // Registrar admisión
+        // Actualizar estado del paciente
         await pool.query(
-            'INSERT INTO admisiones SET ?', 
-            {
-                paciente_id,
-                cama_id,
-                tipo_admision,
-                medico_referente,
-                diagnostico_inicial,
-                fecha_ingreso: new Date()
-            }
+            'UPDATE pacientes SET cama_id = ?, estado = "internado" WHERE id = ?', 
+            [cama_id, paciente_id]
         );
 
         // Marcar cama como ocupada
         await pool.query('UPDATE camas SET ocupada = TRUE WHERE id = ?', [cama_id]);
 
         await pool.commit();
-        req.flash('success', 'Admisión creada correctamente');
-        res.redirect('/admisiones');
+        req.flash('success', 'Paciente admitido correctamente');
+        res.redirect('/dashboard');
 
-    } catch (error) {
+    } catch (err) {
         await pool.rollback();
-        console.error('Error al crear admisión:', error.message);
+        console.error('Error al asignar cama:', err.message);
         req.flash('error', 'No se pudo crear la admisión');
         res.redirect('/admisiones/crear');
+    }
+};
+
+// Listar admisiones activas
+exports.listarAdmisiones = async (req, res) => {
+    try {
+        const [admisiones] = await pool.query(`
+            SELECT a.id, p.nombre AS paciente_nombre, p.apellido AS paciente_apellido,
+                   c.numero AS cama_numero, h.numero AS habitacion_numero
+            FROM admisiones a
+            JOIN pacientes p ON a.paciente_id = p.id
+            JOIN camas c ON a.cama_id = c.id
+            JOIN habitaciones h ON c.habitacion_id = h.id
+            WHERE a.fecha_cancelacion IS NULL
+            ORDER BY a.id DESC
+        `);
+
+        res.render('admisiones/list', { admisiones });
+    } catch (error) {
+        console.error(error);
+        req.flash('error', 'Error al cargar el listado de admisiones');
+        res.redirect('/');
     }
 };
 
@@ -113,11 +96,7 @@ exports.detalleAdmision = async (req, res) => {
 
     try {
         const [rows] = await pool.query(`
-            SELECT a.*, 
-                   p.nombre AS paciente_nombre, 
-                   p.apellido AS paciente_apellido, 
-                   c.numero AS cama_numero, 
-                   h.numero AS habitacion_numero
+            SELECT a.*, p.nombre, p.apellido, c.numero AS cama_numero, h.numero AS habitacion_numero
             FROM admisiones a
             JOIN pacientes p ON a.paciente_id = p.id
             JOIN camas c ON a.cama_id = c.id
@@ -137,7 +116,7 @@ exports.detalleAdmision = async (req, res) => {
         res.render('admisiones/detalle', { admision });
     } catch (error) {
         console.error(error);
-        res.status(500).render('error', { message: 'Error al cargar el detalle de la admisión' });
+        res.status(500).render('error', { message: 'Error al cargar el detalle' });
     }
 };
 
@@ -159,10 +138,7 @@ exports.cancelarAdmision = async (req, res) => {
 
         await pool.beginTransaction();
 
-        // Liberar cama
         await pool.query('UPDATE camas SET ocupada = FALSE WHERE id = ?', [camaId]);
-
-        // Actualizar admisión
         await pool.query('UPDATE admisiones SET fecha_cancelacion = NOW() WHERE id = ?', [admisionId]);
 
         await pool.commit();

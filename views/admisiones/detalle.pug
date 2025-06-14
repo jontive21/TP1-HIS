@@ -1,39 +1,22 @@
 extends ../layout
 
 block content
-  h1 Detalle de Admisión
+  h2 Detalle de Admisión
 
   if admision
-    ul.list-group
-      li.list-group-item
-        b ID: 
-        | #{admision.id}
-      li.list-group-item
-        b Paciente: 
-        | #{admision.paciente_apellido}, #{admision.paciente_nombre}
-      li.list-group-item
-        b Cama: 
-        | #{admision.cama_numero}
-      li.list-group-item
-        b Habitación: 
-        | #{admision.habitacion_numero}
-      li.list-group-item
-        b Tipo de Admisión: 
-        | #{admision.tipo_admision}
-      li.list-group-item
-        b Médico Referente: 
-        | #{admision.medico_referente}
-      li.list-group-item
-        b Diagnóstico Inicial: 
-        | #{admision.diagnostico_inicial}
-      li.list-group-item
-        b Fecha de Ingreso: 
-        | #{admision.fecha_ingreso ? admision.fecha_ingreso.toLocaleString() : ''}
-      if admision.fecha_cancelacion
-        li.list-group-item
-          b Fecha de Cancelación: 
-          | #{admision.fecha_cancelacion.toLocaleString()}
+    ul
+      li ID: #{admision.id}
+      li Paciente: #{admision.nombre} #{admision.apellido}
+      li Habitación: #{admision.habitacion_numero}
+      li Cama: #{admision.cama_numero}
+      li Tipo: #{admision.tipo_admision}
+      li Médico referente: #{admision.medico_referente}
+      li Diagnóstico inicial: #{admision.diagnostico_inicial}
+      li Fecha de ingreso: #{admision.fecha_ingreso}
+      li Fecha de cancelación: #{admision.fecha_cancelacion}
   else
-    .alert.alert-warning No se encontró la admisión.
+    p No hay detalles disponibles
 
-  a.btn.btn-secondary.mt-3(href="/admisiones") Volver al listado
+  hr
+
+  a(href="/admisiones") Volver al listado

@@ -10,11 +10,9 @@ block content
 
   form(method="POST" action="/admisiones/asignar")
     input(type="hidden" name="paciente_id" value=paciente.id)
-    input(type="hidden" name="tipo_admision" value="internacion")
-    input(type="text" name="medico_referente" placeholder="Médico referente")
-    textarea(name="diagnostico_inicial" placeholder="Diagnóstico inicial")
-
-    select(name="cama_id")
+    
+    label Selecciona una cama:
+    select.form-control(name="cama_id")
       each cama in camas
         option(value=cama.id) Habitación #{cama.habitacion_numero}, Cama #{cama.cama_numero}
 
