@@ -1,5 +1,4 @@
-app.use('/admision', require('./routes/admision'));
-
+// app.js
 const express = require('express');
 const session = require('express-session');
 const path = require('path');
