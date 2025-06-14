@@ -1,51 +1,57 @@
-// Importar modelos y librerías necesarias
-const Usuario = require('../models/Usuario');
+// controllers/authController.js
 
-// Controlador de autenticación
-module.exports = {
-    // Procesar login
-    processLogin: async (req, res) => {
-        try {
-            const { email, password } = req.body;
+const { pool } = require('../database/connection');
 
-            // Validaciones básicas
-            if (!email || !password) {
-                req.session.error = 'Email y contraseña son obligatorios';
-                return res.redirect('/login');
-            }
+// Procesar login
+exports.processLogin = async (req, res) => {
+    try {
+        const { usuario, password } = req.body;
 
-            // Buscar usuario (incluyendo el hash de la contraseña)
-            const usuario = await Usuario.findByEmail(email);
-            if (!usuario) {
-                req.session.error = 'Credenciales inválidas';
-                return res.redirect('/login');
-            }
-
-            // Verificar contraseña
-            const isValidPassword = await Usuario.verifyPassword(password, usuario.password);
-            if (!isValidPassword) {
-                req.session.error = 'Credenciales inválidas';
-                return res.redirect('/login');
-            }
-
-            // Guardar usuario en sesión (sin la contraseña)
-            req.session.user = {
-                id: usuario.id,
-                nombre: usuario.nombre,
-                apellido: usuario.apellido,
-                email: usuario.email,
-                rol: usuario.rol
-            };
-
-            console.log(`✅ Login exitoso: ${usuario.email} (${usuario.rol})`);
-            res.redirect('/dashboard');
-
-        } catch (error) {
-            console.error('Error en login:', error);
-            req.session.error = 'Error interno del servidor';
-            res.redirect('/login');
+        // Validaciones básicas
+        if (!usuario || !password) {
+            req.session.error = 'Usuario y contraseña son obligatorios';
+            return res.redirect('/login');
         }
-    },
 
-    // ...otros métodos del controlador...
+        // Buscar usuario en BD
+        const [rows] = await pool.query('SELECT * FROM usuarios WHERE usuario = ?', [usuario]);
+
+        if (!rows.length) {
+            req.session.error = 'Credenciales inválidas';
+            return res.redirect('/login');
+        }
+
+        const user = rows[0];
+
+        // Verificar contraseña (simulada)
+        if (password !== user.password) {
+            req.session.error = 'Contraseña incorrecta';
+            return res.redirect('/login');
+        }
+
+        // Guardar usuario en sesión
+        req.session.user = {
+            id: user.id,
+            nombre: user.nombre,
+            apellido: user.apellido,
+            usuario: user.usuario,
+            rol: user.rol
+        };
+
+        console.log(`✅ Login exitoso: ${user.usuario} (${user.rol})`);
+        res.redirect('/dashboard');
+
+    } catch (error) {
+        console.error('Error en login:', error.message);
+        req.session.error = 'Error interno del servidor';
+        res.redirect('/login');
+    }
+};
+
+// Cerrar sesión
+exports.logout = (req, res) => {
+    req.session.destroy(err => {
+        if (err) throw err;
+        res.redirect('/login');
+    });
 };
