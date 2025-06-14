@@ -1,57 +1,41 @@
 // controllers/authController.js
 
-const { pool } = require('../database/connection');
+exports.showLogin = (req, res) => {
+  const message = req.session.error || null;
+  delete req.session.error;
 
-// Procesar login
-exports.processLogin = async (req, res) => {
-    try {
-        const { usuario, password } = req.body;
-
-        // Validaciones básicas
-        if (!usuario || !password) {
-            req.session.error = 'Usuario y contraseña son obligatorios';
-            return res.redirect('/login');
-        }
-
-        // Buscar usuario en BD
-        const [rows] = await pool.query('SELECT * FROM usuarios WHERE usuario = ?', [usuario]);
-
-        if (!rows.length) {
-            req.session.error = 'Credenciales inválidas';
-            return res.redirect('/login');
-        }
-
-        const user = rows[0];
-
-        // Verificar contraseña (simulada)
-        if (password !== user.password) {
-            req.session.error = 'Contraseña incorrecta';
-            return res.redirect('/login');
-        }
-
-        // Guardar usuario en sesión
-        req.session.user = {
-            id: user.id,
-            nombre: user.nombre,
-            apellido: user.apellido,
-            usuario: user.usuario,
-            rol: user.rol
-        };
-
-        console.log(`✅ Login exitoso: ${user.usuario} (${user.rol})`);
-        res.redirect('/dashboard');
-
-    } catch (error) {
-        console.error('Error en login:', error.message);
-        req.session.error = 'Error interno del servidor';
-        res.redirect('/login');
-    }
+  res.render('login', { message });
 };
 
-// Cerrar sesión
+exports.processLogin = async (req, res) => {
+  const { usuario, password } = req.body;
+
+  if (!usuario || !password) {
+    req.session.error = 'Usuario y contraseña son obligatorios';
+    return res.redirect('/login');
+  }
+
+  // Usuarios de prueba – en producción usa base de datos
+  const users = [
+    { id: 1, nombre: 'Administrador', usuario: 'admin', password: '123456', rol: 'administrador' },
+    { id: 2, nombre: 'Enfermera', usuario: 'enfermera', password: '123456', rol: 'enfermeria' },
+    { id: 3, nombre: 'Médico', usuario: 'medico', password: '123456', rol: 'medico' }
+  ];
+
+  const user = users.find(u => u.usuario === usuario && u.password === password);
+
+  if (!user) {
+    req.session.error = 'Usuario o contraseña incorrectos';
+    return res.redirect('/login');
+  }
+
+  req.session.user = user;
+  res.redirect('/dashboard');
+};
+
 exports.logout = (req, res) => {
-    req.session.destroy(err => {
-        if (err) throw err;
-        res.redirect('/login');
-    });
+  req.session.destroy(err => {
+    if (err) throw err;
+    res.redirect('/login');
+  });
 };

@@ -1,0 +1,19 @@
+//- views/login.pug
+extends layout
+
+block content
+  h2 Iniciar Sesión
+
+  if message
+    .alert.alert-danger #{message}
+
+  form(method="POST" action="/login")
+    .form-group
+      label Usuario
+      input.form-control(type="text" name="usuario" required)
+
+    .form-group
+      label Contraseña
+      input.form-control(type="password" name="password" required)
+
+    button.btn.btn-primary(type="submit") Iniciar sesión

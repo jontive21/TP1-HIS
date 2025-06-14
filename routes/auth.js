@@ -1,12 +1,9 @@
 // routes/auth.js
 const express = require('express');
 const router = express.Router();
+const { showLogin } = require('../controllers/authController');
 
-// Importar controladores
-const { showLogin, processLogin } = require('../controllers/authController');
-
-// Rutas de autenticación
-router.get('/', showLogin);
-router.post('/', processLogin);
+// Ruta correcta:
+router.get('/login', showLogin); // ✅ Bien hecho
 
 module.exports = router;
