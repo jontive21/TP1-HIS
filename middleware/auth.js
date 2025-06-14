@@ -16,7 +16,7 @@ exports.addUserToViews = (req, res, next) => {
 exports.restrictTo = (...roles) => {
   return (req, res, next) => {
     if (!req.session.user || !roles.includes(req.session.user.rol)) {
-      req.flash('error', 'No tienes permiso para acceder a esta página');
+      req.session.error('error', 'No tienes permiso para acceder a esta página');
       return res.redirect('/login');
     }
     next();

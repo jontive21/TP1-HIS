@@ -9,7 +9,7 @@ const asignarCama = async (req, res) => {
       'SELECT sexo FROM pacientes WHERE id = ?', [pacienteId]
     );
     if (!paciente) {
-      req.flash('error', 'Paciente no encontrado');
+      req.session.error('error', 'Paciente no encontrado');
       return res.redirect('/camas');
     }
 
@@ -21,7 +21,7 @@ const asignarCama = async (req, res) => {
        WHERE c.id = ?`, [camaId]
     );
     if (!cama) {
-      req.flash('error', 'Cama no encontrada');
+      req.session.error('error', 'Cama no encontrada');
       return res.redirect('/camas');
     }
 
@@ -36,7 +36,7 @@ const asignarCama = async (req, res) => {
         [cama.habitacion_id, camaId]
       );
       if (otrasCamas.some(oc => oc.sexo !== paciente.sexo)) {
-        req.flash('error', 'No se puede asignar a paciente de sexo opuesto en habitación compartida');
+        req.session.error('error', 'No se puede asignar a paciente de sexo opuesto en habitación compartida');
         return res.redirect('/camas');
       }
     }
@@ -52,7 +52,7 @@ const asignarCama = async (req, res) => {
       [camaId]
     );
 
-    req.flash('success', 'Paciente admitido correctamente');
+    req.session.error('success', 'Paciente admitido correctamente');
     res.redirect('/pacientes');
   } catch (error) {
     res.status(500).send(error.message);
