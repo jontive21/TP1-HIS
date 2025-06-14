@@ -1,38 +1,21 @@
 extends ../layout
 
 block content
-  h1 Nueva Admisión
+  h2 Nueva Admisión
 
-  if error
-    .alert.alert-danger= error
+  if message
+    .alert.alert-danger #{message}
+  if success
+    .alert.alert-success #{success}
 
-  form(action="/admisiones/crear" method="POST")
-    .mb-3
-      label.form-label(for="paciente_id") Paciente
-      select.form-select(name="paciente_id" required)
-        option(value="" selected disabled) Selecciona un paciente
-        if pacientes && pacientes.length
-          each paciente in pacientes
-            option(value=paciente.id)= paciente.apellido + ', ' + paciente.nombre
-        else
-          option(value="" disabled) No hay pacientes disponibles
-    .mb-3
-      label.form-label(for="cama_id") Cama
-      select.form-select(name="cama_id" required)
-        option(value="" selected disabled) Selecciona una cama
-        if camas && camas.length
-          each cama in camas
-            option(value=cama.id)= 'Habitación ' + cama.habitacion_numero + ' - Cama ' + cama.numero
-        else
-          option(value="" disabled) No hay camas disponibles
-    .mb-3
-      label.form-label(for="tipo_admision") Tipo de Admisión
-      input.form-control(type="text" name="tipo_admision" required)
-    .mb-3
-      label.form-label(for="medico_referente") Médico Referente
-      input.form-control(type="text" name="medico_referente" required)
-    .mb-3
-      label.form-label(for="diagnostico_inicial") Diagnóstico Inicial
-      input.form-control(type="text" name="diagnostico_inicial" required)
-    button.btn.btn-success(type="submit") Guardar
-    a.btn.btn-secondary.ms-2(href="/admisiones") Cancelar
+  form(method="POST" action="/admisiones/asignar")
+    input(type="hidden" name="paciente_id" value=paciente.id)
+    input(type="hidden" name="tipo_admision" value="internacion")
+    input(type="text" name="medico_referente" placeholder="Médico referente")
+    textarea(name="diagnostico_inicial" placeholder="Diagnóstico inicial")
+
+    select(name="cama_id")
+      each cama in camas
+        option(value=cama.id) Habitación #{cama.habitacion_numero}, Cama #{cama.cama_numero}
+
+    button.btn.btn-primary(type="submit") Asignar Cama
