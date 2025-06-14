@@ -1,25 +1,24 @@
-// app.js
+app.use('/admision', require('./routes/admision'));
+
 const express = require('express');
 const session = require('express-session');
 const path = require('path');
 const pool = require('./database/connection');
 
-require('dotenv').config();
-
-// 1. Inicializar Express
+// Inicializar Express
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// 2. Motor de vistas (Pug)
+// Configurar motor de vistas
 app.set('view engine', 'pug');
 app.set('views', path.join(__dirname, 'views'));
 
-// 3. Middlewares básicos
+// Middlewares básicos
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// 4. Configurar sesiones
+// Sesiones
 app.use(session({
   secret: process.env.SESSION_SECRET || 'una_clave_segura',
   resave: false,
@@ -29,7 +28,7 @@ app.use(session({
   }
 }));
 
-// 5. Middleware para mensajes flash
+// Middleware para mensajes flash
 app.use((req, res, next) => {
   res.locals.success = req.session.success;
   res.locals.error = req.session.error;
@@ -38,28 +37,31 @@ app.use((req, res, next) => {
   next();
 });
 
-// 6. Middleware para compartir usuario en vistas
+// Middleware para compartir usuario en vistas
 app.use((req, res, next) => {
   res.locals.user = req.session.user || null;
   next();
 });
 
-// 7. Rutas principales – Ahora sí puedes usar app.use()
+// Rutas principales
 app.use('/', require('./routes/index'));
 app.use('/login', require('./routes/auth'));
-app.use('/logout', require('./routes/logout'));
+
 app.use('/dashboard', require('./routes/dashboard'));
 app.use('/pacientes', require('./routes/pacientes'));
 app.use('/admision', require('./routes/admision'));
 app.use('/enfermeria', require('./routes/enfermeria'));
 app.use('/medico', require('./routes/medico'));
 
-// 8. Manejo de errores 404
+// Manejo de errores 404
 app.use((req, res) => {
   res.status(404).render('error', { message: 'Página no encontrada' });
 });
 
-// 9. Iniciar servidor
+// Iniciar servidor
 app.listen(PORT, () => {
   console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
 });
+
+// Exportar para pruebas
+module.exports = app;
