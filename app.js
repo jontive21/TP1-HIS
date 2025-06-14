@@ -64,7 +64,7 @@ app.get('/test-db', async (req, res) => {
 app.use('/login', require('./routes/auth'));
 app.use('/dashboard', require('./routes/dashboard'));
 app.use('/pacientes', require('./routes/pacientes'));
-app.use('/admisiones', require('./routes/admisionRoutes'));
+app.use('/admisiones', require('./routes/admisionroutes'));
 app.use('/enfermeria', require('./routes/enfermeria'));
 app.use('/medico', require('./routes/medico'));
 
