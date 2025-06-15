@@ -1,0 +1,27 @@
+//- views/auth/login.pug
+extends ../layout
+
+block content
+  .container.mt-5
+    .row.justify-content-center
+      .col-md-6
+        .card
+          .card-header.bg-primary.text-white
+            h4.text-center Iniciar Sesión
+          .card-body
+            if error
+              .alert.alert-danger= error
+            
+            form(method="POST" action="/login")
+              .mb-3
+                label.form-label(for="email") Correo Electrónico
+                input.form-control(type="email" id="email" name="email" required)
+              
+              .mb-3
+                label.form-label(for="password") Contraseña
+                input.form-control(type="password" id="password" name="password" required)
+              
+              button.btn.btn-primary.w-100(type="submit") Ingresar
+          
+          .card-footer.text-center
+            small Sistema HIS - Admisión y Recepción

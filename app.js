@@ -7,16 +7,16 @@ require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Motor de vistas
+// 1. Configuración básica
 app.set('view engine', 'pug');
 app.set('views', path.join(__dirname, 'views'));
 
-// Middlewares básicos
+// 2. Middlewares esenciales
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Sesiones
+// 3. Configuración de sesiones
 app.use(session({
     secret: process.env.SESSION_SECRET || 'una_clave_segura',
     resave: false,
@@ -26,17 +26,17 @@ app.use(session({
     }
 }));
 
-// Middleware para compartir usuario y mensajes en vistas (CORREGIDO)
+// 4. Middleware para compartir datos con vistas
 app.use((req, res, next) => {
     res.locals.user = req.session.user || null;
     res.locals.error = req.session.error || null;
-    res.locals.success = req.session.success || null; // ✅ Mensajes de éxito
+    res.locals.success = req.session.success || null;
     delete req.session.error;
-    delete req.session.success; // ✅ Limpiar después de usar
+    delete req.session.success;
     next();
 });
 
-// Ruta principal
+// 5. Ruta principal
 app.get('/', (req, res) => {
     if (res.locals.user) {
         res.redirect('/dashboard');
@@ -45,39 +45,43 @@ app.get('/', (req, res) => {
     }
 });
 
-// Test de conexión a BD
-app.get('/test-db', async (req, res) => {
-    const connectionOk = await testConnection();
-    if (connectionOk) {
-        res.json({ 
-            status: 'success', 
-            message: 'Conexión a base de datos exitosa'
-        });
-    } else {
-        res.status(500).json({ 
-            status: 'error', 
-            message: 'Error conectando a la BD' 
-        });
-    }
-});
-
-// Rutas principales (CORREGIDO - sin duplicados)
+// 6. Rutas principales
 app.use('/login', require('./routes/auth'));
 app.use('/dashboard', require('./routes/dashboard'));
 app.use('/pacientes', require('./routes/pacientes'));
-app.use('/admisiones', require('./routes/admisionRoutes')); // ✅ Única instancia
+app.use('/admisiones', require('./routes/admisionRoutes'));
 app.use('/enfermeria', require('./routes/enfermeria'));
 app.use('/medico', require('./routes/medico'));
 
-// Manejo de errores 404
+// 7. Ruta de prueba para diagnóstico
+app.get('/test-connection', async (req, res) => {
+    try {
+        const connectionOk = await testConnection();
+        if (connectionOk) {
+            res.send('✅ Conexión a BD exitosa');
+        } else {
+            res.status(500).send('❌ Error conectando a BD');
+        }
+    } catch (error) {
+        res.status(500).send(`❌ Error grave: ${error.message}`);
+    }
+});
+
+// 8. Manejo de errores
 app.use((req, res) => {
     res.status(404).render('error', { message: 'Página no encontrada' });
 });
 
-// Iniciar servidor
+// 9. Iniciar servidor
 app.listen(PORT, async () => {
     console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
     console.log('🏥 HIS Internación - Sistema Hospitalario');
-
-    await testConnection(); // Probar conexión a BD al iniciar
+    console.log('🔍 Prueba de conexión: http://localhost:3000/test-connection');
+    
+    try {
+        await testConnection();
+        console.log('✅ Conexión a base de datos exitosa');
+    } catch (error) {
+        console.error('❌ Error conectando a la base de datos:', error.message);
+    }
 });
