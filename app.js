@@ -44,26 +44,20 @@ app.get('/', (req, res) => {
         res.redirect('/login');
     }
 });
-// Ruta de prueba para crear usuario de prueba
+
+// 6. Ruta de prueba para crear usuario de prueba
 app.get('/test-user', (req, res) => {
-  // Crear usuario de prueba en sesión
-  req.session.user = {
-    id: 1,
-    nombre: 'Usuario de Prueba',
-    email: 'test@hospital.com',
-    rol: 'recepcionista'
-  };
-  
-  // Redirigir al dashboard
-  res.redirect('/dashboard');
+    // Crear usuario de prueba en sesión
+    req.session.user = {
+        id: 1,
+        nombre: 'Usuario de Prueba',
+        email: 'test@hospital.com',
+        rol: 'recepcionista'
+    };
+    
+    // Redirigir al dashboard
+    res.redirect('/dashboard');
 });
-// 6. Rutas principales
-app.use('/login', require('./routes/auth'));
-app.use('/dashboard', require('./routes/dashboard'));
-app.use('/pacientes', require('./routes/pacientes'));
-app.use('/admisiones', require('./routes/admisionRoutes'));
-app.use('/enfermeria', require('./routes/enfermeria'));
-app.use('/medico', require('./routes/medico'));
 
 // 7. Ruta de prueba para diagnóstico
 app.get('/test-connection', async (req, res) => {
@@ -79,16 +73,25 @@ app.get('/test-connection', async (req, res) => {
     }
 });
 
-// 8. Manejo de errores
+// 8. Rutas principales
+app.use('/login', require('./routes/auth'));
+app.use('/dashboard', require('./routes/dashboard'));
+app.use('/pacientes', require('./routes/pacientes'));
+app.use('/admisiones', require('./routes/admisionRoutes'));
+app.use('/enfermeria', require('./routes/enfermeria'));
+app.use('/medico', require('./routes/medico'));
+
+// 9. Manejo de errores
 app.use((req, res) => {
     res.status(404).render('error', { message: 'Página no encontrada' });
 });
 
-// 9. Iniciar servidor
+// 10. Iniciar servidor
 app.listen(PORT, async () => {
     console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
     console.log('🏥 HIS Internación - Sistema Hospitalario');
-    console.log('🔍 Prueba de conexión: http://localhost:3000/test-connection');
+    console.log('🔍 Prueba de usuario: http://localhost:3000/test-user');
+    console.log('🔍 Prueba de conexión BD: http://localhost:3000/test-connection');
     
     try {
         await testConnection();
