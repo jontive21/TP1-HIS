@@ -23,8 +23,9 @@ html(lang="es")
             li.nav-item
               a.nav-link(href="/dashboard") Dashboard
             
+            // Corrección importante: Verifica la ruta exacta
             li.nav-item
-              a.nav-link(href="/admisiones") Admisiones
+              a.nav-link(href="/admisiones") Admisiones  // Asegúrate que esta ruta coincida con tu enrutamiento
             
             if user
               li.nav-item
@@ -36,15 +37,15 @@ html(lang="es")
                 a.nav-link(href="/login") Iniciar Sesión
 
     main.container.my-5
-      //- Mostrar mensajes flash
-      if error
-        .alert.alert-danger.alert-dismissible.fade.show(role="alert")
-          = error
-          button.btn-close(type="button" data-bs-dismiss="alert" aria-label="Close")
-      
+      //- Mostrar mensajes flash - IMPORTANTE: Cambio en el orden
       if success
         .alert.alert-success.alert-dismissible.fade.show(role="alert")
           = success
+          button.btn-close(type="button" data-bs-dismiss="alert" aria-label="Close")
+      
+      if error
+        .alert.alert-danger.alert-dismissible.fade.show(role="alert")
+          = error
           button.btn-close(type="button" data-bs-dismiss="alert" aria-label="Close")
 
       block content

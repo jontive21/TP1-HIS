@@ -1,6 +1,6 @@
 const { pool } = require('../database/connection');
 
-// Listar admisiones (versión definitiva con nombres corregidos)
+// Listar admisiones (versión corregida)
 exports.listarAdmisiones = async (req, res) => {
     try {
         const [admisiones] = await pool.query(`
@@ -9,21 +9,19 @@ exports.listarAdmisiones = async (req, res) => {
                    p.apellido, 
                    DATE_FORMAT(a.fecha_ingreso, '%d/%m/%Y %H:%i') as fecha_formateada,
                    c.numero as numero_cama
-            FROM admissions a
+            FROM admisiones a  // CAMBIADO: admissions → admisiones
             JOIN pacientes p ON a.paciente_id = p.id
             JOIN camas c ON a.cama_id = c.id
             ORDER BY a.fecha_ingreso DESC
         `);
         
+        // CORRECCIÓN: No limpiar mensajes aquí
         res.render('admisiones/list', { 
             admisiones,
             success: req.session.success,
             error: req.session.error
         });
         
-        // Limpiar mensajes después de mostrarlos
-        req.session.success = null;
-        req.session.error = null;
     } catch (error) {
         console.error('Error listando admisiones:', error);
         req.session.error = 'Error al cargar el listado de admisiones: ' + error.message;
@@ -31,7 +29,7 @@ exports.listarAdmisiones = async (req, res) => {
     }
 };
 
-// Mostrar formulario (versión definitiva)
+// Mostrar formulario (versión corregida)
 exports.mostrarFormulario = async (req, res) => {
     try {
         const [pacientes] = await pool.query(`
@@ -51,7 +49,6 @@ exports.mostrarFormulario = async (req, res) => {
             error: req.session.error
         });
         
-        req.session.error = null;
     } catch (error) {
         console.error('Error cargando formulario:', error);
         req.session.error = 'Error al cargar el formulario de admisión: ' + error.message;
@@ -59,7 +56,7 @@ exports.mostrarFormulario = async (req, res) => {
     }
 };
 
-// Crear admisión (versión definitiva)
+// Crear admisión (versión corregida)
 exports.crearAdmision = async (req, res) => {
     const { paciente_id, cama_id } = req.body;
     
@@ -72,9 +69,9 @@ exports.crearAdmision = async (req, res) => {
     try {
         await connection.beginTransaction();
         
-        // 1. Registrar admisión
+        // 1. Registrar admisión (tabla corregida)
         await connection.query(`
-            INSERT INTO admissions (paciente_id, cama_id, fecha_ingreso)
+            INSERT INTO admisiones (paciente_id, cama_id, fecha_ingreso)  // admissions → admisiones
             VALUES (?, ?, NOW())
         `, [paciente_id, cama_id]);
         
@@ -96,6 +93,8 @@ exports.crearAdmision = async (req, res) => {
             errorMessage = 'La cama ya está ocupada por otro paciente';
         } else if (error.code === 'ER_NO_REFERENCED_ROW_2') {
             errorMessage = 'Datos inválidos (paciente o cama no existe)';
+        } else if (error.code === 'ER_BAD_NULL_ERROR') {
+            errorMessage = 'Datos incompletos';
         }
         
         req.session.error = errorMessage;
