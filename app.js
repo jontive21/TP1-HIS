@@ -1,8 +1,7 @@
-// app.js
 const express = require('express');
 const path = require('path');
 const session = require('express-session');
-const { pool, testConnection } = require('./database/connection'); // ✅ Bien hecho
+const { pool, testConnection } = require('./database/connection');
 require('dotenv').config();
 
 const app = express();
@@ -27,11 +26,13 @@ app.use(session({
     }
 }));
 
-// Middleware para compartir usuario y mensajes en vistas
+// Middleware para compartir usuario y mensajes en vistas (CORREGIDO)
 app.use((req, res, next) => {
     res.locals.user = req.session.user || null;
     res.locals.error = req.session.error || null;
+    res.locals.success = req.session.success || null; // ✅ Mensajes de éxito
     delete req.session.error;
+    delete req.session.success; // ✅ Limpiar después de usar
     next();
 });
 
@@ -60,11 +61,11 @@ app.get('/test-db', async (req, res) => {
     }
 });
 
-// Rutas principales
+// Rutas principales (CORREGIDO - sin duplicados)
 app.use('/login', require('./routes/auth'));
 app.use('/dashboard', require('./routes/dashboard'));
 app.use('/pacientes', require('./routes/pacientes'));
-app.use('/admisiones', require('./routes/admisionRoutes'));
+app.use('/admisiones', require('./routes/admisionRoutes')); // ✅ Única instancia
 app.use('/enfermeria', require('./routes/enfermeria'));
 app.use('/medico', require('./routes/medico'));
 
