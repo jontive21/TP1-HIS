@@ -1,14 +1,37 @@
 extends ../layout
 
 block content
-  h1 Dashboard
-  p Texto de ejemplo.
+  .row.justify-content-center.text-center.mb-4
+    .col-md-8
+      h1.display-6 ¡Bienvenido al Dashboard!
+      p.text-muted Inicio rápido a las funciones de admisión y control hospitalario
 
-  small Rol: #{user.rol} | Último acceso: #{lastAccess}
+  .row.text-center.g-4
+    .col-md-3
+      .card.shadow-sm
+        .card-body
+          h5.card-title Cama(s) Disponible(s)
+          .display-6.text-primary#camas-disponibles #{camasDisponibles}
+          small.text-muted de #{camasTotal} total
 
-  .display-4#camas-disponibles #{camasDisponibles}
-  small.text-muted de #{camasTotal} total
+    .col-md-3
+      .card.shadow-sm
+        .card-body
+          h5.card-title Pacientes Internados
+          .display-6.text-danger#pacientes-internados #{pacientesInternados}
 
-  .display-4#pacientes-internados #{pacientesInternados}
-  .display-4#admisiones-hoy #{admisionesHoy}
-  .display-4#altas-hoy #{altasHoy}
+    .col-md-3
+      .card.shadow-sm
+        .card-body
+          h5.card-title Admisiones Hoy
+          .display-6.text-success#admisiones-hoy #{admisionesHoy}
+
+    .col-md-3
+      .card.shadow-sm
+        .card-body
+          h5.card-title Altas Médicas Hoy
+          .display-6.text-info#altas-hoy #{altasHoy}
+
+  hr.mt-5
+  .text-center.small.text-muted
+    | Rol: #{user.rol} | Último acceso: #{lastAccess}
