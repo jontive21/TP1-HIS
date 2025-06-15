@@ -1,31 +1,28 @@
 extends ../layout
 
 block content
-  h2 Admisiones Activas
-
-  if error
-    .alert.alert-danger #{error}
-
-  table.table
-    thead
-      tr
-        th ID
-        th Paciente
-        th Habitación
-        th Cama
-        th Médico referente
-        th Diagnóstico inicial
-        th Fecha ingreso
-    tbody
-      each admision in admisiones
+  .container.mt-4
+    h2 Admisiones Activas
+    
+    if error
+      .alert.alert-danger #{error}
+    
+    if success
+      .alert.alert-success #{success}
+    
+    table.table.table-striped
+      thead
         tr
-          td= admision.id
-          td= `${admision.paciente_nombre} ${admision.paciente_apellido}`
-          td= admision.habitacion_numero
-          td= admision.cama_numero
-          td= admision.medico_referente
-          td= admision.diagnostico_inicial
-          td= admision.fecha_ingreso
-
-  hr
-  a(href="/admisiones/crear") + Nueva Admisión
+          th ID
+          th Paciente
+          th Fecha Ingreso
+      tbody
+        each adm in admisiones
+          tr
+            td= adm.id
+            td= `${adm.nombre} ${adm.apellido}`
+            td= adm.fecha_ingreso.toLocaleDateString('es-AR')
+    
+    a.btn.btn-success(href="/admisiones/nueva")
+      i.bi.bi-plus-circle.me-1
+      | Nueva Admisión

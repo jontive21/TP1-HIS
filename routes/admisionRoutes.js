@@ -2,13 +2,13 @@ const express = require('express');
 const router = express.Router();
 const admisionController = require('../controllers/admisionController');
 
-// Ruta principal para listar admisiones
+// Ruta principal
 router.get('/', admisionController.listarAdmisiones);
 
-// Ruta para mostrar formulario de nueva admisión
-router.get('/nueva', admisionController.showNuevaAdmision);
+// Formulario nueva admisión
+router.get('/nueva', admisionController.mostrarFormulario);
 
-// Ruta para procesar asignación de cama
-router.post('/asignar', admisionController.asignarCama);
+// Procesar nueva admisión
+router.post('/crear', admisionController.crearAdmision);
 
 module.exports = router;

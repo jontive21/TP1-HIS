@@ -1,0 +1,26 @@
+extends ../layout
+
+block content
+  .container.mt-4
+    h2 Nueva Admisión
+    
+    if error
+      .alert.alert-danger #{error}
+    
+    form(method="POST" action="/admisiones/crear")
+      .mb-3
+        label.form-label Paciente
+        select.form-select(name="paciente_id")
+          option(value="") Seleccionar paciente
+          each paciente in pacientes
+            option(value=paciente.id)= `${paciente.apellido}, ${paciente.nombre}`
+      
+      .mb-3
+        label.form-label Cama
+        select.form-select(name="cama_id")
+          option(value="") Seleccionar cama
+          each cama in camas
+            option(value=cama.id)= `Cama ${cama.id}`
+      
+      button.btn.btn-primary(type="submit") Registrar Admisión
+    a.btn.btn-secondary.mt-3(href="/admisiones") Volver
