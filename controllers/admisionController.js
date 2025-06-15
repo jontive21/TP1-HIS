@@ -1,6 +1,6 @@
 const { pool } = require('../database/connection');
 
-// Listar admisiones (versión corregida)
+// Listar admisiones (versión definitiva con nombres corregidos)
 exports.listarAdmisiones = async (req, res) => {
     try {
         const [admisiones] = await pool.query(`
@@ -9,7 +9,7 @@ exports.listarAdmisiones = async (req, res) => {
                    p.apellido, 
                    DATE_FORMAT(a.fecha_ingreso, '%d/%m/%Y %H:%i') as fecha_formateada,
                    c.numero as numero_cama
-            FROM admisiones a
+            FROM admissions a
             JOIN pacientes p ON a.paciente_id = p.id
             JOIN camas c ON a.cama_id = c.id
             ORDER BY a.fecha_ingreso DESC
@@ -26,12 +26,12 @@ exports.listarAdmisiones = async (req, res) => {
         req.session.error = null;
     } catch (error) {
         console.error('Error listando admisiones:', error);
-        req.session.error = 'Error al cargar el listado de admisiones';
+        req.session.error = 'Error al cargar el listado de admisiones: ' + error.message;
         res.redirect('/dashboard');
     }
 };
 
-// Mostrar formulario (versión corregida)
+// Mostrar formulario (versión definitiva)
 exports.mostrarFormulario = async (req, res) => {
     try {
         const [pacientes] = await pool.query(`
@@ -54,12 +54,12 @@ exports.mostrarFormulario = async (req, res) => {
         req.session.error = null;
     } catch (error) {
         console.error('Error cargando formulario:', error);
-        req.session.error = 'Error al cargar el formulario de admisión';
+        req.session.error = 'Error al cargar el formulario de admisión: ' + error.message;
         res.redirect('/admisiones');
     }
 };
 
-// Crear admisión (versión corregida con transacciones)
+// Crear admisión (versión definitiva)
 exports.crearAdmision = async (req, res) => {
     const { paciente_id, cama_id } = req.body;
     
@@ -74,7 +74,7 @@ exports.crearAdmision = async (req, res) => {
         
         // 1. Registrar admisión
         await connection.query(`
-            INSERT INTO admisiones (paciente_id, cama_id, fecha_ingreso)
+            INSERT INTO admissions (paciente_id, cama_id, fecha_ingreso)
             VALUES (?, ?, NOW())
         `, [paciente_id, cama_id]);
         
@@ -91,7 +91,6 @@ exports.crearAdmision = async (req, res) => {
         await connection.rollback();
         console.error('Error creando admisión:', error);
         
-        // Manejo específico de errores
         let errorMessage = 'Error al crear la admisión';
         if (error.code === 'ER_DUP_ENTRY') {
             errorMessage = 'La cama ya está ocupada por otro paciente';

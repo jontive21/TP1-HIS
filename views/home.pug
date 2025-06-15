@@ -1,0 +1,15 @@
+extends layout
+
+block content
+  .container.mt-4
+    h1.mb-4 Bienvenido al HIS Internación
+    p Selecciona una opción del menú para comenzar.
+    .row.mt-4
+      .col-md-3
+        a.btn.btn-primary.btn-block(href="/pacientes") Pacientes
+      .col-md-3
+        a.btn.btn-success.btn-block(href="/admisiones") Admisiones
+      .col-md-3
+        a.btn.btn-info.btn-block(href="/enfermeria") Enfermería
+      .col-md-3
+        a.btn.btn-warning.btn-block(href="/medico") Médicos
