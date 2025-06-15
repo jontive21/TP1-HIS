@@ -44,7 +44,19 @@ app.get('/', (req, res) => {
         res.redirect('/login');
     }
 });
-
+// Ruta de prueba para crear usuario de prueba
+app.get('/test-user', (req, res) => {
+  // Crear usuario de prueba en sesión
+  req.session.user = {
+    id: 1,
+    nombre: 'Usuario de Prueba',
+    email: 'test@hospital.com',
+    rol: 'recepcionista'
+  };
+  
+  // Redirigir al dashboard
+  res.redirect('/dashboard');
+});
 // 6. Rutas principales
 app.use('/login', require('./routes/auth'));
 app.use('/dashboard', require('./routes/dashboard'));
