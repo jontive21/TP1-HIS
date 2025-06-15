@@ -1,10 +1,14 @@
 const { pool } = require('../database/connection');
 
-// Listar admisiones (versión mejorada)
+// Listar admisiones (versión corregida)
 exports.listarAdmisiones = async (req, res) => {
     try {
         const [admisiones] = await pool.query(`
-            SELECT a.id, p.nombre, p.apellido, a.fecha_ingreso, c.id as cama_id
+            SELECT a.id, 
+                   p.nombre, 
+                   p.apellido, 
+                   DATE_FORMAT(a.fecha_ingreso, '%d/%m/%Y %H:%i') as fecha_formateada,
+                   c.numero as numero_cama
             FROM admisiones a
             JOIN pacientes p ON a.paciente_id = p.id
             JOIN camas c ON a.cama_id = c.id
@@ -27,11 +31,19 @@ exports.listarAdmisiones = async (req, res) => {
     }
 };
 
-// Mostrar formulario (versión mejorada)
+// Mostrar formulario (versión corregida)
 exports.mostrarFormulario = async (req, res) => {
     try {
-        const [pacientes] = await pool.query('SELECT id, CONCAT(nombre, " ", apellido) as nombre_completo FROM pacientes');
-        const [camas] = await pool.query('SELECT id, numero FROM camas WHERE ocupada = FALSE');
+        const [pacientes] = await pool.query(`
+            SELECT id, CONCAT(nombre, ' ', apellido) as nombre_completo 
+            FROM pacientes
+        `);
+        
+        const [camas] = await pool.query(`
+            SELECT id, numero 
+            FROM camas 
+            WHERE ocupada = FALSE
+        `);
         
         res.render('admisiones/nueva', { 
             pacientes, 
@@ -47,7 +59,7 @@ exports.mostrarFormulario = async (req, res) => {
     }
 };
 
-// Crear admisión (versión mejorada con transacciones)
+// Crear admisión (versión corregida con transacciones)
 exports.crearAdmision = async (req, res) => {
     const { paciente_id, cama_id } = req.body;
     
@@ -79,7 +91,7 @@ exports.crearAdmision = async (req, res) => {
         await connection.rollback();
         console.error('Error creando admisión:', error);
         
-        // Manejo específico de errores de BD
+        // Manejo específico de errores
         let errorMessage = 'Error al crear la admisión';
         if (error.code === 'ER_DUP_ENTRY') {
             errorMessage = 'La cama ya está ocupada por otro paciente';

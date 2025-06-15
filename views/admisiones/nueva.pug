@@ -2,25 +2,39 @@ extends ../layout
 
 block content
   .container.mt-4
-    h2 Nueva Admisión
+    h1.mb-4 Nueva Admisión
     
     if error
-      .alert.alert-danger #{error}
+      .alert.alert-danger.alert-dismissible.fade.show
+        | #{error}
+        button.close(type='button', data-dismiss='alert', aria-label='Close')
+          span(aria-hidden='true') &times;
     
-    form(method="POST" action="/admisiones/crear")
-      .mb-3
-        label.form-label Paciente
-        select.form-select(name="paciente_id")
-          option(value="") Seleccionar paciente
-          each paciente in pacientes
-            option(value=paciente.id)= `${paciente.apellido}, ${paciente.nombre}`
-      
-      .mb-3
-        label.form-label Cama
-        select.form-select(name="cama_id")
-          option(value="") Seleccionar cama
-          each cama in camas
-            option(value=cama.id)= `Cama ${cama.id}`
-      
-      button.btn.btn-primary(type="submit") Registrar Admisión
-    a.btn.btn-secondary.mt-3(href="/admisiones") Volver
+    .card
+      .card-body
+        form(method='POST', action='/admisiones/crear')
+          .form-group
+            label(for='paciente_id') Paciente:
+            select#paciente_id.form-control(name='paciente_id', required)
+              option(value='') -- Seleccione un paciente --
+              each paciente in pacientes
+                option(value=paciente.id) #{paciente.nombre_completo}
+          
+          .form-group
+            label(for='cama_id') Cama Disponible:
+            select#cama_id.form-control(name='cama_id', required)
+              option(value='') -- Seleccione una cama --
+              each cama in camas
+                option(value=cama.id) Cama #{cama.numero}
+          
+          .d-flex.justify-content-end.mt-4
+            button.btn.btn-primary.mr-2(type='submit')
+              i.fas.fa-save.mr-2
+              | Guardar Admisión
+            a.btn.btn-secondary(href='/admisiones')
+              i.fas.fa-times.mr-2
+              | Cancelar
+
+    a.btn.btn-secondary.mt-3(href='/dashboard')
+      i.fas.fa-arrow-left.mr-2
+      | Volver al Dashboard
