@@ -8,15 +8,17 @@ block content
     table(border="1")
       thead
         tr
+          th ID
           th Admisión ID
           th Médico ID
-          th Fecha alta
+          th Fecha de alta
           th Tipo de alta
           th Diagnóstico final
           th Estado
       tbody
         each alta in altas
           tr
+            td= alta.id
             td= alta.admision_id
             td= alta.medico_id
             td= alta.fecha_alta
