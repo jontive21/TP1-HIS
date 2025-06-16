@@ -2,14 +2,16 @@
   "name": "tp1-his",
   "version": "1.0.0",
   "description": "Sistema HIS - Admision de Pacientes",
-  "main": "app.js",
+  "main": "server.js",  // ✅ Nombre correcto
   "scripts": {
-    "start": "node app.js"
+    "start": "node server.js",  // ✅ Comando corregido
+    "dev": "nodemon server.js"  // ✅ Opcional para desarrollo
   },
   "dependencies": {
     "express": "^4.18.2",
-    "mysql2": "3.6.0",
-    "pug": "3.0.2",
-    "sqlite3": "^5.1.7"
+    "mysql2": "^3.9.4"  // ✅ Versión actualizada
+  },
+  "engines": {
+    "node": ">=18.x"  // ✅ Especificación de versión
   }
 }
