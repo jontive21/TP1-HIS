@@ -2,100 +2,40 @@ extends layout
 
 block content
   .container.mt-4
-    .card.shadow.mb-4
-      .card-header.bg-primary.text-white
-        h3.mb-0
-          i.fas.fa-hospital.me-2
-          | Sistema HIS - Admisión y Recepción
-      
-      .card-body
-        if error
-          .alert.alert-danger.alert-dismissible.fade.show
-            | #{error}
-            button.close(type='button', data-dismiss='alert', aria-label='Close')
-              span(aria-hidden='true') &times;
-        
-        .welcome-card.mb-4.text-center
-          h4.text-muted.mb-3 ¡Bienvenido al Sistema de Internación!
-          p.lead Seleccione una opción del menú para comenzar
-        
-        .row
-          .col-md-4.mb-4
-            .card.h-100.border-success
-              .card-header.bg-success.text-white
-                h5.mb-0
-                  i.fas.fa-user-plus.me-2
-                  | Admisiones
-              .card-body
-                p Gestionar nuevos ingresos y asignación de camas
-                .stat-value.text-center.mb-3 #{admisionesHoy} hoy
-              .card-footer.bg-transparent
-                a.btn.btn-success.btn-block(href="/admisiones")
-                  i.fas.fa-arrow-right.me-2
-                  | Ingresar
-          
-          .col-md-4.mb-4
-            .card.h-100.border-info
-              .card-header.bg-info.text-white
-                h5.mb-0
-                  i.fas.fa-user-nurse.me-2
-                  | Enfermería
-              .card-body
-                p Registro de signos vitales y cuidados de pacientes
-                .stat-value.text-center.mb-3 #{pacientesInternados} internados
-              .card-footer.bg-transparent
-                a.btn.btn-info.btn-block(href="/en_construccion?modulo=enfermeria")
-                  i.fas.fa-arrow-right.me-2
-                  | Ingresar
-          
-          .col-md-4.mb-4
-            .card.h-100.border-danger
-              .card-header.bg-danger.text-white
-                h5.mb-0
-                  i.fas.fa-user-md.me-2
-                  | Médicos
-              .card-body
-                p Evaluaciones médicas y planes de tratamiento
-                .stat-value.text-center.mb-3 #{altasHoy} altas hoy
-              .card-footer.bg-transparent
-                a.btn.btn-danger.btn-block(href="/en_construccion?modulo=medicos")
-                  i.fas.fa-arrow-right.me-2
-                  | Ingresar
-        
-        .stats-container.mt-4
-          .row
-            .col-md-3.mb-3
-              .stat-card.text-center.p-3.bg-light.rounded
-                h5 Cama(s) Disponible(s)
-                .stat-value.display-5 #{camasDisponibles}
-                .stat-subtitle.small de #{totalCamas} total
-            
-            .col-md-3.mb-3
-              .stat-card.text-center.p-3.bg-light.rounded
-                h5 Pacientes en Espera
-                .stat-value.display-5 #{pacientesEspera}
-            
-            .col-md-3.mb-3
-              .stat-card.text-center.p-3.bg-light.rounded
-                h5 Admisiones Hoy
-                .stat-value.display-5 #{admisionesHoy}
-            
-            .col-md-3.mb-3
-              .stat-card.text-center.p-3.bg-light.rounded
-                h5 Altas Médicas Hoy
-                .stat-value.display-5 #{altasHoy}
-        
-        .user-info.mt-4.text-center
-          p.small
-            i.fas.fa-user-circle.me-1
-            | Rol: #{rol} | 
-            i.fas.fa-clock.me-1
-            | Último acceso: #{ultimoAcceso}
+    h1 Sistema HIS - Admisión y Recepción
     
-    footer.text-center.mt-5.pb-4
-      p.small.text-muted
-        i.fas.fa-code.me-1
-        | Programación Web II - Desarrollador de Software
-      p.small.text-muted
-        i.fas.fa-copyright.me-1
-        | 2025 - HIS - Sistema Hospitalario Integrado
+    if error
+      .alert.alert-danger.alert-dismissible.fade.show
+        | #{error}
+        button.close(type='button', data-dismiss='alert', aria-label='Close')
+          span(aria-hidden='true') &times;
+    
+    .welcome-card.mb-4
+      h3 ¡Bienvenido al Dashboard!
+      p Inicio rápido a las funciones de admisión y control hospitalario
+    
+    .stats-container
+      .stat-card
+        h4 Cama(s) Disponible(s)
+        .stat-value #{camasDisponibles}
+        .stat-subtitle de #{totalCamas} total
+      
+      .stat-card
+        h4 Pacientes Internados
+        .stat-value #{pacientesInternados}
+      
+      .stat-card
+        h4 Admisiones Hoy
+        .stat-value #{admisionesHoy}
+        //- BOTÓN DE ADMISIONES AQUÍ
+        a.btn.btn-success.btn-block.mt-3(href="/admisiones") Ir a Admisiones
+      
+      .stat-card
+        h4 Altas Médicas Hoy
+        .stat-value #{altasHoy}
+    
+    .user-info.mt-4
+      p Rol: #{rol} | Último acceso: #{ultimoAcceso}
+    
+    footer.mt-5
+      p © 2025 – HIS - Sistema Hospitalario Integrado

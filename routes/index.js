@@ -1,4 +1,42 @@
 const express = require('express');
+const path = require('path');
+const session = require('express-session');
+require('dotenv').config();
+
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+// Middlewares globales
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(express.static(path.join(__dirname, 'public')));
+app.use(session({
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false,
+    cookie: { secure: false, maxAge: 24 * 60 * 60 * 1000 }
+}));
+
+// Middleware para agregar usuario a todas las vistas
+const { addUserToViews } = require('./middleware/auth');
+app.use(addUserToViews);
+
+// Importar rutas
+const authRoutes = require('./routes/auth');
+const indexRoutes = require('./routes/index');
+const dashboardRoutes = require('./routes/dashboard');
+
+// Usar rutas
+app.use('/', authRoutes);
+app.use('/', indexRoutes);
+app.use('/', dashboardRoutes);
+
+// Iniciar servidor
+app.listen(PORT, () => {
+    console.log(`Servidor corriendo en http://localhost:${PORT}`);
+});
+
+const express = require('express');
 const router = express.Router();
 
 // CORRECCIÓN: Importar el módulo completo en lugar de destructurar
@@ -6,7 +44,7 @@ const auth = require('../middleware/auth');  // <-- Aquí se aplica la correcci�
 
 const dashboardController = require('../controllers/dashboardController');
 
-// Ruta principal - redirigir al dashboard si está autenticado
+// Ruta principal - redirigir según estado de autenticación
 router.get('/', (req, res) => {
     if (req.session.user) {
         res.redirect('/dashboard');
@@ -17,14 +55,5 @@ router.get('/', (req, res) => {
 
 // CORRECCIÓN: Usar auth.requireAuth como función middleware
 router.get('/dashboard', auth.requireAuth, dashboardController.showDashboard);  // <-- Aquí se aplica la corrección
-
-// Ruta para módulos en construcción
-router.get('/en_construccion', (req, res) => {
-    const modulo = req.query.modulo || 'este módulo';
-    res.render('en_construccion', {
-        title: 'Módulo en construcción',
-        modulo: modulo
-    });
-});
 
 module.exports = router;
