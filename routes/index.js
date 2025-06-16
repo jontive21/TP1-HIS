@@ -38,10 +38,7 @@ app.listen(PORT, () => {
 
 const express = require('express');
 const router = express.Router();
-
-// CORRECCIÓN: Importar el módulo completo en lugar de destructurar
-const auth = require('../middleware/auth');  // <-- Aquí se aplica la corrección
-
+const { requireAuth } = require('../middleware/auth');
 const dashboardController = require('../controllers/dashboardController');
 
 // Ruta principal - redirigir según estado de autenticación
@@ -53,7 +50,7 @@ router.get('/', (req, res) => {
     }
 });
 
-// CORRECCIÓN: Usar auth.requireAuth como función middleware
-router.get('/dashboard', auth.requireAuth, dashboardController.showDashboard);  // <-- Aquí se aplica la corrección
+// Dashboard principal (requiere autenticación)
+router.get('/dashboard', requireAuth, dashboardController.showDashboard);
 
 module.exports = router;
