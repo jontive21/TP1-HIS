@@ -1,8 +1,7 @@
 const express = require('express');
 const path = require('path');
 const session = require('express-session');
-const fs = require('fs'); // Importa fs para operaciones de archivo
-const { pool, testConnection, query } = require('./database/connection'); // Añade query
+const { pool, testConnection } = require('./database/connection');
 require('dotenv').config();
 
 const app = express();
@@ -37,12 +36,12 @@ app.use((req, res, next) => {
     next();
 });
 
-// 5. Ruta principal CORREGIDA
+// 5. Ruta principal CORREGIDA Y MEJORADA (única definición)
 app.get('/', async (req, res) => {
     if (req.session.user) {
         try {
             // 1. Obtener estadísticas de camas
-            const [camas] = await query(`
+            const [camas] = await pool.query(`
                 SELECT 
                     COUNT(*) AS total,
                     SUM(NOT ocupada) AS disponibles 
@@ -50,7 +49,7 @@ app.get('/', async (req, res) => {
             `);
             
             // 2. Obtener número de pacientes internados
-            const [pacientes] = await query(`
+            const [pacientes] = await pool.query(`
                 SELECT COUNT(*) AS internados 
                 FROM pacientes 
                 WHERE internado = true
@@ -58,14 +57,14 @@ app.get('/', async (req, res) => {
             
             // 3. Obtener admisiones de hoy
             const hoy = new Date().toISOString().split('T')[0];
-            const [admisiones] = await query(`
+            const [admisiones] = await pool.query(`
                 SELECT COUNT(*) AS admisiones_hoy
                 FROM admissions
                 WHERE DATE(fecha_ingreso) = ?
             `, [hoy]);
             
-            // 4. Obtener altas de hoy
-            const [altas] = await query(`
+            // 4. Obtener altas de hoy (asumiendo que tienes una tabla de altas)
+            const [altas] = await pool.query(`
                 SELECT COUNT(*) AS altas_hoy
                 FROM altas
                 WHERE DATE(fecha_alta) = ?
@@ -76,7 +75,7 @@ app.get('/', async (req, res) => {
                 totalCamas: camas[0].total,
                 pacientesInternados: pacientes[0].internados,
                 admisionesHoy: admisiones[0].admisiones_hoy,
-                altasHoy: altas[0].altas_hoy || 0,
+                altasHoy: altas[0].altas_hoy || 0, // Si no hay altas, mostrar 0
                 rol: req.session.user.rol,
                 ultimoAcceso: new Date().toLocaleDateString('es-ES')
             });
@@ -113,61 +112,14 @@ app.get('/test-connection', async (req, res) => {
     }
 });
 
-// 8. Ruta de diagnóstico mejorada
-app.get('/server-check', async (req, res) => {
-    const report = {
-        server: true,
-        db_connection: false,
-        db_query: false,
-        ssl_enabled: false, // Inicializado como false
-        environment: process.env.NODE_ENV,
-        issues: []
-    };
-
-    try {
-        // Verificar si SSL está habilitado
-        if (pool.config && pool.config.ssl) {
-            report.ssl_enabled = true;
-        }
-
-        // Prueba conexión a DB
-        report.db_connection = await testConnection();
-        
-        // Prueba consulta simple
-        try {
-            const result = await query('SELECT 1 + 1 AS solution');
-            if (result && result[0] && result[0].solution === 2) {
-                report.db_query = true;
-            }
-        } catch (queryError) {
-            report.issues.push(`Query failed: ${queryError.code}`);
-        }
-    } catch (connError) {
-        report.issues.push(`DB connection failed: ${connError.code}`);
-    }
-
-    // Verifica certificado SSL si está habilitado
-    if (report.ssl_enabled) {
-        try {
-            if (!fs.existsSync('ssl/railway-ca.pem')) {
-                report.issues.push('SSL certificate missing');
-            }
-        } catch (fsError) {
-            report.issues.push(`SSL check failed: ${fsError.message}`);
-        }
-    }
-
-    res.json(report);
-});
-
-// 9. Rutas principales
+// 8. Rutas principales
 app.use('/login', require('./routes/auth'));
 app.use('/pacientes', require('./routes/pacientes'));
 app.use('/admisiones', require('./routes/admisionRoute'));
 app.use('/enfermeria', require('./routes/enfermeria'));
 app.use('/medico', require('./routes/medico'));
 
-// 10. Manejo de errores
+// 9. Manejo de errores
 app.use((req, res) => {
     res.status(404).render('error', { 
         message: 'Página no encontrada',
@@ -181,22 +133,18 @@ app.use((err, req, res, next) => {
     res.redirect('/');
 });
 
-// 11. Iniciar servidor
+// 10. Iniciar servidor
 app.listen(PORT, async () => {
     console.log(`🚀 Servidor HIS corriendo en http://localhost:${PORT}`);
     console.log('🏥 Sistema Hospitalario Integrado');
     console.log('🔍 Prueba de usuario: http://localhost:3000/test-user');
     console.log('🔍 Prueba de conexión BD: http://localhost:3000/test-connection');
-    console.log('🔍 Diagnóstico completo: http://localhost:3000/server-check');
     
     try {
-        const connectionOk = await testConnection();
-        if (connectionOk) {
-            console.log('✅ Conexión a base de datos exitosa');
-        } else {
-            console.log('❌ Error conectando a la base de datos');
-        }
+        await testConnection();
+        console.log('✅ Conexión a base de datos exitosa');
     } catch (error) {
-        console.error('❌ Error en test de conexión:', error.message);
+        console.error('❌ Error conectando a la base de datos:', error.message);
+        console.log('⚠️ Verifica la configuración en .env y database/connection.js');
     }
 });
