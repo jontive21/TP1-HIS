@@ -9,17 +9,24 @@ exports.listarAdmisiones = async (req, res) => {
                    p.apellido, 
                    DATE_FORMAT(a.fecha_ingreso, '%d/%m/%Y %H:%i') as fecha_formateada,
                    c.numero as numero_cama
-            FROM admisiones a  // CAMBIADO: admissions → admisiones
+            FROM admisiones a
             JOIN pacientes p ON a.paciente_id = p.id
             JOIN camas c ON a.cama_id = c.id
             ORDER BY a.fecha_ingreso DESC
         `);
         
-        // CORRECCIÓN: No limpiar mensajes aquí
+        // Capturar mensajes de sesión y limpiarlos
+        const successMsg = req.session.success || null;
+        const errorMsg = req.session.error || null;
+        
+        // Limpiar mensajes después de usarlos
+        req.session.success = null;
+        req.session.error = null;
+        
         res.render('admisiones/list', { 
             admisiones,
-            success: req.session.success,
-            error: req.session.error
+            success: successMsg,
+            error: errorMsg
         });
         
     } catch (error) {
@@ -43,10 +50,14 @@ exports.mostrarFormulario = async (req, res) => {
             WHERE ocupada = FALSE
         `);
         
+        // Capturar mensaje de error y limpiarlo
+        const errorMsg = req.session.error || null;
+        req.session.error = null;
+        
         res.render('admisiones/nueva', { 
             pacientes, 
             camas,
-            error: req.session.error
+            error: errorMsg
         });
         
     } catch (error) {
@@ -69,9 +80,9 @@ exports.crearAdmision = async (req, res) => {
     try {
         await connection.beginTransaction();
         
-        // 1. Registrar admisión (tabla corregida)
+        // 1. Registrar admisión
         await connection.query(`
-            INSERT INTO admisiones (paciente_id, cama_id, fecha_ingreso)  // admissions → admisiones
+            INSERT INTO admisiones (paciente_id, cama_id, fecha_ingreso)
             VALUES (?, ?, NOW())
         `, [paciente_id, cama_id]);
         
@@ -95,11 +106,13 @@ exports.crearAdmision = async (req, res) => {
             errorMessage = 'Datos inválidos (paciente o cama no existe)';
         } else if (error.code === 'ER_BAD_NULL_ERROR') {
             errorMessage = 'Datos incompletos';
+        } else {
+            errorMessage += `: ${error.message}`;
         }
         
         req.session.error = errorMessage;
         res.redirect('/admisiones/nueva');
     } finally {
-        connection.release();
+        if (connection) connection.release();
     }
 };

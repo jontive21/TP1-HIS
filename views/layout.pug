@@ -16,17 +16,16 @@ html(lang="es")
         .container-fluid
           a.navbar-brand(href="/") 
             i.bi.bi-hospital-fill.me-2
-            | Sistema HIS - Admisión y Recepción
+            | Sistema HIS 
           
           // Menú de navegación
           ul.navbar-nav.ms-auto.mb-2.mb-lg-0
             li.nav-item
-              a.nav-link(href="/dashboard") Dashboard
+              a.nav-link(href="/dashboard") 
             
             // Corrección importante: Verifica la ruta exacta
             li.nav-item
-              a.nav-link(href="/admisiones") Admisiones  // Asegúrate que esta ruta coincida con tu enrutamiento
-            
+              a.nav-link(href="/admisiones") 
             if user
               li.nav-item
                 a.nav-link(href="/logout") 
@@ -37,7 +36,7 @@ html(lang="es")
                 a.nav-link(href="/login") Iniciar Sesión
 
     main.container.my-5
-      //- Mostrar mensajes flash - IMPORTANTE: Cambio en el orden
+      //- mensajes flash - IMPORTANTE: Cambio en el orden
       if success
         .alert.alert-success.alert-dismissible.fade.show(role="alert")
           = success
