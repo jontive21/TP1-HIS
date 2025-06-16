@@ -1,0 +1,29 @@
+//- views/evaluaciones_medicas/index.pug
+
+extends ../layout
+
+block content
+  h2 Evaluaciones Médicas Registradas
+  if evaluaciones && evaluaciones.length > 0
+    table(border="1")
+      thead
+        tr
+          th ID
+          th Admisión ID
+          th Médico ID
+          th Fecha evaluación
+          th Diagnóstico
+          th Estado actualización
+          th Observaciones
+      tbody
+        each e in evaluaciones
+          tr
+            td= e.id
+            td= e.admision_id
+            td= e.medico_id
+            td= e.fecha_evaluacion
+            td= e.diagnostico
+            td= e.plan_tratamiento
+            td= e.observaciones
+  else
+    p No hay evaluaciones médicas registradas aún.
