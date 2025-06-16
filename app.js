@@ -8,7 +8,7 @@ const app = express();
 app.set('view engine', 'pug');
 app.set('views', path.join(__dirname, 'views'));
 
-// Middleware para procesar datos POST
+// Middleware para formularios y archivos estáticos
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
@@ -32,18 +32,18 @@ app.use('/camas', camaRoutes);
 app.use('/habitaciones', habitacionRoutes);
 app.use('/signos_vitales', signosVitalesRoutes);
 app.use('/altas', altaRoutes);
-app.use('/cancelaciones_admision', cancelacionRoutes);
+app.use('/cancelaciones', cancelacionRoutes);
 app.use('/enfermeria', enfermeriaRoutes);
 app.use('/medicas', evaluacionesMedicasRoutes);
 app.use('/estudios', estudioRoutes);
 
 // Ruta raíz - Dashboard
 app.get('/', (req, res) => {
-  res.redirect('/admisiones');
+  res.render('index'); // Esta línea debe coincidir con tu vista views/index.pug
 });
 
 // Iniciar servidor
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`🚀 Módulo de Admisión funcionando en http://localhost:${PORT}/admisiones`);
+  console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
 });
