@@ -8,22 +8,22 @@ block content
     table(border="1")
       thead
         tr
+          th ID
           th DNI
           th Nombre
           th Apellido
           th Sexo
           th Teléfono
           th Email
-          th Dirección
       tbody
         each paciente in pacientes
           tr
+            td= paciente.id
             td= paciente.dni
             td= paciente.nombre
             td= paciente.apellido
             td= paciente.sexo
             td= paciente.telefono
             td= paciente.email
-            td= paciente.direccion
   else
     p No hay pacientes registrados aún.
