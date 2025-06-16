@@ -11,7 +11,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // Rutas principales
 app.get('/', (req, res) => res.redirect('/admisiones'));
-app.use('/admisiones', require('./routes/admision'));
+app.use('/admisiones', require('./routes/admisionRoute'));
 
 // Iniciar servidor
 app.listen(PORT, () => {
