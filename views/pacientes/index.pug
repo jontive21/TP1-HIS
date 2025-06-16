@@ -1,6 +1,27 @@
+//- views/pacientes/index.pug
+
 extends ../layout
 
 block content
-  h1 Pacientes
-  a.btn.btn-primary(href="/pacientes/crear") Nuevo Paciente
-  a.btn.btn-secondary.ms-2(href="/") Volver al inicio
+  h2 Pacientes Registrados
+  if pacientes && pacientes.length > 0
+    table(border="1")
+      thead
+        tr
+          th DNI
+          th Nombre
+          th Apellido
+          th Sexo
+          th Teléfono
+          th Email
+      tbody
+        each paciente in pacientes
+          tr
+            td= paciente.dni
+            td= paciente.nombre
+            td= paciente.apellido
+            td= paciente.sexo
+            td= paciente.telefono
+            td= paciente.email
+  else
+    p No hay pacientes registrados aún.

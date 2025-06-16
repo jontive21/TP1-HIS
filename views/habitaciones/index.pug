@@ -1,0 +1,23 @@
+//- views/habitaciones/index.pug
+
+extends ../layout
+
+block content
+  h2 Habitaciones
+  if habitaciones && habitaciones.length > 0
+    table(border="1")
+      thead
+        tr
+          th Número
+          th Ala
+          th Tipo
+          th Estado
+      tbody
+        each habitacion in habitaciones
+          tr
+            td= habitacion.numero
+            td= habitacion.ala_id
+            td= habitacion.tipo_habitacion
+            td= habitacion.estado
+  else
+    p No hay habitaciones registradas aún.

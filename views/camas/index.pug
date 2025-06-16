@@ -1,0 +1,23 @@
+//- views/camas/index.pug
+
+extends ../layout
+
+block content
+  h2 Camas Disponibles
+  if camas && camas.length > 0
+    table(border="1")
+      thead
+        tr
+          th Cama
+          th Habitación
+          th Estado
+          th Último cambio
+      tbody
+        each cama in camas
+          tr
+            td= cama.numero_cama
+            td= cama.habitacion_id
+            td= cama.estado
+            td= cama.fecha_ultimo_cambio
+  else
+    p No hay camas registradas aún.

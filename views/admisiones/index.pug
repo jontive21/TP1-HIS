@@ -1,0 +1,25 @@
+//- views/admisiones/index.pug
+
+extends ../layout
+
+block content
+  h2 Historial de Admisiones
+  if admisiones && admisiones.length > 0
+    table(border="1")
+      thead
+        tr
+          th ID
+          th DNI
+          th Motivo
+          th Estado
+          th Fecha ingreso
+      tbody
+        each admision in admisiones
+          tr
+            td= admision.id
+            td= admision.dni
+            td= admision.motivo_internacion
+            td= admision.estado
+            td= admision.fecha_ingreso
+  else
+    p No hay admisiones registradas aún.
