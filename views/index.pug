@@ -1,22 +1,189 @@
 //- views/index.pug
-
 extends layout
-
 block content
-  h2 Bienvenido al Módulo de Admisión y Recepción
-  p Sistema Hospitalario HIS - TP1 - Entrega parcial del práctico integrador
-  hr
-  h3 Acceso rápido al módulo:
-  ul
-    li 
-      a(href="/pacientes") Ver pacientes
-    li 
-      a(href="/camas") Ver camas disponibles
-    li 
-      a(href="/habitaciones") Ver habitaciones
-    li 
-      a(href="/admisiones") Ver admisiones
-    li 
-      a(href="/signos_vitales") Ver signos vitales
-    li 
-      a(href="/altas") Ver altas hospitalarias
+  .container-fluid
+    //- Header de bienvenida
+    .row.mb-4
+      .col-12
+        .jumbotron.bg-primary.text-white.rounded.p-5
+          h1.display-4
+            i.fas.fa-hospital.me-3
+            | #{title || 'Sistema HIS - Internación'}
+          p.lead Sistema de Información Hospitalaria para gestión de internaciones y admisiones de pacientes
+          hr.my-4.border-light
+          p Acceda a los diferentes módulos del sistema utilizando las opciones del menú o los accesos directos a continuación.
+          a.btn.btn-light.btn-lg(href="/admisiones")
+            i.fas.fa-user-plus.me-2
+            | Ir a Admisiones
+    //- Accesos rápidos principales
+    .row.mb-4
+      .col-md-4
+        .card.h-100.border-0.shadow-sm
+          .card-body.text-center.p-4
+            .mb-3
+              i.fas.fa-user-plus.fa-3x.text-primary
+            h4.card-title Módulo de Admisiones
+            p.card-text Gestión completa de admisiones y recepción de pacientes. Asignación de camas y habitaciones.
+            a.btn.btn-primary.btn-lg.w-100(href="/admisiones")
+              | Ingresar al Módulo
+              i.fas.fa-arrow-right.ms-2
+      .col-md-4
+        .card.h-100.border-0.shadow-sm
+          .card-body.text-center.p-4
+            .mb-3
+              i.fas.fa-users.fa-3x.text-success
+            h4.card-title Gestión de Pacientes
+            p.card-text Registro y administración de información de pacientes, historiales y datos médicos.
+            a.btn.btn-success.btn-lg.w-100(href="/pacientes")
+              | Gestionar Pacientes
+              i.fas.fa-arrow-right.ms-2
+      .col-md-4
+        .card.h-100.border-0.shadow-sm
+          .card-body.text-center.p-4
+            .mb-3
+              i.fas.fa-bed.fa-3x.text-info
+            h4.card-title Control de Camas
+            p.card-text Monitoreo del estado de camas y habitaciones. Disponibilidad y asignaciones.
+            a.btn.btn-info.btn-lg.w-100(href="/camas")
+              | Ver Camas
+              i.fas.fa-arrow-right.ms-2
+    //- Estadísticas rápidas
+    .row.mb-4
+      .col-12
+        .card
+          .card-header.bg-dark.text-white
+            h5.card-title.mb-0
+              i.fas.fa-chart-dashboard.me-2
+              | Estado del Sistema
+          .card-body
+            .row.text-center
+              .col-md-3
+                .border-end
+                  h3.text-primary.mb-1
+                    i.fas.fa-hospital-user.me-2
+                    span#admisiones-activas -
+                  small.text-muted Admisiones Activas
+              
+              .col-md-3
+                .border-end
+                  h3.text-success.mb-1
+                    i.fas.fa-bed.me-2
+                    span#camas-disponibles -
+                  small.text-muted Camas Disponibles
+              
+              .col-md-3
+                .border-end
+                  h3.text-info.mb-1
+                    i.fas.fa-calendar-day.me-2
+                    span#admisiones-hoy -
+                  small.text-muted Admisiones Hoy
+              
+              .col-md-3
+                h3.text-warning.mb-1
+                  i.fas.fa-clock.me-2
+                  span#sistema-activo ⏰
+                small.text-muted Sistema Activo
+    //- Funcionalidades del sistema
+    .row.mb-4
+      .col-12
+        .card
+          .card-header
+            h5.card-title.mb-0
+              i.fas.fa-list-check.me-2
+              | Funcionalidades Principales
+          .card-body
+            .row
+              .col-md-6
+                h6.text-primary
+                  i.fas.fa-user-plus.me-2
+                  | Admisión y Recepción
+                ul.list-unstyled.ps-3
+                  li
+                    i.fas.fa-check.text-success.me-2
+                    | Registro de pacientes nuevos y existentes
+                  li
+                    i.fas.fa-check.text-success.me-2
+                    | Asignación inteligente de camas
+                  li
+                    i.fas.fa-check.text-success.me-2
+                    | Gestión de cancelaciones
+                  li
+                    i.fas.fa-check.text-success.me-2
+                    | Validación de reglas de habitación
+              .col-md-6
+                h6.text-success
+                  i.fas.fa-bed.me-2
+                  | Gestión de Recursos
+                ul.list-unstyled.ps-3
+                  li
+                    i.fas.fa-check.text-success.me-2
+                    | Control de estado de camas
+                  li
+                    i.fas.fa-check.text-success.me-2
+                    | Administración de habitaciones
+                  li
+                    i.fas.fa-check.text-success.me-2
+                    | Estadísticas en tiempo real
+                  li
+                    i.fas.fa-check.text-success.me-2
+                    | Reportes de ocupación
+    //- Enlaces útiles
+    .row
+      .col-md-6
+        .card
+          .card-header
+            h6.card-title.mb-0
+              i.fas.fa-info-circle.me-2
+              | Información del Sistema
+          .card-body
+            .small
+              p
+                strong Versión: 
+                | 1.0.0
+              p
+                strong Base de Datos: 
+                | Railway MySQL
+              p
+                strong Estado de Conexión: 
+                span.badge.bg-success Conectado
+              p
+                strong Última Actualización: 
+                | #{new Date().toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' })}
+      .col-md-6
+        .card
+          .card-header
+            h6.card-title.mb-0
+              i.fas.fa-book.me-2
+              | Acceso Rápido
+          .card-body
+            .d-grid.gap-2
+              a.btn.btn-outline-primary(href="/admisiones/nueva")
+                i.fas.fa-plus.me-2
+                | Nueva Admisión
+              a.btn.btn-outline-success(href="/pacientes")
+                i.fas.fa-search.me-2
+                | Buscar Paciente
+              a.btn.btn-outline-info(href="/camas")
+                i.fas.fa-bed.me-2
+                | Estado de Camas
+  //- Script para cargar estadísticas
+  script.
+    // Cargar estadísticas al cargar la página
+    document.addEventListener('DOMContentLoaded', function() {
+      // Simular carga de estadísticas (en producción esto vendría de APIs)
+      setTimeout(() => {
+        document.getElementById('admisiones-activas').textContent = '12';
+        document.getElementById('camas-disponibles').textContent = '8';
+        document.getElementById('admisiones-hoy').textContent = '3';
+        
+        // Mostrar tiempo activo
+        const ahora = new Date();
+        document.getElementById('sistema-activo').textContent = ahora.toLocaleTimeString('es-ES');
+      }, 500);
+      
+      // Actualizar reloj cada minuto
+      setInterval(() => {
+        const ahora = new Date();
+        document.getElementById('sistema-activo').textContent = ahora.toLocaleTimeString('es-ES');
+      }, 60000);
+    });

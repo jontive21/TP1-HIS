@@ -1,6 +1,364 @@
-button:focus, .btn:focus, input:focus {
-    outline: 2px solid var(--primary-color);
-    outline-offset: 2px;
+/* Sistema HIS - Estilos Personalizados */
+/* Variables CSS */
+:root {
+  --primary-color: #0d6efd;
+  --secondary-color: #6c757d;
+  --success-color: #198754;
+  --danger-color: #dc3545;
+  --warning-color: #ffc107;
+  --info-color: #0dcaf0;
+  --light-color: #f8f9fa;
+  --dark-color: #212529;
+  
+  --border-radius: 0.375rem;
+  --box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+  --transition: all 0.3s ease;
 }
-
-/* ...resto de tus estilos... */
+/* Reset y base */
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  line-height: 1.6;
+  color: var(--dark-color);
+  background-color: #f5f5f5;
+}
+/* Navegación personalizada */
+.navbar-brand {
+  font-weight: bold;
+  font-size: 1.5rem;
+}
+.navbar-nav .nav-link {
+  border-radius: var(--border-radius);
+  margin: 0 0.25rem;
+  transition: var(--transition);
+}
+.navbar-nav .nav-link:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+.navbar-nav .nav-link.active {
+  background-color: rgba(255, 255, 255, 0.2);
+  font-weight: 600;
+}
+/* Cards y contenedores */
+.card {
+  border: none;
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
+  transition: var(--transition);
+}
+.card:hover {
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
+}
+.card-header {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+  font-weight: 600;
+}
+/* Jumbotron personalizado */
+.jumbotron {
+  background: linear-gradient(135deg, var(--primary-color) 0%, #0056b3 100%);
+  border-radius: var(--border-radius);
+}
+/* Botones mejorados */
+.btn {
+  border-radius: var(--border-radius);
+  font-weight: 500;
+  transition: var(--transition);
+  border-width: 1px;
+}
+.btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.15);
+}
+.btn-lg {
+  padding: 0.75rem 1.5rem;
+  font-size: 1.1rem;
+}
+/* Estados específicos de la aplicación */
+.badge-estado {
+  font-size: 0.85rem;
+  padding: 0.5rem 0.75rem;
+}
+/* Alertas personalizadas */
+.alert {
+  border-radius: var(--border-radius);
+  border: none;
+  box-shadow: var(--box-shadow);
+}
+.alert .alert-heading {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+/* Formularios mejorados */
+.form-control, .form-select {
+  border-radius: var(--border-radius);
+  border: 1px solid #ced4da;
+  transition: var(--transition);
+}
+.form-control:focus, .form-select:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+.form-label {
+  font-weight: 500;
+  color: var(--dark-color);
+  margin-bottom: 0.5rem;
+}
+.input-group {
+  box-shadow: var(--box-shadow);
+  border-radius: var(--border-radius);
+}
+/* Sección headers para formularios */
+.section-header h6 {
+  color: var(--primary-color);
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+.section-header .border-bottom {
+  border-color: var(--primary-color) !important;
+  border-width: 2px !important;
+}
+/* Grupos de información */
+.info-group {
+  margin-bottom: 1rem;
+}
+.info-group label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--secondary-color);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 0.25rem;
+  display: block;
+}
+.info-group .fw-bold {
+  font-size: 1rem;
+  color: var(--dark-color);
+}
+/* Tablas mejoradas */
+.table {
+  background-color: white;
+  border-radius: var(--border-radius);
+  overflow: hidden;
+  box-shadow: var(--box-shadow);
+}
+.table thead th {
+  background-color: var(--dark-color);
+  color: white;
+  font-weight: 600;
+  border: none;
+  padding: 1rem 0.75rem;
+}
+.table tbody tr {
+  transition: var(--transition);
+}
+.table tbody tr:hover {
+  background-color: rgba(13, 110, 253, 0.05);
+}
+.table td {
+  padding: 0.75rem;
+  vertical-align: middle;
+  border-color: #f0f0f0;
+}
+/* Badges de estado */
+.badge {
+  font-weight: 500;
+  font-size: 0.75rem;
+}
+/* Iconos y elementos visuales */
+.fa-2x, .fa-3x, .fa-5x {
+  margin-bottom: 1rem;
+}
+/* Loading y spinners */
+.spinner-border-sm {
+  width: 1rem;
+  height: 1rem;
+}
+/* Footer */
+footer {
+  margin-top: auto;
+}
+footer .container h5 {
+  color: white;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+footer .container h6 {
+  color: #adb5bd;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+}
+footer a {
+  color: #adb5bd;
+  text-decoration: none;
+  transition: var(--transition);
+}
+footer a:hover {
+  color: white;
+  text-decoration: underline;
+}
+/* Breadcrumbs */
+.breadcrumb {
+  background-color: transparent;
+  padding: 0;
+  margin-bottom: 0;
+}
+.breadcrumb-item a {
+  color: var(--primary-color);
+  text-decoration: none;
+}
+.breadcrumb-item a:hover {
+  text-decoration: underline;
+}
+/* Modales */
+.modal-content {
+  border-radius: var(--border-radius);
+  border: none;
+  box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.175);
+}
+.modal-header {
+  border-bottom: 1px solid #dee2e6;
+  padding: 1.5rem;
+}
+.modal-body {
+  padding: 1.5rem;
+}
+.modal-footer {
+  border-top: 1px solid #dee2e6;
+  padding: 1.5rem;
+}
+/* Utilidades personalizadas */
+.text-muted {
+  color: var(--secondary-color) !important;
+}
+.border-0 {
+  border: none !important;
+}
+.shadow-sm {
+  box-shadow: var(--box-shadow) !important;
+}
+.opacity-75 {
+  opacity: 0.75;
+}
+/* Responsive design */
+@media (max-width: 768px) {
+  .container-fluid {
+    padding: 0.5rem;
+  }
+  
+  .card-body {
+    padding: 1rem;
+  }
+  
+  .btn-lg {
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+  }
+  
+  .display-6 {
+    font-size: 2rem;
+  }
+  
+  .table-responsive {
+    font-size: 0.875rem;
+  }
+}
+@media (max-width: 576px) {
+  .btn-group .btn {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+  }
+  
+  .badge {
+    font-size: 0.7rem;
+  }
+  
+  .navbar-brand {
+    font-size: 1.25rem;
+  }
+}
+/* Animaciones */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.fade-in {
+  animation: fadeIn 0.5s ease-out;
+}
+/* Estados de carga */
+.loading {
+  pointer-events: none;
+  opacity: 0.7;
+}
+.loading::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 20px;
+  height: 20px;
+  margin: -10px 0 0 -10px;
+  border: 2px solid #f3f3f3;
+  border-top: 2px solid var(--primary-color);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+/* Estados específicos del sistema hospitalario */
+.estado-activa {
+  color: var(--success-color);
+  font-weight: 600;
+}
+.estado-cancelada {
+  color: var(--danger-color);
+  font-weight: 600;
+}
+.estado-alta {
+  color: var(--info-color);
+  font-weight: 600;
+}
+.cama-libre {
+  color: var(--success-color);
+}
+.cama-ocupada {
+  color: var(--danger-color);
+}
+.cama-higienizada {
+  color: var(--info-color);
+}
+.cama-mantenimiento {
+  color: var(--warning-color);
+}
+/* Mejoras de accesibilidad */
+.btn:focus,
+.form-control:focus,
+.form-select:focus {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+}
+/* Print styles */
+@media print {
+  .navbar,
+  .btn,
+  .modal,
+  footer {
+    display: none !important;
+  }
+  
+  .card {
+    border: 1px solid #000;
+    box-shadow: none;
+  }
+  
+  .container-fluid {
+    padding: 0;
+  }
+}

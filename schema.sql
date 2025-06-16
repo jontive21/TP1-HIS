@@ -1,224 +1,198 @@
--- schema.sql
-
--- Elimina tablas si ya existen (opcional)
-DROP TABLE IF EXISTS signos_vitales;
-DROP TABLE IF EXISTS medicamentos;
-DROP TABLE IF EXISTS estudios;
-DROP TABLE IF EXISTS altas;
-DROP TABLE IF EXISTS cancelaciones_admision;
-DROP TABLE IF EXISTS evaluaciones_medicas;
-DROP TABLE IF EXISTS evaluaciones_enfermeria;
-DROP TABLE IF EXISTS admisiones;
-DROP TABLE IF EXISTS camas;
-DROP TABLE IF EXISTS habitaciones;
-DROP TABLE IF EXISTS alas;
-DROP TABLE IF EXISTS pacientes;
-DROP TABLE IF EXISTS usuarios;
-
--- Tabla: usuarios
-CREATE TABLE usuarios (
-    id INT AUTO_INCREMENT PRIMARY KEY,
+-- Schema SQL para Sistema HIS - Módulo de Internación
+-- Compatible con Railway MySQL
+-- Crear base de datos (si no existe)
+CREATE DATABASE IF NOT EXISTS railway CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE railway;
+-- Tabla de Alas del Hospital
+CREATE TABLE IF NOT EXISTS alas (
+    id INT PRIMARY KEY AUTO_INCREMENT,
     nombre VARCHAR(100) NOT NULL,
-    apellido VARCHAR(100) NOT NULL,
-    email VARCHAR(150) UNIQUE NOT NULL,
-    password VARCHAR(255) NOT NULL,
-    rol ENUM('admin','medico','enfermero','administrativo') DEFAULT 'administrativo',
-    estado ENUM('activo','inactivo') DEFAULT 'activo',
+    descripcion TEXT,
+    activo BOOLEAN DEFAULT TRUE,
     fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
-
--- Tabla: alas
-CREATE TABLE alas (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    nombre VARCHAR(100) NOT NULL,
-    descripcion TEXT,
-    estado ENUM('activa','inactiva') DEFAULT 'activa'
-);
-
--- Tabla: habitaciones
-CREATE TABLE habitaciones (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    numero VARCHAR(10) NOT NULL,
+-- Tabla de Habitaciones
+CREATE TABLE IF NOT EXISTS habitaciones (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    numero VARCHAR(20) NOT NULL UNIQUE,
     ala_id INT NOT NULL,
-    tipo_habitacion ENUM('individual','doble') NOT NULL,
-    estado ENUM('disponible','ocupada','mantenimiento') DEFAULT 'disponible',
+    tipo_habitacion ENUM('individual', 'doble', 'multiple') DEFAULT 'individual',
+    estado ENUM('disponible', 'ocupada', 'mantenimiento', 'fuera_servicio') DEFAULT 'disponible',
+    activo BOOLEAN DEFAULT TRUE,
+    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (ala_id) REFERENCES alas(id)
 );
-
--- Tabla: camas
-CREATE TABLE camas (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    numero_cama INT NOT NULL,
+-- Tabla de Camas
+CREATE TABLE IF NOT EXISTS camas (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    numero_cama VARCHAR(10) NOT NULL,
     habitacion_id INT NOT NULL,
-    estado ENUM('libre','ocupada','higienizando','mantenimiento') DEFAULT 'libre',
-    fecha_ultimo_cambio TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    estado ENUM('libre', 'ocupada', 'higienizada', 'mantenimiento', 'fuera_servicio') DEFAULT 'libre',
+    activo BOOLEAN DEFAULT TRUE,
+    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE KEY unique_cama_habitacion (numero_cama, habitacion_id),
     FOREIGN KEY (habitacion_id) REFERENCES habitaciones(id)
 );
-
--- Tabla: pacientes
-CREATE TABLE pacientes (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    dni VARCHAR(20) UNIQUE NOT NULL,
+-- Tabla de Pacientes
+CREATE TABLE IF NOT EXISTS pacientes (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    dni VARCHAR(20) NOT NULL UNIQUE,
     nombre VARCHAR(100) NOT NULL,
     apellido VARCHAR(100) NOT NULL,
     fecha_nacimiento DATE NOT NULL,
-    sexo ENUM('M','F','X') NOT NULL,
+    sexo ENUM('M', 'F', 'Otro') NOT NULL,
     telefono VARCHAR(20),
-    email VARCHAR(150),
+    email VARCHAR(100),
     direccion TEXT,
+    
+    -- Contacto de emergencia
     contacto_emergencia_nombre VARCHAR(200),
     contacto_emergencia_telefono VARCHAR(20),
-    contacto_emergencia_relacion VARCHAR(100),
-    obra_social VARCHAR(150),
-    numero_afiliado VARCHAR(100),
+    contacto_emergencia_relacion VARCHAR(50),
+    
+    -- Información de obra social
+    obra_social VARCHAR(100),
+    numero_afiliado VARCHAR(50),
+    
+    -- Información médica básica
     alergias TEXT,
     antecedentes_medicos TEXT,
     medicamentos_habituales TEXT,
+    
+    activo BOOLEAN DEFAULT TRUE,
+    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    
+    INDEX idx_dni (dni),
+    INDEX idx_apellido_nombre (apellido, nombre)
+);
+-- Tabla de Médicos (básica para el sistema)
+CREATE TABLE IF NOT EXISTS medicos (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    dni VARCHAR(20) NOT NULL UNIQUE,
+    nombre VARCHAR(100) NOT NULL,
+    apellido VARCHAR(100) NOT NULL,
+    matricula VARCHAR(50) NOT NULL UNIQUE,
+    especialidad VARCHAR(100),
+    telefono VARCHAR(20),
+    email VARCHAR(100),
+    activo BOOLEAN DEFAULT TRUE,
     fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
-
--- Tabla: admisiones
-CREATE TABLE admisiones (
-    id INT AUTO_INCREMENT PRIMARY KEY,
+-- Tabla de Admisiones
+CREATE TABLE IF NOT EXISTS admisiones (
+    id INT PRIMARY KEY AUTO_INCREMENT,
     paciente_id INT NOT NULL,
     cama_id INT NOT NULL,
-    medico_responsable_id INT NOT NULL,
+    medico_responsable_id INT,
+    
+    -- Fechas importantes
     fecha_ingreso DATETIME NOT NULL,
+    fecha_alta DATETIME NULL,
+    fecha_cancelacion DATETIME NULL,
+    
+    -- Información de la admisión
     motivo_internacion TEXT NOT NULL,
-    diagnostico_presuntivo TEXT,
-    estado ENUM('activa','alta','cancelada') DEFAULT 'activa',
+    tipo_ingreso ENUM('programada', 'emergencia', 'derivacion_guardia') DEFAULT 'programada',
     observaciones TEXT,
+    
+    -- Estado de la admisión
+    estado ENUM('activa', 'alta', 'cancelada', 'transferida') DEFAULT 'activa',
+    motivo_cancelacion TEXT NULL,
+    
+    -- Auditoría
+    usuario_creacion VARCHAR(100),
+    usuario_cancelacion VARCHAR(100),
     fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    usuario_creacion INT,
+    fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    
     FOREIGN KEY (paciente_id) REFERENCES pacientes(id),
     FOREIGN KEY (cama_id) REFERENCES camas(id),
-    FOREIGN KEY (medico_responsable_id) REFERENCES usuarios(id),
-    FOREIGN KEY (usuario_creacion) REFERENCES usuarios(id)
+    FOREIGN KEY (medico_responsable_id) REFERENCES medicos(id),
+    
+    INDEX idx_paciente (paciente_id),
+    INDEX idx_cama (cama_id),
+    INDEX idx_fecha_ingreso (fecha_ingreso),
+    INDEX idx_estado (estado)
 );
-
--- Tabla: cancelaciones_admision
-CREATE TABLE cancelaciones_admision (
-    id INT AUTO_INCREMENT PRIMARY KEY,
+-- Tabla de Cancelaciones (para auditoría detallada)
+CREATE TABLE IF NOT EXISTS cancelaciones_admision (
+    id INT PRIMARY KEY AUTO_INCREMENT,
     admision_id INT NOT NULL,
     motivo_cancelacion TEXT NOT NULL,
-    usuario_cancela INT NOT NULL,
+    usuario_cancelacion VARCHAR(100),
     fecha_cancelacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     observaciones TEXT,
-    FOREIGN KEY (admision_id) REFERENCES admisiones(id),
-    FOREIGN KEY (usuario_cancela) REFERENCES usuarios(id)
+    FOREIGN KEY (admision_id) REFERENCES admisiones(id)
 );
-
--- Tabla: altas
-CREATE TABLE altas (
-    id INT AUTO_INCREMENT PRIMARY KEY,
+-- Tabla de Altas (para futuras expansiones)
+CREATE TABLE IF NOT EXISTS altas (
+    id INT PRIMARY KEY AUTO_INCREMENT,
     admision_id INT NOT NULL,
-    medico_id INT NOT NULL,
     fecha_alta DATETIME NOT NULL,
-    tipo_alta ENUM('medica','voluntaria','derivacion','obito') NOT NULL,
+    tipo_alta ENUM('medica', 'voluntaria', 'transferencia', 'defuncion') DEFAULT 'medica',
+    medico_alta_id INT,
     diagnostico_final TEXT,
-    instrucciones_alta TEXT,
-    medicacion_domicilio TEXT,
-    seguimiento_requerido TEXT,
+    recomendaciones TEXT,
     observaciones TEXT,
+    usuario_alta VARCHAR(100),
     fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (admision_id) REFERENCES admisiones(id),
-    FOREIGN KEY (medico_id) REFERENCES usuarios(id)
+    FOREIGN KEY (medico_alta_id) REFERENCES medicos(id)
 );
-
--- Tabla: evaluaciones_enfermeria
-CREATE TABLE evaluaciones_enfermeria (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    admision_id INT NOT NULL,
-    enfermero_id INT NOT NULL,
-    fecha_evaluacion DATETIME NOT NULL,
-    signos_vitales LONGTEXT,
-    estado_general TEXT,
-    observaciones TEXT,
-    plan_cuidados TEXT,
-    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (admision_id) REFERENCES admisiones(id),
-    FOREIGN KEY (enfermero_id) REFERENCES usuarios(id)
-);
-
--- Tabla: signos_vitales
-CREATE TABLE signos_vitales (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    admision_id INT NOT NULL,
-    usuario_id INT NOT NULL,
-    fecha_registro DATETIME NOT NULL,
-    presion_sistolica DECIMAL(5,2),
-    presion_diastolica DECIMAL(5,2),
-    frecuencia_cardiaca INT,
-    frecuencia_respiratoria INT,
-    temperatura DECIMAL(4,2),
-    saturacion_oxigeno DECIMAL(5,2),
-    observaciones TEXT,
-    FOREIGN KEY (admision_id) REFERENCES admisiones(id),
-    FOREIGN KEY (usuario_id) REFERENCES usuarios(id)
-);
-
--- Tabla: evaluaciones_medicas
-CREATE TABLE evaluaciones_medicas (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    admision_id INT NOT NULL,
-    medico_id INT NOT NULL,
-    fecha_evaluacion DATETIME NOT NULL,
-    diagnostico TEXT,
-    plan_tratamiento TEXT,
-    medicamentos_prescritos TEXT,
-    estudios_solicitados TEXT,
-    observaciones TEXT,
-    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (admision_id) REFERENCES admisiones(id),
-    FOREIGN KEY (medico_id) REFERENCES usuarios(id)
-);
-
--- Tabla: medicamentos
-CREATE TABLE medicamentos (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    admision_id INT NOT NULL,
-    medico_prescriptor INT NOT NULL,
-    nombre_medicamento VARCHAR(200) NOT NULL,
-    dosis VARCHAR(100),
-    frecuencia VARCHAR(100),
-    via_administracion VARCHAR(50),
-    fecha_inicio DATETIME NOT NULL,
-    fecha_fin DATETIME,
-    estado ENUM('activo','suspendido','completado') DEFAULT 'activo',
-    observaciones TEXT,
-    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (admision_id) REFERENCES admisiones(id),
-    FOREIGN KEY (medico_prescriptor) REFERENCES usuarios(id)
-);
-
--- Tabla: estudios
-CREATE TABLE estudios (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    admision_id INT NOT NULL,
-    medico_solicitante INT NOT NULL,
-    tipo_estudio VARCHAR(200) NOT NULL,
-    descripcion TEXT,
-    fecha_solicitud DATETIME NOT NULL,
-    fecha_realizacion DATETIME,
-    resultados TEXT,
-    estado ENUM('solicitado','en_proceso','completado','cancelado') DEFAULT 'solicitado',
-    urgente BOOLEAN DEFAULT FALSE,
-    observaciones TEXT,
-    FOREIGN KEY (admision_id) REFERENCES admisiones(id),
-    FOREIGN KEY (medico_solicitante) REFERENCES usuarios(id)
-);
-
--- Insertar usuarios de prueba
-INSERT INTO usuarios (nombre, apellido, email, password, rol) VALUES
-('Admin', 'Prueba', 'admin@example.com', '$2a$10$zxCU9.xIwZqj6LkGJf8wCeQ7YrRvK7tBpA7NnWZxHhZPb55T2', 'admin'),
-('Medico', 'Prueba', 'medico@example.com', '$2a$10$zxCU9.xIwZqj6LkGJf8wCeQ7YrRvK7tBpA7NnWZxHhZPb55T2', 'medico'),
-('Enfermera', 'Prueba', 'enfermera@example.com', '$2a$10$zxCU9.xIwZqj6LkGJf8wCeQ7YrRvK7tBpA7NnWZxHhZPb55T2', 'enfermero'),
-('Administrativo', 'Prueba', 'administrativo@example.com', '$2a$10$zxCU9.xIwZqj6LkGJf8wCeQ7YrRvK7tBpA7NnWZxHhZPb55T2', 'administrativo');
-
--- Insertar alas por defecto
-INSERT INTO alas (nombre, descripcion, estado) VALUES
-('Medicina', 'Ala de medicina interna', 'activa'),
-('Cirugía', 'Ala de cirugía general', 'activa'),
-('UTI', 'Unidad de terapia intensiva', 'activa');
+-- Insertar datos de ejemplo
+-- Insertar Alas
+INSERT IGNORE INTO alas (nombre, descripcion) VALUES 
+('Ala Norte', 'Ala destinada a medicina interna'),
+('Ala Sur', 'Ala destinada a cirugía'),
+('Ala Este', 'Ala destinada a cuidados intensivos');
+-- Insertar Habitaciones
+INSERT IGNORE INTO habitaciones (numero, ala_id, tipo_habitacion) VALUES 
+('101', 1, 'individual'),
+('102', 1, 'doble'),
+('103', 1, 'doble'),
+('201', 2, 'individual'),
+('202', 2, 'doble'),
+('301', 3, 'individual');
+-- Insertar Camas
+INSERT IGNORE INTO camas (numero_cama, habitacion_id, estado) VALUES 
+('A', 1, 'libre'),
+('A', 2, 'libre'),
+('B', 2, 'libre'),
+('A', 3, 'libre'),
+('B', 3, 'libre'),
+('A', 4, 'libre'),
+('A', 5, 'libre'),
+('B', 5, 'libre'),
+('A', 6, 'libre');
+-- Insertar Médico de ejemplo
+INSERT IGNORE INTO medicos (dni, nombre, apellido, matricula, especialidad) VALUES 
+('12345678', 'Juan', 'Pérez', 'MP001', 'Medicina Interna');
+-- Insertar Paciente de ejemplo
+INSERT IGNORE INTO pacientes (dni, nombre, apellido, fecha_nacimiento, sexo, telefono, obra_social) VALUES 
+('87654321', 'María', 'González', '1980-05-15', 'F', '123456789', 'OSDE');
+-- Crear índices adicionales para performance
+CREATE INDEX IF NOT EXISTS idx_admisiones_activas ON admisiones(estado, fecha_ingreso);
+CREATE INDEX IF NOT EXISTS idx_camas_disponibles ON camas(estado, habitacion_id);
+-- Comentarios sobre el esquema
+/*
+ESTRUCTURA DE BASE DE DATOS - SISTEMA HIS INTERNACIÓN
+1. ALAS: Divisiones principales del hospital
+2. HABITACIONES: Espacios físicos dentro de las alas
+3. CAMAS: Camas individuales dentro de las habitaciones
+4. PACIENTES: Información completa de pacientes
+5. MEDICOS: Personal médico responsable
+6. ADMISIONES: Registro principal de internaciones
+7. CANCELACIONES_ADMISION: Auditoría de cancelaciones
+8. ALTAS: Registro de altas médicas
+REGLAS DE NEGOCIO IMPLEMENTADAS:
+- Una habitación puede tener múltiples camas
+- Una cama solo puede tener una admisión activa
+- Las admisiones canceladas mantienen historial
+- Control de estado de camas (libre, ocupada, etc.)
+- Auditoría completa de cambios
+*/

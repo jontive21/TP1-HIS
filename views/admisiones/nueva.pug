@@ -1,22 +1,278 @@
+//- views/admisiones/nueva.pug
 extends ../layout
-
 block content
-  h1 Registrar Nueva Admisión
-  
-  if error
-    .alert.alert-danger= error
-
-  form(method="POST" action="/admisiones/crear")
-    .mb-3
-      label.form-label Paciente:
-      select.form-select(name="paciente_id" required)
-        each paciente in pacientes
-          option(value=paciente.id)= paciente.nombre
-    
-    .mb-3
-      label.form-label Habitación:
-      select.form-select(name="habitacion_id" required)
-        each hab in habitaciones
-          option(value=hab.id)= hab.numero
-    
-    button.btn.btn-primary(type="submit") Registrar Admisión
+  .container-fluid
+    //- Header
+    .row.mb-4
+      .col-12
+        .d-flex.justify-content-between.align-items-center
+          div
+            h1.display-6.text-primary
+              i.fas.fa-user-plus.me-2
+              | Nueva Admisión
+            nav(aria-label="breadcrumb")
+              ol.breadcrumb
+                li.breadcrumb-item
+                  a(href="/") Dashboard
+                li.breadcrumb-item
+                  a(href="/admisiones") Admisiones
+                li.breadcrumb-item.active Nueva Admisión
+          div
+            a.btn.btn-outline-secondary(href="/admisiones")
+              i.fas.fa-arrow-left.me-2
+              | Volver
+    //- Formulario de nueva admisión
+    .row
+      .col-lg-8.mx-auto
+        .card.shadow-sm
+          .card-header.bg-primary.text-white
+            h5.card-title.mb-0
+              i.fas.fa-user-plus.me-2
+              | Formulario de Nueva Admisión
+          
+          .card-body
+            form#formNuevaAdmision(method="POST", action="/admisiones/crear")
+              
+              //- Sección: Información del Paciente
+              .section-header.mb-3
+                h6.text-primary.border-bottom.pb-2
+                  i.fas.fa-user.me-2
+                  | 1. Información del Paciente
+              
+              .row.mb-3
+                .col-md-6
+                  label.form-label(for="dni")
+                    strong DNI del Paciente *
+                  .input-group
+                    input.form-control#dni(type="text", name="dni", placeholder="12345678", required, pattern="[0-9]{7,8}")
+                    button.btn.btn-outline-primary#btnBuscarPaciente(type="button")
+                      i.fas.fa-search
+                      | Buscar
+                  .form-text Ingrese DNI sin puntos ni espacios
+                
+                .col-md-6
+                  label.form-label Estado del Paciente
+                  .alert.alert-info#estadoPaciente(style="display: none")
+                    .d-flex.align-items-center
+                      .spinner-border.spinner-border-sm.me-2#loadingPaciente(style="display: none")
+                      span#mensajePaciente Ingrese DNI y presione buscar
+              //- Información del paciente (se muestra/oculta según búsqueda)
+              #datosNuevoPaciente.card.border-warning.mb-3(style="display: none")
+                .card-header.bg-warning.text-dark
+                  h6.mb-0
+                    i.fas.fa-user-plus.me-2
+                    | Datos del Nuevo Paciente
+                .card-body
+                  .row
+                    .col-md-6
+                      label.form-label(for="nombre") Nombre *
+                      input.form-control#nombre(type="text", name="nombre", required)
+                    .col-md-6
+                      label.form-label(for="apellido") Apellido *
+                      input.form-control#apellido(type="text", name="apellido", required)
+                  .row.mt-3
+                    .col-md-4
+                      label.form-label(for="fecha_nacimiento") Fecha de Nacimiento *
+                      input.form-control#fecha_nacimiento(type="date", name="fecha_nacimiento", required)
+                    .col-md-4
+                      label.form-label(for="sexo") Sexo *
+                      select.form-select#sexo(name="sexo", required)
+                        option(value="") Seleccionar...
+                        option(value="M") Masculino
+                        option(value="F") Femenino
+                        option(value="Otro") Otro
+                    .col-md-4
+                      label.form-label(for="telefono") Teléfono
+                      input.form-control#telefono(type="tel", name="telefono", placeholder="+54 9 11 1234-5678")
+                  .row.mt-3
+                    .col-md-6
+                      label.form-label(for="email") Email
+                      input.form-control#email(type="email", name="email", placeholder="paciente@email.com")
+                    .col-md-6
+                      label.form-label(for="obra_social") Obra Social
+                      input.form-control#obra_social(type="text", name="obra_social", placeholder="OSDE, Swiss Medical, etc.")
+                  .row.mt-3
+                    .col-12
+                      label.form-label(for="direccion") Dirección
+                      textarea.form-control#direccion(name="direccion", rows="2", placeholder="Dirección completa del paciente")
+              //- Datos del paciente existente
+              #datosExistentePaciente.card.border-success.mb-3(style="display: none")
+                .card-header.bg-success.text-white
+                  h6.mb-0
+                    i.fas.fa-user-check.me-2
+                    | Paciente Encontrado
+                .card-body
+                  input(type="hidden", name="paciente_id", id="paciente_id")
+                  .row
+                    .col-md-6
+                      strong Nombre: 
+                      span#nombreExistente
+                    .col-md-6
+                      strong DNI: 
+                      span#dniExistente
+                  .row.mt-2
+                    .col-md-6
+                      strong Obra Social: 
+                      span#obraSocialExistente
+                    .col-md-6
+                      strong Teléfono: 
+                      span#telefonoExistente
+              //- Sección: Información de la Admisión
+              .section-header.mb-3.mt-4
+                h6.text-primary.border-bottom.pb-2
+                  i.fas.fa-hospital.me-2
+                  | 2. Información de la Admisión
+              .row.mb-3
+                .col-md-6
+                  label.form-label(for="motivo_internacion") Motivo de Internación *
+                  textarea.form-control#motivo_internacion(name="motivo_internacion", rows="3", required, placeholder="Describa el motivo de la internación...")
+                .col-md-6
+                  label.form-label(for="tipo_ingreso") Tipo de Ingreso *
+                  select.form-select#tipo_ingreso(name="tipo_ingreso", required)
+                    option(value="") Seleccionar...
+                    option(value="programada") Internación Programada
+                    option(value="emergencia") Emergencia
+                    option(value="derivacion_guardia") Derivación de Guardia
+                  .form-text Seleccione el tipo de ingreso según origen
+              //- Sección: Asignación de Cama
+              .section-header.mb-3.mt-4
+                h6.text-primary.border-bottom.pb-2
+                  i.fas.fa-bed.me-2
+                  | 3. Asignación de Cama y Habitación
+              .row.mb-3
+                .col-md-6
+                  label.form-label(for="habitacion_id") Habitación
+                  select.form-select#habitacion_id(name="habitacion_id")
+                    option(value="") Seleccionar habitación...
+                    if habitaciones
+                      each habitacion in habitaciones
+                        option(value=habitacion.id) Habitación #{habitacion.numero} - #{habitacion.tipo_habitacion}
+                .col-md-6
+                  label.form-label(for="cama_id") Cama Disponible *
+                  select.form-select#cama_id(name="cama_id", required)
+                    option(value="") Primero seleccione habitación...
+                  .form-text Las camas mostradas están libres e higienizadas
+              //- Información adicional
+              .row.mb-3
+                .col-12
+                  label.form-label(for="observaciones") Observaciones Adicionales
+                  textarea.form-control#observaciones(name="observaciones", rows="2", placeholder="Observaciones o notas adicionales sobre la admisión...")
+              //- Botones de acción
+              .row.mt-4
+                .col-12.text-center
+                  button.btn.btn-success.btn-lg.me-3#btnCrearAdmision(type="submit")
+                    i.fas.fa-save.me-2
+                    | Crear Admisión
+                  a.btn.btn-outline-secondary.btn-lg(href="/admisiones")
+                    i.fas.fa-times.me-2
+                    | Cancelar
+  //- Scripts específicos para nueva admisión
+  script.
+    document.addEventListener('DOMContentLoaded', function() {
+      const formAdmision = document.getElementById('formNuevaAdmision');
+      const btnBuscarPaciente = document.getElementById('btnBuscarPaciente');
+      const dniInput = document.getElementById('dni');
+      const estadoPaciente = document.getElementById('estadoPaciente');
+      const mensajePaciente = document.getElementById('mensajePaciente');
+      const loadingPaciente = document.getElementById('loadingPaciente');
+      const datosNuevoPaciente = document.getElementById('datosNuevoPaciente');
+      const datosExistentePaciente = document.getElementById('datosExistentePaciente');
+      const habitacionSelect = document.getElementById('habitacion_id');
+      const camaSelect = document.getElementById('cama_id');
+      // Buscar paciente por DNI
+      btnBuscarPaciente.addEventListener('click', async function() {
+        const dni = dniInput.value.trim();
+        if (!dni) {
+          alert('Ingrese un DNI válido');
+          return;
+        }
+        // Mostrar loading
+        estadoPaciente.style.display = 'block';
+        loadingPaciente.style.display = 'inline-block';
+        mensajePaciente.textContent = 'Buscando paciente...';
+        try {
+          const response = await fetch(`/admisiones/buscar-paciente/${dni}`);
+          const data = await response.json();
+          if (data.encontrado) {
+            // Paciente existente
+            mostrarPacienteExistente(data.paciente);
+          } else {
+            // Paciente nuevo
+            mostrarFormularioNuevoPaciente();
+          }
+        } catch (error) {
+          console.error('Error buscando paciente:', error);
+          mensajePaciente.textContent = 'Error al buscar paciente';
+        } finally {
+          loadingPaciente.style.display = 'none';
+        }
+      });
+      function mostrarPacienteExistente(paciente) {
+        // Llenar datos del paciente existente
+        document.getElementById('paciente_id').value = paciente.id;
+        document.getElementById('nombreExistente').textContent = `${paciente.nombre} ${paciente.apellido}`;
+        document.getElementById('dniExistente').textContent = paciente.dni;
+        document.getElementById('obraSocialExistente').textContent = paciente.obra_social || 'N/A';
+        document.getElementById('telefonoExistente').textContent = paciente.telefono || 'N/A';
+        // Mostrar sección de paciente existente
+        datosExistentePaciente.style.display = 'block';
+        datosNuevoPaciente.style.display = 'none';
+        mensajePaciente.textContent = 'Paciente encontrado en el sistema';
+        estadoPaciente.className = 'alert alert-success';
+        // Llenar sexo para validación de camas
+        window.sexoPaciente = paciente.sexo;
+      }
+      function mostrarFormularioNuevoPaciente() {
+        // Mostrar formulario para nuevo paciente
+        datosNuevoPaciente.style.display = 'block';
+        datosExistentePaciente.style.display = 'none';
+        mensajePaciente.textContent = 'Paciente no encontrado. Complete los datos para crear nuevo registro.';
+        estadoPaciente.className = 'alert alert-warning';
+        // Llenar DNI en el formulario
+        document.getElementById('dni').value = dniInput.value;
+      }
+      // Cargar camas al seleccionar habitación
+      habitacionSelect.addEventListener('change', async function() {
+        const habitacionId = this.value;
+        camaSelect.innerHTML = '<option value="">Cargando camas...</option>';
+        if (!habitacionId) {
+          camaSelect.innerHTML = '<option value="">Seleccione habitación primero</option>';
+          return;
+        }
+        try {
+          const response = await fetch(`/admisiones/api/camas-disponibles/${habitacionId}`);
+          const camas = await response.json();
+          camaSelect.innerHTML = '<option value="">Seleccione una cama...</option>';
+          
+          camas.forEach(cama => {
+            const option = document.createElement('option');
+            option.value = cama.id;
+            option.textContent = `Cama ${cama.numero_cama} - ${cama.estado}`;
+            camaSelect.appendChild(option);
+          });
+          if (camas.length === 0) {
+            camaSelect.innerHTML = '<option value="">No hay camas disponibles</option>';
+          }
+        } catch (error) {
+          console.error('Error cargando camas:', error);
+          camaSelect.innerHTML = '<option value="">Error cargando camas</option>';
+        }
+      });
+      // Validación antes de enviar
+      formAdmision.addEventListener('submit', function(e) {
+        const sexo = window.sexoPaciente || document.getElementById('sexo').value;
+        if (!sexo) {
+          e.preventDefault();
+          alert('Debe completar el sexo del paciente');
+          return;
+        }
+        // Confirmar creación
+        if (!confirm('¿Confirma la creación de esta admisión?')) {
+          e.preventDefault();
+        }
+      });
+      // Obtener sexo del formulario si es paciente nuevo
+      document.getElementById('sexo').addEventListener('change', function() {
+        window.sexoPaciente = this.value;
+      });
+    });
