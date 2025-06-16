@@ -14,7 +14,6 @@ block content
           th Médico responsable
           th Motivo
           th Estado
-          th Fecha ingreso
       tbody
         each admision in admisiones
           tr
@@ -24,6 +23,5 @@ block content
             td= admision.medico_responsable_id
             td= admision.motivo_internacion
             td= admision.estado
-            td= admision.fecha_ingreso
   else
     p No hay admisiones registradas aún.
