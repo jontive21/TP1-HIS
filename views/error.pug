@@ -1,6 +1,19 @@
 extends layout
 
 block content
-  h1.text-danger Error
-  p= message || 'Ha ocurrido un error inesperado.'
-  a.btn.btn-primary(href="/") Volver al inicio
+  .container.mt-5
+    .card.shadow
+      .card-header.bg-danger.text-white
+        h2= title || 'Error'
+      .card-body
+        h3.card-title= message || 'Ocurrió un error inesperado'
+        
+        if error
+          .mt-4
+            h5 Detalles del error:
+            pre= error.stack || error.message || JSON.stringify(error, null, 2)
+        
+        .mt-4
+          a.btn.btn-primary(href="/dashboard") 
+            i.fas.fa-arrow-left.me-2
+            | Volver al inicio
