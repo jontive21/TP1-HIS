@@ -1,9 +1,10 @@
-const { pool } = require('../database/connection');
+const { query } = require('../database/emergencyDb'); // Usa la nueva función query
 
-// Listar admisiones (versión optimizada)
+// Listar admisiones (versión optimizada con límite y modo emergencia)
 exports.listarAdmisiones = async (req, res) => {
     try {
-        const [admisiones] = await pool.query(`
+        // Consulta optimizada con LIMIT
+        const admisiones = await query(`
             SELECT a.id, 
                    p.nombre, 
                    p.apellido, 
@@ -13,6 +14,7 @@ exports.listarAdmisiones = async (req, res) => {
             JOIN pacientes p ON a.paciente_id = p.id
             JOIN camas c ON a.cama_id = c.id
             ORDER BY a.fecha_ingreso DESC
+            LIMIT 50  // ¡Límite crítico!
         `);
         
         const successMsg = req.session.success || null;
@@ -27,17 +29,32 @@ exports.listarAdmisiones = async (req, res) => {
         });
         
     } catch (error) {
-        console.error('Error listando admisiones:', {
+        console.error('🚨 ERROR CRÍTICO en listarAdmisiones:', {
             code: error.code,
             message: error.message,
-            sqlState: error.sqlState
+            stack: error.stack
         });
+        
+        // Modo de emergencia con datos de prueba
+        if (error.code === 'ETIMEDOUT' || error.code === 'ECONNRESET') {
+            console.warn('⚠️ Usando datos de demostración por timeout');
+            return res.render('admisiones/list', { 
+                admisiones: [
+                    {
+                        id: 1,
+                        nombre: "Paciente",
+                        apellido: "Demo",
+                        fecha_formateada: "01/01/2025 10:00",
+                        numero_cama: "101A"
+                    }
+                ],
+                error: 'Base de datos no responde - Modo demostración'
+            });
+        }
         
         let errorMessage = 'Error al cargar el listado de admisiones';
         
-        if (error.code === 'ETIMEDOUT') {
-            errorMessage = 'El servidor de base de datos no responde. Contacte al administrador.';
-        } else if (error.code === 'ER_ACCESS_DENIED_ERROR') {
+        if (error.code === 'ER_ACCESS_DENIED_ERROR') {
             errorMessage = 'Credenciales de base de datos incorrectas.';
         } else if (error.code === 'ER_NO_SUCH_TABLE') {
             errorMessage = 'Tabla de admisiones no encontrada. Verifique la base de datos.';
@@ -52,15 +69,15 @@ exports.listarAdmisiones = async (req, res) => {
     }
 };
 
-// Mostrar formulario (versión optimizada)
+// Mostrar formulario (versión optimizada usando query)
 exports.mostrarFormulario = async (req, res) => {
     try {
-        const [pacientes] = await pool.query(`
+        const pacientes = await query(`
             SELECT id, CONCAT(nombre, ' ', apellido) as nombre_completo 
             FROM pacientes
         `);
         
-        const [camas] = await pool.query(`
+        const camas = await query(`
             SELECT id, numero_cama as numero 
             FROM camas 
             WHERE estado = 'libre'
@@ -87,7 +104,7 @@ exports.mostrarFormulario = async (req, res) => {
     }
 };
 
-// Crear admisión (versión optimizada)
+// Crear admisión (versión optimizada usando query con transacción)
 exports.crearAdmision = async (req, res) => {
     const { paciente_id, cama_id } = req.body;
     
@@ -96,29 +113,29 @@ exports.crearAdmision = async (req, res) => {
         return res.redirect('/admisiones/nueva');
     }
     
-    const connection = await pool.getConnection();
     try {
-        await connection.beginTransaction();
+        // Iniciar transacción manual con query
+        await query('START TRANSACTION');
         
         // 1. Registrar admisión
-        await connection.query(`
+        await query(`
             INSERT INTO admisiones (paciente_id, cama_id, fecha_ingreso)
             VALUES (?, ?, NOW())
         `, [paciente_id, cama_id]);
         
         // 2. Actualizar estado de cama
-        await connection.query(`
+        await query(`
             UPDATE camas 
             SET ocupada = TRUE 
             WHERE id = ?
         `, [cama_id]);
         
-        await connection.commit();
+        await query('COMMIT');
         
         req.session.success = 'Admisión registrada exitosamente';
         res.redirect('/admisiones');
     } catch (error) {
-        await connection.rollback();
+        await query('ROLLBACK');
         console.error('Error creando admisión:', {
             code: error.code,
             message: error.message,
@@ -139,7 +156,5 @@ exports.crearAdmision = async (req, res) => {
         
         req.session.error = errorMessage;
         res.redirect('/admisiones/nueva');
-    } finally {
-        if (connection) connection.release();
     }
 };
