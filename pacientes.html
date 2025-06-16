@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Lista de Pacientes</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background-color: #f0f8ff;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #0066cc;
+            text-align: center;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        .activo {
+            color: green;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📋 Lista de Pacientes</h1>
+        
+        <table id="tabla-pacientes">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Paciente</th>
+                    <th>DNI</th>
+                    <th>Fecha</th>
+                    <th>Motivo</th>
+                    <th>Estado</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Los datos se cargarán aquí con JavaScript -->
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        // Función para cargar pacientes
+        async function cargarPacientes() {
+            try {
+                const respuesta = await fetch('http://localhost:3000/pacientes');
+                const pacientes = await respuesta.json();
+                
+                const tabla = document.querySelector('#tabla-pacientes tbody');
+                tabla.innerHTML = '';
+                
+                pacientes.forEach(paciente => {
+                    const fila = document.createElement('tr');
+                    fila.innerHTML = `
+                        <td>${paciente.id}</td>
+                        <td>${paciente.nombre}</td>
+                        <td>${paciente.dni}</td>
+                        <td>${paciente.fecha}</td>
+                        <td>${paciente.motivo}</td>
+                        <td class="activo">${paciente.estado}</td>
+                    `;
+                    tabla.appendChild(fila);
+                });
+            } catch (error) {
+                console.error("Error al cargar pacientes:", error);
+                alert("No se pudieron cargar los pacientes");
+            }
+        }
+
+        // Cargar pacientes cuando la página se abra
+        window.onload = cargarPacientes;
+    </script>
+</body>
+</html>
