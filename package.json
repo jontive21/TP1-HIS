@@ -1,16 +1,14 @@
 {
-  "name": "tp1-his-simple",
+  "name": "tp1-his",
   "version": "1.0.0",
-  "description": "Sistema HIS Simple - Admisión de Pacientes",
+  "description": "Sistema HIS Simple",
   "main": "app.js",
   "scripts": {
     "start": "node app.js"
   },
   "dependencies": {
-    "express": "^4.18.2",
-    "mysql2": "^3.6.0",
-    "pug": "^3.0.2"
-  },
-  "author": "Estudiante",
-  "license": "MIT"
+    "express": "4.18.2",
+    "mysql2": "3.6.0",
+    "pug": "3.0.2"
+  }
 }
