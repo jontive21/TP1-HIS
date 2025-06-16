@@ -61,9 +61,9 @@ exports.mostrarFormulario = async (req, res) => {
         `);
         
         const [camas] = await pool.query(`
-            SELECT id, numero 
+            SELECT id, numero_cama as numero 
             FROM camas 
-            WHERE ocupada = FALSE
+            WHERE estado = 'libre'
         `);
         
         const errorMsg = req.session.error || null;
