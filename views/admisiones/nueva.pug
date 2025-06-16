@@ -1,40 +1,22 @@
 extends ../layout
 
 block content
-  .container.mt-4
-    h1.mb-4 Nueva Admisión
-    
-    if error
-      .alert.alert-danger.alert-dismissible.fade.show
-        | #{error}
-        button.close(type='button', data-dismiss='alert', aria-label='Close')
-          span(aria-hidden='true') &times;
-    
-    .card
-      .card-body
-        form(method='POST', action='/admisiones/crear')
-          .form-group
-            label(for='paciente_id') Paciente:
-            select#paciente_id.form-control(name='paciente_id', required)
-              option(value='') -- Seleccione un paciente --
-              each paciente in pacientes
-                option(value=paciente.id) #{paciente.nombre_completo}
-          
-          .form-group
-            label(for='cama_id') Cama Disponible:
-            select#cama_id.form-control(name='cama_id', required)
-              option(value='') -- Seleccione una cama --
-              each cama in camas
-                option(value=cama.id) Cama #{cama.numero_cama}
-          
-          .d-flex.justify-content-end.mt-4
-            button.btn.btn-primary.mr-2(type='submit')
-              i.fas.fa-save.mr-2
-              | Guardar Admisión
-            a.btn.btn-secondary(href='/admisiones')
-              i.fas.fa-times.mr-2
-              | Cancelar
+  h1 Registrar Nueva Admisión
+  
+  if error
+    .alert.alert-danger= error
 
-    a.btn.btn-secondary.mt-3(href='/dashboard')
-      i.fas.fa-arrow-left.mr-2
-      | Volver al Dashboard
+  form(method="POST" action="/admisiones/crear")
+    .mb-3
+      label.form-label Paciente:
+      select.form-select(name="paciente_id" required)
+        each paciente in pacientes
+          option(value=paciente.id)= paciente.nombre
+    
+    .mb-3
+      label.form-label Habitación:
+      select.form-select(name="habitacion_id" required)
+        each hab in habitaciones
+          option(value=hab.id)= hab.numero
+    
+    button.btn.btn-primary(type="submit") Registrar Admisión

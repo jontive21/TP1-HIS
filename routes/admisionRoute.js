@@ -1,10 +1,9 @@
 const express = require('express');
 const router = express.Router();
-const admisionController = require('../controllers/admisionController');
+const admisionController = require('../controllers/admision');
 
-// Rutas de admisiones CORREGIDAS
-router.get('/', admisionController.listarAdmisiones);         // GET /admisiones
-router.get('/nueva', admisionController.mostrarFormulario);  // GET /admisiones/nueva
-router.post('/crear', admisionController.crearAdmision);     // POST /admisiones/crear
+router.get('/', admisionController.listar);
+router.get('/nuevo', admisionController.nuevoForm);
+router.post('/crear', admisionController.crear);
 
 module.exports = router;

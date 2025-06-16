@@ -1,59 +1,24 @@
 extends ../layout
 
 block content
-  .container.mt-4
-    h1.mb-4 Listado de Admisiones
-    
-    if success
-      .alert.alert-success.alert-dismissible.fade.show
-        | #{success}
-        button.close(type='button', data-dismiss='alert', aria-label='Close')
-          span(aria-hidden='true') &times;
-    
-    if error
-      .alert.alert-danger.alert-dismissible.fade.show
-        | #{error}
-        button.close(type='button', data-dismiss='alert', aria-label='Close')
-          span(aria-hidden='true') &times;
-    
-    .card
-      .card-header
-        .d-flex.justify-content-between.align-items-center
-          h5.mb-0 Admisiones recientes
-          a.btn.btn-primary(href='/admisiones/nueva')
-            i.fas.fa-plus.mr-2
-            | Nueva Admisión
-      
-      .card-body
-        .table-responsive
-          table.table.table-hover.table-striped
-            thead.thead-dark
-              tr
-                th ID
-                th Paciente
-                th Fecha Ingreso
-                th Cama
-                th Acciones
-            tbody
-              each admision in admisiones
-                tr
-                  td #{admision.id}
-                  td #{admision.nombre} #{admision.apellido}
-                  td #{admision.fecha_formateada}
-                  td #{admision.numero_cama}
-                  td
-                    a.btn.btn-sm.btn-info.mr-2(href=`/admisiones/editar/${admision.id}`)
-                      i.fas.fa-edit
-                    button.btn.btn-sm.btn-danger(onclick=`confirmarEliminacion(${admision.id})`)
-                      i.fas.fa-trash
+  h1 Listado de Admisiones Activas
+  
+  if error
+    .alert.alert-danger= error
+  
+  table.table
+    thead
+      tr
+        th ID
+        th Paciente
+        th Habitación
+        th Fecha Admisión
+    tbody
+      each adm in admisiones
+        tr
+          td= adm.id
+          td= adm.nombre + ' ' + adm.apellido
+          td= adm.habitacion
+          td= adm.fecha
 
-    a.btn.btn-secondary.mt-3(href='/dashboard')
-      i.fas.fa-arrow-left.mr-2
-      | Volver al Dashboard
-
-  script.
-    function confirmarEliminacion(id) {
-      if (confirm('¿Está seguro de eliminar esta admisión?')) {
-        window.location.href = `/admisiones/eliminar/${id}`;
-      }
-    }
+  a.btn.btn-primary(href="/admisiones/nuevo") Nueva Admisión
