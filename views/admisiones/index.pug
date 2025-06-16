@@ -3,13 +3,15 @@
 extends ../layout
 
 block content
-  h2 Historial de Admisiones
+  h2 Lista de Admisiones
   if admisiones && admisiones.length > 0
     table(border="1")
       thead
         tr
           th ID
-          th DNI
+          th Paciente ID
+          th Cama ID
+          th Médico responsable
           th Motivo
           th Estado
           th Fecha ingreso
@@ -17,7 +19,9 @@ block content
         each admision in admisiones
           tr
             td= admision.id
-            td= admision.dni
+            td= admision.paciente_id
+            td= admision.cama_id
+            td= admision.medico_responsable_id
             td= admision.motivo_internacion
             td= admision.estado
             td= admision.fecha_ingreso
