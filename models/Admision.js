@@ -1,61 +1,97 @@
-const { pool } = require('../config/db');
+// models/Admision.js
 
-class Admision {
-    // Crear una nueva admisión
-    static async createAdmision(data) {
-        const {
-            paciente_id,
-            cama_id,
-            fecha_admision = new Date(),
-            fecha_cancelacion = null,
-            estado = 'activa'
-        } = data;
-        const [result] = await pool.query(
-            `INSERT INTO admisiones (paciente_id, cama_id, fecha_admision, fecha_cancelacion, estado)
-             VALUES (?, ?, ?, ?, ?)`,
-            [paciente_id, cama_id, fecha_admision, fecha_cancelacion, estado]
-        );
-        return result.insertId;
-    }
+const pool = require('../config/db');
 
-    // Cancelar una admisión (setear fecha_cancelacion y estado)
-    static async cancelarAdmision(id) {
-        const [result] = await pool.query(
-            `UPDATE admisiones SET fecha_cancelacion = NOW(), estado = 'cancelada' WHERE id = ?`,
-            [id]
-        );
-        return result.affectedRows > 0;
-    }
-
-    // Obtener admisión por ID (con paciente y cama)
-    static async getAdmisionById(id) {
-        const [rows] = await pool.query(
-            `SELECT a.*, 
-                    p.nombre AS paciente_nombre, p.apellido AS paciente_apellido,
-                    c.numero AS cama_numero
-             FROM admisiones a
-             JOIN pacientes p ON a.paciente_id = p.id
-             JOIN camas c ON a.cama_id = c.id
-             WHERE a.id = ?`,
-            [id]
-        );
-        return rows.length > 0 ? rows[0] : null;
-    }
-
-    // Listar admisiones activas
-    static async listarAdmisionesActivas() {
-        const [rows] = await pool.query(
-            `SELECT a.*, 
-                    p.nombre AS paciente_nombre, p.apellido AS paciente_apellido,
-                    c.numero AS cama_numero
-             FROM admisiones a
-             JOIN pacientes p ON a.paciente_id = p.id
-             JOIN camas c ON a.cama_id = c.id
-             WHERE a.estado = 'activa'
-             ORDER BY a.id DESC`
-        );
-        return rows;
-    }
+/**
+ * Crea una nueva admisión
+ * @param {number} paciente_id 
+ * @param {number} cama_id 
+ * @param {number} medico_responsable_id 
+ * @param {string} fecha_ingreso 
+ * @param {string} motivo_internacion 
+ * @param {string} [diagnostico_presuntivo] 
+ * @param {string} [observaciones] 
+ * @param {string} [estado='activa'] 
+ * @param {number} [usuario_creacion] 
+ * @returns {Promise<number>} ID de la admisión creada
+ */
+async function create(
+  paciente_id,
+  cama_id,
+  medico_responsable_id,
+  fecha_ingreso,
+  motivo_internacion,
+  diagnostico_presuntivo = null,
+  observaciones = null,
+  estado = 'activa',
+  usuario_creacion = null
+) {
+  const [result] = await pool.query(
+    `INSERT INTO admisiones (
+      paciente_id, cama_id, medico_responsable_id, fecha_ingreso, 
+      motivo_internacion, diagnostico_presuntivo, observaciones, estado, usuario_creacion
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    [
+      paciente_id,
+      cama_id,
+      medico_responsable_id,
+      fecha_ingreso,
+      motivo_internacion,
+      diagnostico_presuntivo,
+      observaciones,
+      estado,
+      usuario_creacion
+    ]
+  );
+  return result.insertId;
 }
 
-module.exports = Admision;
+/**
+ * Busca una admisión por su ID
+ * @param {number} id 
+ * @returns {Promise<object|null>} Datos de la admisión o null si no existe
+ */
+async function findById(id) {
+  const [rows] = await pool.query('SELECT * FROM admisiones WHERE id = ?', [id]);
+  return rows[0] || null;
+}
+
+/**
+ * Obtiene todas las admisiones (con datos básicos)
+ * @returns {Promise<Array>} Lista de admisiones
+ */
+async function getAll() {
+  const [rows] = await pool.query(`
+    SELECT 
+      a.id, a.paciente_id, a.cama_id, a.fecha_ingreso, 
+      a.motivo_internacion, a.estado, a.fecha_creacion,
+      p.nombre AS nombre_paciente, p.apellido AS apellido_paciente,
+      c.numero_cama, h.numero AS numero_habitacion
+    FROM admisiones a
+    JOIN pacientes p ON a.paciente_id = p.id
+    JOIN camas c ON a.cama_id = c.id
+    JOIN habitaciones h ON c.habitacion_id = h.id
+  `);
+  return rows;
+}
+
+/**
+ * Actualiza el estado de una admisión
+ * @param {number} id 
+ * @param {string} estado 
+ * @returns {Promise<boolean>} true si se actualizó correctamente
+ */
+async function updateEstado(id, estado) {
+  const [result] = await pool.query(
+    'UPDATE admisiones SET estado = ? WHERE id = ?',
+    [estado, id]
+  );
+  return result.affectedRows > 0;
+}
+
+module.exports = {
+  create,
+  findById,
+  getAll,
+  updateEstado
+};

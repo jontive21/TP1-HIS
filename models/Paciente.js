@@ -1,139 +1,107 @@
-const BaseModel = require('./BaseModel');
+// models/Paciente.js
+
 const pool = require('../config/db');
 
-// Helper function to execute queries using the pool
-async function executeQuery(query, params) {
-    const [rows] = await pool.execute(query, params);
-    return rows;
+/**
+ * Crea un nuevo paciente en la base de datos
+ * @param {string} dni 
+ * @param {string} nombre 
+ * @param {string} apellido 
+ * @param {string} fecha_nacimiento 
+ * @param {string} sexo 
+ * @param {string} [telefono] 
+ * @param {string} [email] 
+ * @param {string} [direccion] 
+ * @param {string} [contacto_emergencia_nombre] 
+ * @param {string} [contacto_emergencia_telefono] 
+ * @param {string} [contacto_emergencia_relacion] 
+ * @param {string} [obra_social] 
+ * @param {string} [numero_afiliado] 
+ * @param {string} [alergias] 
+ * @param {string} [antecedentes_medicos] 
+ * @param {string} [medicamentos_habituales] 
+ * @returns {Promise<number>} ID del paciente creado
+ */
+async function create(
+  dni,
+  nombre,
+  apellido,
+  fecha_nacimiento,
+  sexo,
+  telefono = null,
+  email = null,
+  direccion = null,
+  contacto_emergencia_nombre = null,
+  contacto_emergencia_telefono = null,
+  contacto_emergencia_relacion = null,
+  obra_social = null,
+  numero_afiliado = null,
+  alergias = null,
+  antecedentes_medicos = null,
+  medicamentos_habituales = null
+) {
+  const [result] = await pool.query(
+    `INSERT INTO pacientes (
+      dni, nombre, apellido, fecha_nacimiento, sexo, telefono, email, direccion, 
+      contacto_emergencia_nombre, contacto_emergencia_telefono, contacto_emergencia_relacion, 
+      obra_social, numero_afiliado, alergias, antecedentes_medicos, medicamentos_habituales
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    [
+      dni,
+      nombre,
+      apellido,
+      fecha_nacimiento,
+      sexo,
+      telefono,
+      email,
+      direccion,
+      contacto_emergencia_nombre,
+      contacto_emergencia_telefono,
+      contacto_emergencia_relacion,
+      obra_social,
+      numero_afiliado,
+      alergias,
+      antecedentes_medicos,
+      medicamentos_habituales
+    ]
+  );
+  return result.insertId;
 }
 
-class Paciente extends BaseModel {
-    constructor() {
-        super('pacientes');
-    }
-
-    // Buscar paciente por DNI
-    async findByDni(dni) {
-        const query = 'SELECT * FROM pacientes WHERE dni = ? AND activo = true';
-        const results = await executeQuery(query, [dni]);
-        return results.length > 0 ? results[0] : null;
-    }
-
-    // Buscar pacientes por nombre/apellido
-    async searchByName(searchTerm) {
-        const query = `
-            SELECT * FROM pacientes 
-            WHERE (nombre LIKE ? OR apellido LIKE ? OR CONCAT(nombre, ' ', apellido) LIKE ?) 
-            AND activo = true 
-            ORDER BY apellido, nombre
-        `;
-        const searchPattern = `%${searchTerm}%`;
-        return await executeQuery(query, [searchPattern, searchPattern, searchPattern]);
-    }
-
-    // Obtener pacientes con información de internación actual
-    async getPacientesConInternacion() {
-        const query = `
-            SELECT 
-                p.*,
-                a.id as admision_id,
-                a.fecha_admision,
-                a.motivo_internacion,
-                a.estado as estado_admision,
-                c.numero as cama_numero,
-                h.numero as habitacion_numero,
-                al.nombre as ala_nombre
-            FROM pacientes p
-            LEFT JOIN admisiones a ON p.id = a.paciente_id AND a.estado = 'activa'
-            LEFT JOIN camas c ON a.cama_id = c.id
-            LEFT JOIN habitaciones h ON c.habitacion_id = h.id
-            LEFT JOIN alas al ON h.ala_id = al.id
-            WHERE p.activo = true
-            ORDER BY p.apellido, p.nombre
-        `;
-        return await executeQuery(query);
-    }
-
-    // Validar que el paciente no tenga internación activa
-    async tieneInternacionActiva(pacienteId) {
-        const query = 'SELECT COUNT(*) as count FROM admisiones WHERE paciente_id = ? AND estado = "activa"';
-        const results = await executeQuery(query, [pacienteId]);
-        return results[0].count > 0;
-    }
-
-    // Obtener edad del paciente
-    static calcularEdad(fechaNacimiento) {
-        const hoy = new Date();
-        const nacimiento = new Date(fechaNacimiento);
-        let edad = hoy.getFullYear() - nacimiento.getFullYear();
-        const mes = hoy.getMonth() - nacimiento.getMonth();
-        
-        if (mes < 0 || (mes === 0 && hoy.getDate() < nacimiento.getDate())) {
-            edad--;
-        }
-        
-        return edad;
-    }
-
-    // Buscar pacientes por nombre, apellido o DNI
-    static async searchPacientes(searchTerm) {
-        const searchPattern = `%${searchTerm}%`;
-        const [rows] = await pool.query(
-            `SELECT * FROM pacientes 
-             WHERE (nombre LIKE ? OR apellido LIKE ? OR dni LIKE ?) 
-             AND activo = TRUE
-             ORDER BY apellido, nombre`,
-            [searchPattern, searchPattern, searchPattern]
-        );
-        return rows;
-    }
-
-    // Crear un nuevo paciente
-    static async createPaciente(data) {
-        const {
-            nombre, apellido, dni, fecha_nacimiento, sexo, telefono, direccion, email,
-            alergias, medicamentos_actuales, antecedentes_familiares, presion_arterial, frecuencia_cardiaca, temperatura
-        } = data;
-        const [result] = await pool.query(
-            `INSERT INTO pacientes 
-            (nombre, apellido, dni, fecha_nacimiento, sexo, telefono, direccion, email, alergias, medicamentos_actuales, antecedentes_familiares, presion_arterial, frecuencia_cardiaca, temperatura) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-            [nombre, apellido, dni, fecha_nacimiento, sexo, telefono, direccion, email, alergias, medicamentos_actuales, antecedentes_familiares, presion_arterial, frecuencia_cardiaca, temperatura]
-        );
-        return result.insertId;
-    }
-
-    // Actualizar paciente existente
-    static async updatePaciente(id, data) {
-        const fields = [];
-        const values = [];
-        // Solo actualiza los campos que estén presentes en data
-        const allowedFields = [
-            'nombre', 'apellido', 'dni', 'fecha_nacimiento', 'sexo', 'telefono', 'direccion', 'email',
-            'alergias', 'medicamentos_actuales', 'antecedentes_familiares', 'presion_arterial', 'frecuencia_cardiaca', 'temperatura'
-        ];
-        for (const key of allowedFields) {
-            if (data[key] !== undefined) {
-                fields.push(`${key} = ?`);
-                values.push(data[key]);
-            }
-        }
-        values.push(id);
-        const [result] = await pool.query(
-            `UPDATE pacientes SET ${fields.join(', ')} WHERE id = ?`,
-            values
-        );
-        return result.affectedRows > 0;
-    }
-
-    // Validar si el DNI ya existe
-    static async validateDNI(dni) {
-        const [rows] = await pool.query(
-            `SELECT id FROM pacientes WHERE dni = ? AND activo = TRUE`,
-            [dni]
-        );
-        return rows.length > 0;
-    }
+/**
+ * Busca un paciente por su DNI
+ * @param {string} dni 
+ * @returns {Promise<object|null>} Datos del paciente o null si no existe
+ */
+async function findByDni(dni) {
+  const [rows] = await pool.query('SELECT * FROM pacientes WHERE dni = ?', [dni]);
+  return rows[0] || null;
 }
 
-module.exports = new Paciente();
+/**
+ * Busca un paciente por su ID
+ * @param {number} id 
+ * @returns {Promise<object|null>} Datos del paciente o null si no existe
+ */
+async function findById(id) {
+  const [rows] = await pool.query('SELECT * FROM pacientes WHERE id = ?', [id]);
+  return rows[0] || null;
+}
+
+/**
+ * Obtiene todos los pacientes (sin detalles sensibles)
+ * @returns {Promise<Array>} Lista de pacientes
+ */
+async function getAll() {
+  const [rows] = await pool.query(
+    'SELECT id, dni, nombre, apellido, fecha_nacimiento, sexo, telefono, email, obra_social, numero_afiliado FROM pacientes'
+  );
+  return rows;
+}
+
+module.exports = {
+  create,
+  findByDni,
+  findById,
+  getAll
+};
