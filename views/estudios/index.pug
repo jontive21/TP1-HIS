@@ -1,0 +1,25 @@
+//- views/estudios/index.pug
+
+extends ../layout
+
+block content
+  h2 Estudios Médicos Solicitados
+  if estudios && estudios.length > 0
+    table(border="1")
+      thead
+        tr
+          th Admisión ID
+          th Tipo de estudio
+          th Descripción
+          th Estado
+          th Urgente
+      tbody
+        each estudio in estudios
+          tr
+            td= estudio.admision_id
+            td= estudio.tipo_estudio
+            td= estudio.descripcion
+            td= estudio.estado
+            td= estudio.urgente ? 'Sí' : 'No'
+  else
+    p No hay estudios solicitados aún.

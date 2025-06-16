@@ -1,0 +1,23 @@
+//- views/cancelaciones_admision/index.pug
+
+extends ../layout
+
+block content
+  h2 Cancelaciones de Admisiones
+  if cancelaciones && cancelaciones.length > 0
+    table(border="1")
+      thead
+        tr
+          th Admisión ID
+          th Motivo
+          th Usuario que canceló
+          th Fecha de cancelación
+      tbody
+        each cancelacion in cancelaciones
+          tr
+            td= cancelacion.admision_id
+            td= cancelacion.motivo_cancelacion
+            td= cancelacion.usuario_cancela
+            td= cancelacion.fecha_cancelacion
+  else
+    p No hay cancelaciones registradas aún.

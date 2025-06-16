@@ -14,6 +14,7 @@ block content
           th Sexo
           th Teléfono
           th Email
+          th Dirección
       tbody
         each paciente in pacientes
           tr
@@ -23,5 +24,6 @@ block content
             td= paciente.sexo
             td= paciente.telefono
             td= paciente.email
+            td= paciente.direccion
   else
     p No hay pacientes registrados aún.

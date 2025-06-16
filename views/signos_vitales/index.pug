@@ -13,6 +13,7 @@ block content
           th Presión diastólica
           th Frecuencia cardíaca
           th Temperatura
+          th Saturación
       tbody
         each s in signos
           tr
@@ -21,5 +22,6 @@ block content
             td= s.presion_diastolica
             td= s.frecuencia_cardiaca
             td= s.temperatura
+            td= s.saturacion_oxigeno
   else
     p No hay registros de signos vitales aún.

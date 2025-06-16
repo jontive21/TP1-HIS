@@ -1,0 +1,27 @@
+//- views/altas/index.pug
+
+extends ../layout
+
+block content
+  h2 Altas Hospitalarias
+  if altas && altas.length > 0
+    table(border="1")
+      thead
+        tr
+          th Admisión ID
+          th Médico ID
+          th Fecha alta
+          th Tipo de alta
+          th Diagnóstico final
+          th Estado
+      tbody
+        each alta in altas
+          tr
+            td= alta.admision_id
+            td= alta.medico_id
+            td= alta.fecha_alta
+            td= alta.tipo_alta
+            td= alta.diagnostico_final
+            td= alta.estado
+  else
+    p No hay altas registradas aún.
