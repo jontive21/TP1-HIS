@@ -1,35 +1,113 @@
-a.btn.btn-info.mt-2(href=`/pacientes/${paciente.id}/evaluacion`) Evaluación de Enfermería
-
-//- Formulario de evaluación de enfermería
-h4 Evaluación de Enfermería
-form(method="POST" action=`/pacientes/${paciente.id}/evaluacion`)
-  .mb-3
-    label.form-label Alergias
-    textarea.form-control(name="alergias")= paciente.alergias || ''
-  
-  .row.mb-3
-    .col
-      label.form-label Presión Arterial
-      input.form-control(
-        type="text"
-        name="presion_arterial"
-        value=paciente.presion_arterial || ''
-        pattern="\\d{1,3}/\\d{1,3}"
-        title="Formato: 120/80"
-      )
-    .col
-      label.form-label Frec. Cardíaca
-      input.form-control(
-        type="number"
-        name="frecuencia_cardiaca"
-        value=paciente.frecuencia_cardiaca || ''
-        min="30"
-        max="200"
-      )
-  
-  button.btn.btn-primary(type="submit") Guardar Evaluación
-
-if success
-  .alert.alert-success= success
-if error
-  .alert.alert-danger= error
+extends ../layout
+block content
+  .row
+    .col-12
+      h1= `${paciente.nombre} ${paciente.apellido}`
+      p.text-muted DNI: #{paciente.dni}
+      
+      a.btn.btn-secondary.mb-3(href='/pacientes') ← Volver a lista
+  .row
+    .col-md-6
+      .card.mb-4
+        .card-header.bg-primary.text-white
+          h5.mb-0 Información Personal
+        .card-body
+          p
+            strong Fecha de Nacimiento: 
+            | #{new Date(paciente.fecha_nacimiento).toLocaleDateString('es-AR')}
+          p
+            strong Sexo: 
+            | #{paciente.sexo === 'M' ? 'Masculino' : 'Femenino'}
+          p
+            strong Dirección: 
+            | #{paciente.direccion}
+          p
+            strong Teléfono: 
+            | #{paciente.telefono}
+          if paciente.email
+            p
+              strong Email: 
+              | #{paciente.email}
+    .col-md-6
+      .card.mb-4
+        .card-header.bg-warning.text-dark
+          h5.mb-0 Contacto de Emergencia
+        .card-body
+          p
+            strong Nombre: 
+            | #{paciente.contacto_emergencia_nombre}
+          p
+            strong Teléfono: 
+            | #{paciente.contacto_emergencia_telefono}
+          p
+            strong Relación: 
+            | #{paciente.contacto_emergencia_relacion}
+  .row
+    .col-md-6
+      .card.mb-4
+        .card-header.bg-info.text-white
+          h5.mb-0 Información Médica
+        .card-body
+          if paciente.alergias
+            p
+              strong Alergias: 
+              | #{paciente.alergias}
+          else
+            p
+              strong Alergias: 
+              em Sin registrar
+          
+          if paciente.medicamentos
+            p
+              strong Medicamentos: 
+              | #{paciente.medicamentos}
+          else
+            p
+              strong Medicamentos: 
+              em Sin registrar
+    .col-md-6
+      .card.mb-4
+        .card-header.bg-secondary.text-white
+          h5.mb-0 Obra Social
+        .card-body
+          if paciente.obra_social
+            p
+              strong Obra Social: 
+              | #{paciente.obra_social}
+            if paciente.numero_afiliado
+              p
+                strong Nº Afiliado: 
+                | #{paciente.numero_afiliado}
+          else
+            p
+              em Sin obra social registrada
+  .row
+    .col-12
+      .card
+        .card-header.bg-success.text-white
+          h5.mb-0 Historial de Admisiones
+        .card-body
+          if admisiones && admisiones.length > 0
+            .table-responsive
+              table.table.table-sm
+                thead
+                  tr
+                    th Fecha
+                    th Habitación/Cama
+                    th Motivo
+                    th Estado
+                tbody
+                  each admision in admisiones
+                    tr
+                      td= new Date(admision.fecha_admision).toLocaleDateString('es-AR')
+                      td= `${admision.habitacion}-${admision.cama}`
+                      td= admision.motivo_internacion
+                      td
+                        if admision.estado === 'activa'
+                          span.badge.bg-success Activa
+                        else if admision.estado === 'cancelada'
+                          span.badge.bg-danger Cancelada
+                        else
+                          span.badge.bg-secondary Finalizada
+          else
+            p.text-muted Sin admisiones registradas

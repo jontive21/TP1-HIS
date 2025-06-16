@@ -1,23 +1,66 @@
-//- views/habitaciones/index.pug
-
 extends ../layout
-
 block content
-  h2 Habitaciones
-  if habitaciones && habitaciones.length > 0
-    table(border="1")
-      thead
-        tr
-          th Número
-          th Ala ID
-          th Tipo
-          th Estado
-      tbody
-        each habitacion in habitaciones
-          tr
-            td= habitacion.numero
-            td= habitacion.ala_id
-            td= habitacion.tipo_habitacion
-            td= habitacion.estado
-  else
-    p No hay habitaciones registradas aún.
+  .row
+    .col-12
+      h1 Lista de Habitaciones
+      p.text-muted Información de habitaciones y ocupación
+  .row
+    .col-12
+      if habitaciones && habitaciones.length > 0
+        .table-responsive
+          table.table.table-striped
+            thead.table-dark
+              tr
+                th Número
+                th Ala
+                th Capacidad
+                th Total Camas
+                th Camas Ocupadas
+                th Disponibilidad
+                th Estado
+            tbody
+              each habitacion in habitaciones
+                - const porcentajeOcupacion = habitacion.total_camas > 0 ? Math.round((habitacion.camas_ocupadas / habitacion.total_camas) * 100) : 0
+                tr
+                  td= habitacion.numero
+                  td= habitacion.ala
+                  td= `${habitacion.capacidad} cama${habitacion.capacidad > 1 ? 's' : ''}`
+                  td= habitacion.total_camas
+                  td= habitacion.camas_ocupadas
+                  td= `${habitacion.total_camas - habitacion.camas_ocupadas} libre${(habitacion.total_camas - habitacion.camas_ocupadas) !== 1 ? 's' : ''}`
+                  td
+                    if porcentajeOcupacion === 0
+                      span.badge.bg-success Libre
+                    else if porcentajeOcupacion === 100
+                      span.badge.bg-danger Completa
+                    else
+                      span.badge.bg-warning.text-dark #{porcentajeOcupacion}% ocupada
+      else
+        .alert.alert-info.text-center
+          h4 No hay habitaciones registradas
+          p Configure habitaciones en la base de datos
+  .row.mt-4
+    .col-12
+      .card
+        .card-header.bg-secondary.text-white
+          h5.mb-0 Resumen
+        .card-body
+          if habitaciones && habitaciones.length > 0
+            - const totalHabitaciones = habitaciones.length
+            - const totalCamas = habitaciones.reduce((sum, h) => sum + h.total_camas, 0)
+            - const totalOcupadas = habitaciones.reduce((sum, h) => sum + h.camas_ocupadas, 0)
+            - const porcentajeGeneral = totalCamas > 0 ? Math.round((totalOcupadas / totalCamas) * 100) : 0
+            
+            .row.text-center
+              .col-md-3
+                h4.text-primary= totalHabitaciones
+                p Habitaciones
+              .col-md-3
+                h4.text-info= totalCamas
+                p Total Camas
+              .col-md-3
+                h4.text-warning= totalOcupadas
+                p Camas Ocupadas
+              .col-md-3
+                h4.text-success= `${porcentajeGeneral}%`
+                p Ocupación General

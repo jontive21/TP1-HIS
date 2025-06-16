@@ -1,131 +1,31 @@
-//- views/layout.pug
 doctype html
-html(lang="es")
+html(lang='es')
   head
-    meta(charset="UTF-8")
-    meta(name="viewport", content="width=device-width, initial-scale=1.0")
-    meta(name="description", content="Sistema HIS - Hospital Information System para Internación")
-    title= title ? `${title} - Sistema HIS` : 'Sistema HIS - Internación'
+    meta(charset='UTF-8')
+    meta(name='viewport', content='width=device-width, initial-scale=1.0')
+    title= title || 'Sistema HIS - Admisión de Pacientes'
     
-    //- Bootstrap CSS
-    link(href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css", rel="stylesheet")
+    // Bootstrap CSS (simple)
+    link(href='https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css', rel='stylesheet')
     
-    //- Font Awesome
-    link(href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css", rel="stylesheet")
-    
-    //- Custom CSS
-    link(rel="stylesheet", href="/stylesheets/style.css")
-    
-    //- Favicon
-    link(rel="icon", type="image/x-icon", href="/favicon.ico")
   body
-    //- Navigation Header
+    // Navegación simple
     nav.navbar.navbar-expand-lg.navbar-dark.bg-primary
-      .container-fluid
-        a.navbar-brand(href="/")
-          i.fas.fa-hospital.me-2
-          | Sistema HIS
-        
-        button.navbar-toggler(type="button", data-bs-toggle="collapse", data-bs-target="#navbarNav")
-          span.navbar-toggler-icon
-        
-        .collapse.navbar-collapse#navbarNav
-          ul.navbar-nav.me-auto
-            li.nav-item
-              a.nav-link(href="/", class= (title && title.includes('Dashboard')) ? 'active' : '')
-                i.fas.fa-home.me-1
-                | Dashboard
-            
-            li.nav-item
-              a.nav-link(href="/admisiones", class= (title && title.includes('Admisión')) ? 'active' : '')
-                i.fas.fa-user-plus.me-1
-                | Admisiones
-            
-            li.nav-item
-              a.nav-link(href="/pacientes", class= (title && title.includes('Paciente')) ? 'active' : '')
-                i.fas.fa-users.me-1
-                | Pacientes
-            
-            li.nav-item
-              a.nav-link(href="/camas", class= (title && title.includes('Cama')) ? 'active' : '')
-                i.fas.fa-bed.me-1
-                | Camas
-            
-            li.nav-item
-              a.nav-link(href="/habitaciones", class= (title && title.includes('Habitación')) ? 'active' : '')
-                i.fas.fa-door-open.me-1
-                | Habitaciones
-          
-          ul.navbar-nav
-            li.nav-item.dropdown
-              a.nav-link.dropdown-toggle(href="#", role="button", data-bs-toggle="dropdown")
-                i.fas.fa-user.me-1
-                | Usuario
-              ul.dropdown-menu
-                li
-                  a.dropdown-item(href="#")
-                    i.fas.fa-user-cog.me-2
-                    | Perfil
-                li
-                  hr.dropdown-divider
-                li
-                  a.dropdown-item(href="#")
-                    i.fas.fa-sign-out-alt.me-2
-                    | Cerrar Sesión
-    //- Breadcrumb (si es necesario)
-    if breadcrumb
-      nav.bg-light
-        .container-fluid
-          ol.breadcrumb.mb-0.py-2
-            each item in breadcrumb
-              if item.active
-                li.breadcrumb-item.active= item.name
-              else
-                li.breadcrumb-item
-                  a(href=item.url)= item.name
-    //- Main Content
-    main.main-content
-      block content
-    //- Footer
-    footer.bg-dark.text-light.py-4.mt-5
       .container
-        .row
-          .col-md-6
-            h5 Sistema HIS - Internación
-            p.text-muted Sistema de Información Hospitalaria para gestión de internaciones y admisiones de pacientes.
-          
-          .col-md-3
-            h6 Enlaces Rápidos
-            ul.list-unstyled
-              li
-                a.text-light(href="/admisiones") Admisiones
-              li
-                a.text-light(href="/pacientes") Pacientes
-              li
-                a.text-light(href="/camas") Camas
-          
-          .col-md-3
-            h6 Información
-            ul.list-unstyled
-              li
-                small
-                  i.fas.fa-calendar.me-1
-                  | #{new Date().toLocaleDateString('es-ES')}
-              li
-                small
-                  i.fas.fa-server.me-1
-                  | Servidor activo
+        a.navbar-brand(href='/') Sistema HIS
         
-        hr.my-3
-        .row
-          .col-12.text-center
-            small.text-muted
-              | &copy; #{new Date().getFullYear()} Sistema HIS - Todos los derechos reservados
-    //- Bootstrap JS
-    script(src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js")
-    
-    //- Custom JS
-    script(src="/javascripts/app.js")
-    
-    //- Page-specific scripts
-    block scripts
+        .navbar-nav
+          a.nav-link(href='/admisiones') Admisiones
+          a.nav-link(href='/pacientes') Pacientes
+          a.nav-link(href='/camas') Camas
+          a.nav-link(href='/habitaciones') Habitaciones
+    // Contenido principal
+    .container.mt-4
+      if error
+        .alert.alert-danger= error
+      if success
+        .alert.alert-success= success
+      
+      block content
+    // Scripts básicos
+    script(src='https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js')

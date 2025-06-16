@@ -1,23 +1,60 @@
-//- views/camas/index.pug
-
 extends ../layout
-
 block content
-  h2 Camas Disponibles
-  if camas && camas.length > 0
-    table(border="1")
-      thead
-        tr
-          th Cama
-          th Habitación
-          th Estado
-          th Último cambio
-      tbody
-        each cama in camas
-          tr
-            td= cama.numero_cama
-            td= cama.habitacion_id
-            td= cama.estado
-            td= cama.fecha_ultimo_cambio
-  else
-    p No hay camas registradas aún.
+  .row
+    .col-12
+      h1 Estado de Camas
+      p.text-muted Control de disponibilidad de camas hospitalarias
+  .row
+    .col-12
+      if camas && camas.length > 0
+        .table-responsive
+          table.table.table-striped
+            thead.table-dark
+              tr
+                th Habitación
+                th Ala
+                th Cama
+                th Estado
+                th Higienizada
+                th Sexo Ocupante
+                th Paciente
+            tbody
+              each cama in camas
+                tr(class=cama.estado === 'ocupada' ? 'table-warning' : (cama.estado === 'libre' && cama.higienizada ? 'table-success' : ''))
+                  td= cama.habitacion_numero
+                  td= cama.ala
+                  td= cama.cama_numero
+                  td
+                    if cama.estado === 'libre'
+                      span.badge.bg-success Libre
+                    else if cama.estado === 'ocupada'
+                      span.badge.bg-warning.text-dark Ocupada
+                    else
+                      span.badge.bg-danger Mantenimiento
+                  td
+                    if cama.higienizada
+                      span.badge.bg-success ✓ Sí
+                    else
+                      span.badge.bg-danger ✗ No
+                  td= cama.sexo_ocupante || '-'
+                  td= cama.paciente || '-'
+      else
+        .alert.alert-info.text-center
+          h4 No hay camas registradas
+          p Configure camas en la base de datos
+  .row.mt-4
+    .col-12
+      .card
+        .card-header.bg-info.text-white
+          h5.mb-0 Leyenda
+        .card-body
+          .row
+            .col-md-4
+              span.badge.bg-success.me-2 Verde
+              | Cama libre y higienizada (disponible)
+            .col-md-4
+              span.badge.bg-warning.text-dark.me-2 Amarillo
+              | Cama ocupada
+            .col-md-4
+              span.badge.bg-light.text-dark.me-2 Blanco
+              | Cama libre pero no higienizada

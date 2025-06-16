@@ -1,183 +1,44 @@
-//- views/admisiones/index.pug
 extends ../layout
 block content
-  .container-fluid
-    //- Header del módulo
-    .row.mb-4
-      .col-12
-        .d-flex.justify-content-between.align-items-center
-          div
-            h1.display-6.text-primary
-              i.fas.fa-user-plus.me-2
-              | #{title}
-            p.text-muted #{mensaje}
-          div
-            a.btn.btn-primary.btn-lg(href="/admisiones/nueva")
-              i.fas.fa-plus.me-2
-              | Nueva Admisión
-    //- Estadísticas
-    .row.mb-4
-      .col-md-3
-        .card.bg-primary.text-white
-          .card-body
-            .d-flex.justify-content-between
-              div
-                h5.card-title Admisiones Activas
-                h2.mb-0= estadisticas.admisiones_activas || 0
-              .align-self-center
-                i.fas.fa-hospital-user.fa-2x.opacity-75
+  .row
+    .col-12
+      h1 Lista de Admisiones
+      p.text-muted Gestión de admisiones y recepción de pacientes
       
-      .col-md-3
-        .card.bg-success.text-white
-          .card-body
-            .d-flex.justify-content-between
-              div
-                h5.card-title Camas Disponibles
-                h2.mb-0= camasDisponibles || 0
-              .align-self-center
-                i.fas.fa-bed.fa-2x.opacity-75
-      
-      .col-md-3
-        .card.bg-info.text-white
-          .card-body
-            .d-flex.justify-content-between
-              div
-                h5.card-title Admisiones Hoy
-                h2.mb-0= estadisticas.admisiones_hoy || 0
-              .align-self-center
-                i.fas.fa-calendar-day.fa-2x.opacity-75
-      
-      .col-md-3
-        .card.bg-warning.text-white
-          .card-body
-            .d-flex.justify-content-between
-              div
-                h5.card-title Total Admisiones
-                h2.mb-0= estadisticas.total_admisiones || 0
-              .align-self-center
-                i.fas.fa-chart-bar.fa-2x.opacity-75
-    //- Mensajes de estado
-    if (typeof mensaje !== 'undefined' && mensaje)
-      .row.mb-3
-        .col-12
-          .alert.alert-success.alert-dismissible.fade.show
-            = mensaje
-            button.btn-close(type="button", data-bs-dismiss="alert")
-    //- Acciones rápidas
-    .row.mb-4
-      .col-12
-        .card
-          .card-header
-            h5.card-title.mb-0
-              i.fas.fa-bolt.me-2
-              | Acciones Rápidas
-          .card-body
-            .row
-              .col-md-4
-                .d-grid
-                  a.btn.btn-outline-primary(href="/admisiones/nueva")
-                    i.fas.fa-user-plus.me-2
-                    | Nueva Admisión
-              .col-md-4
-                .d-grid
-                  a.btn.btn-outline-success(href="/camas")
-                    i.fas.fa-bed.me-2
-                    | Ver Camas
-              .col-md-4
-                .d-grid
-                  a.btn.btn-outline-info(href="/pacientes")
-                    i.fas.fa-users.me-2
-                    | Gestionar Pacientes
-    //- Lista de admisiones recientes
-    .row
-      .col-12
-        .card
-          .card-header.d-flex.justify-content-between.align-items-center
-            h5.card-title.mb-0
-              i.fas.fa-list.me-2
-              | Admisiones Recientes
-            span.badge.bg-primary= admisiones ? admisiones.length : 0
-          
-          .card-body
-            if admisiones && admisiones.length > 0
-              .table-responsive
-                table.table.table-hover
-                  thead.table-dark
-                    tr
-                      th #
-                      th Paciente
-                      th DNI
-                      th Habitación
-                      th Cama
-                      th Fecha Ingreso
-                      th Estado
-                      th Acciones
-                  tbody
-                    each admision in admisiones
-                      tr
-                        td= admision.id
-                        td
-                          strong #{admision.nombre} #{admision.apellido}
-                        td
-                          code= admision.dni
-                        td
-                          span.badge.bg-info= admision.numero_habitacion
-                        td
-                          span.badge.bg-secondary= admision.numero_cama
-                        td
-                          small= new Date(admision.fecha_ingreso).toLocaleDateString('es-ES')
-                        td
-                          if admision.estado === 'activa'
-                            span.badge.bg-success Activa
-                          else if admision.estado === 'cancelada'
-                            span.badge.bg-danger Cancelada
-                          else
-                            span.badge.bg-warning= admision.estado
-                        td
-                          .btn-group(role="group")
-                            a.btn.btn-sm.btn-outline-primary(href=`/admisiones/${admision.id}` title="Ver detalles")
-                              i.fas.fa-eye
-                            if admision.estado === 'activa'
-                              button.btn.btn-sm.btn-outline-danger(onclick=`cancelarAdmision(${admision.id})` title="Cancelar")
-                                i.fas.fa-times
-            else
-              .text-center.py-5
-                i.fas.fa-inbox.fa-3x.text-muted.mb-3
-                h5.text-muted No hay admisiones registradas
-                p.text-muted.mb-4 Las nuevas admisiones aparecerán aquí
-                a.btn.btn-primary(href="/admisiones/nueva")
-                  i.fas.fa-plus.me-2
-                  | Crear Primera Admisión
-  //- Scripts específicos del módulo
-  script.
-    function cancelarAdmision(id) {
-      const motivo = prompt('Ingrese el motivo de cancelación:');
-      if (motivo && motivo.trim()) {
-        if (confirm('¿Está seguro que desea cancelar esta admisión?')) {
-          fetch(`/admisiones/${id}/cancelar`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ motivo_cancelacion: motivo.trim() })
-          })
-          .then(response => response.json())
-          .then(data => {
-            if (data.success) {
-              alert('Admisión cancelada exitosamente');
-              location.reload();
-            } else {
-              alert('Error al cancelar admisión: ' + (data.error || 'Error desconocido'));
-            }
-          })
-          .catch(error => {
-            console.error('Error:', error);
-            alert('Error al cancelar admisión');
-          });
-        }
-      }
-    }
-    // Auto-refresh cada 5 minutos
-    setTimeout(() => {
-      location.reload();
-    }, 300000);
+      .mb-3
+        a.btn.btn-success(href='/admisiones/nueva') + Nueva Admisión
+  .row
+    .col-12
+      if admisiones && admisiones.length > 0
+        .table-responsive
+          table.table.table-striped
+            thead.table-dark
+              tr
+                th ID
+                th Paciente
+                th DNI
+                th Fecha Admisión
+                th Habitación/Cama
+                th Motivo
+                th Estado
+            tbody
+              each admision in admisiones
+                tr
+                  td= admision.id
+                  td= `${admision.nombre} ${admision.apellido}`
+                  td= admision.dni
+                  td= new Date(admision.fecha_admision).toLocaleDateString('es-AR')
+                  td= `${admision.habitacion}-${admision.cama}`
+                  td= admision.motivo_internacion
+                  td
+                    if admision.estado === 'activa'
+                      span.badge.bg-success Activa
+                    else if admision.estado === 'cancelada'
+                      span.badge.bg-danger Cancelada
+                    else
+                      span.badge.bg-secondary Finalizada
+      else
+        .alert.alert-info.text-center
+          h4 No hay admisiones registradas
+          p Comienza creando tu primera admisión
+          a.btn.btn-primary(href='/admisiones/nueva') + Nueva Admisión

@@ -1,29 +1,37 @@
-//- views/pacientes/index.pug
-
 extends ../layout
-
 block content
-  h2 Pacientes Registrados
-  if pacientes && pacientes.length > 0
-    table(border="1")
-      thead
-        tr
-          th ID
-          th DNI
-          th Nombre
-          th Apellido
-          th Sexo
-          th Teléfono
-          th Email
-      tbody
-        each paciente in pacientes
-          tr
-            td= paciente.id
-            td= paciente.dni
-            td= paciente.nombre
-            td= paciente.apellido
-            td= paciente.sexo
-            td= paciente.telefono
-            td= paciente.email
-  else
-    p No hay pacientes registrados aún.
+  .row
+    .col-12
+      h1 Lista de Pacientes
+      p.text-muted Registro de pacientes del sistema
+  .row
+    .col-12
+      if pacientes && pacientes.length > 0
+        .table-responsive
+          table.table.table-striped
+            thead.table-dark
+              tr
+                th ID
+                th DNI
+                th Nombre Completo
+                th Fecha Nacimiento
+                th Sexo
+                th Teléfono
+                th Obra Social
+                th Acciones
+            tbody
+              each paciente in pacientes
+                tr
+                  td= paciente.id
+                  td= paciente.dni
+                  td= `${paciente.nombre} ${paciente.apellido}`
+                  td= new Date(paciente.fecha_nacimiento).toLocaleDateString('es-AR')
+                  td= paciente.sexo === 'M' ? 'Masculino' : 'Femenino'
+                  td= paciente.telefono
+                  td= paciente.obra_social || 'Sin obra social'
+                  td
+                    a.btn.btn-sm.btn-outline-primary(href=`/pacientes/${paciente.id}`) Ver
+      else
+        .alert.alert-info.text-center
+          h4 No hay pacientes registrados
+          p Los pacientes se crean automáticamente al hacer admisiones
