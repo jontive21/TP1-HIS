@@ -1,32 +1,23 @@
+// Configuración simple de base de datos para Railway
 const mysql = require('mysql2/promise');
-require('dotenv').config();
-
-const dbConfig = {
-    host: process.env.DB_HOST || 'localhost',
-    user: process.env.DB_USER || 'root',
-    password: process.env.DB_PASSWORD || '',
-    database: process.env.DB_NAME || 'nombre_basedatos',
+// Configuración para Railway MySQL
+const pool = mysql.createPool({
+    host: process.env.MYSQLHOST || 'mysql.railway.internal',
+    port: process.env.MYSQLPORT || 3306,
+    user: process.env.MYSQLUSER || 'root',
+    password: process.env.MYSQLPASSWORD || '',
+    database: process.env.MYSQLDATABASE || 'railway',
     waitForConnections: true,
     connectionLimit: 10,
     queueLimit: 0
-};
-
-const pool = mysql.createPool(dbConfig);
-
-async function testConnection() {
-    try {
-        const connection = await pool.getConnection();
-        await connection.ping();
+});
+// Probar conexión
+pool.getConnection()
+    .then(connection => {
+        console.log('✅ Conectado a MySQL');
         connection.release();
-        console.log('✅ Conexión a la base de datos exitosa');
-        return true;
-    } catch (error) {
-        console.error('❌ Error conectando a la base de datos:', error.message);
-        return false;
-    }
-}
-
-module.exports = {
-    pool,
-    testConnection
-};
+    })
+    .catch(error => {
+        console.error('❌ Error de conexión:', error.message);
+    });
+module.exports = pool;
