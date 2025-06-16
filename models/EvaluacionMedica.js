@@ -1,45 +1,81 @@
+// models/EvaluacionMedica.js
+
 const pool = require('../config/db');
 
-// Crear una evaluación médica
-async function createEvaluacion(data) {
-    const {
-        admision_id,
-        medico_id,
-        diagnostico,
-        plan_tratamiento,
-        estudios_solicitados,
-        medicamentos_prescriptos,
-        observaciones
-    } = data;
-    const [result] = await pool.query(
-        `INSERT INTO evaluaciones_medicas 
-        (admision_id, medico_id, diagnostico, plan_tratamiento, estudios_solicitados, medicamentos_prescriptos, observaciones)
-        VALUES (?, ?, ?, ?, ?, ?, ?)`,
-        [admision_id, medico_id, diagnostico, plan_tratamiento, estudios_solicitados, medicamentos_prescriptos, observaciones]
-    );
-    return result.insertId;
+/**
+ * Crea una nueva evaluación médica
+ * @param {number} admision_id 
+ * @param {number} medico_id 
+ * @param {string} fecha_evaluacion 
+ * @param {string} [diagnostico] 
+ * @param {string} [plan_tratamiento] 
+ * @param {string} [medicamentos_prescritos] 
+ * @param {string} [estudios_solicitados] 
+ * @param {string} [observaciones] 
+ * @returns {Promise<number>} ID de la evaluación creada
+ */
+async function create(
+  admision_id,
+  medico_id,
+  fecha_evaluacion,
+  diagnostico = null,
+  plan_tratamiento = null,
+  medicamentos_prescritos = null,
+  estudios_solicitados = null,
+  observaciones = null
+) {
+  const [result] = await pool.query(
+    `INSERT INTO evaluaciones_medicas (
+      admision_id, medico_id, fecha_evaluacion, 
+      diagnostico, plan_tratamiento, medicamentos_prescritos, 
+      estudios_solicitados, observaciones
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+    [
+      admision_id,
+      medico_id,
+      fecha_evaluacion,
+      diagnostico,
+      plan_tratamiento,
+      medicamentos_prescritos,
+      estudios_solicitados,
+      observaciones
+    ]
+  );
+  return result.insertId;
 }
 
-// Actualizar diagnóstico de una admisión
-async function updateDiagnostico(admisionId, diagnostico) {
-    const [result] = await pool.query(
-        `UPDATE evaluaciones_medicas SET diagnostico = ? WHERE admision_id = ?`,
-        [diagnostico, admisionId]
-    );
-    return result.affectedRows > 0;
+/**
+ * Busca una evaluación médica por su ID
+ * @param {number} id 
+ * @returns {Promise<object|null>} Datos de la evaluación o null si no existe
+ */
+async function findById(id) {
+  const [rows] = await pool.query('SELECT * FROM evaluaciones_medicas WHERE id = ?', [id]);
+  return rows[0] || null;
 }
 
-// Obtener plan de tratamiento de una admisión
-async function getPlanTratamiento(admisionId) {
-    const [rows] = await pool.query(
-        `SELECT plan_tratamiento FROM evaluaciones_medicas WHERE admision_id = ? ORDER BY fecha_evaluacion DESC LIMIT 1`,
-        [admisionId]
-    );
-    return rows.length ? rows[0].plan_tratamiento : null;
+/**
+ * Obtiene todas las evaluaciones médicas
+ * @returns {Promise<Array>} Lista de evaluaciones
+ */
+async function getAll() {
+  const [rows] = await pool.query('SELECT * FROM evaluaciones_medicas');
+  return rows;
+}
+
+/**
+ * Obtiene evaluaciones por admisión
+ * @param {number} admision_id 
+ * @returns {Promise<Array>} Lista de evaluaciones
+ */
+async function findByAdmision(admision_id) {
+  const [rows] = await pool.query('SELECT * FROM evaluaciones_medicas WHERE admision_id = ?', [admision_id]);
+  return rows;
 }
 
 module.exports = {
-    createEvaluacion,
-    updateDiagnostico,
-    getPlanTratamiento
+  create,
+  findById,
+  getAll,
+  findByAdmision
 };

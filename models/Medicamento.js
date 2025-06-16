@@ -1,37 +1,102 @@
-const { pool } = require('../config/db');
+// models/Medicamento.js
 
-// Prescribir un medicamento
-async function prescribirMedicamento(data) {
-    const { admision_id, nombre, dosis, frecuencia, via, observaciones } = data;
-    const [result] = await pool.query(
-        `INSERT INTO medicamentos_prescritos (admision_id, nombre, dosis, frecuencia, via, observaciones)
-         VALUES (?, ?, ?, ?, ?, ?)`,
-        [admision_id, nombre, dosis, frecuencia, via, observaciones]
-    );
-    return result.insertId;
+const pool = require('../config/db');
+
+/**
+ * Registra un nuevo medicamento
+ * @param {number} admision_id 
+ * @param {number} medico_prescriptor 
+ * @param {string} nombre_medicamento 
+ * @param {string} [dosis] 
+ * @param {string} [frecuencia] 
+ * @param {string} [via_administracion] 
+ * @param {string} fecha_inicio 
+ * @param {string} [fecha_fin] 
+ * @param {string} [estado='activo'] 
+ * @param {string} [observaciones] 
+ * @returns {Promise<number>} ID del medicamento creado
+ */
+async function create(
+  admision_id,
+  medico_prescriptor,
+  nombre_medicamento,
+  dosis = null,
+  frecuencia = null,
+  via_administracion = null,
+  fecha_inicio,
+  fecha_fin = null,
+  estado = 'activo',
+  observaciones = null
+) {
+  const [result] = await pool.query(
+    `INSERT INTO medicamentos (
+      admision_id, medico_prescriptor, nombre_medicamento, 
+      dosis, frecuencia, via_administracion, fecha_inicio, 
+      fecha_fin, estado, observaciones
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    [
+      admision_id,
+      medico_prescriptor,
+      nombre_medicamento,
+      dosis,
+      frecuencia,
+      via_administracion,
+      fecha_inicio,
+      fecha_fin,
+      estado,
+      observaciones
+    ]
+  );
+  return result.insertId;
 }
 
-// Obtener medicamentos por admisión
-async function getMedicamentosByAdmision(admisionId) {
-    const [rows] = await pool.query(
-        `SELECT * FROM medicamentos_prescritos WHERE admision_id = ? ORDER BY id DESC`,
-        [admisionId]
-    );
-    return rows;
+/**
+ * Busca un medicamento por su ID
+ * @param {number} id 
+ * @returns {Promise<object|null>} Datos del medicamento o null si no existe
+ */
+async function findById(id) {
+  const [rows] = await pool.query('SELECT * FROM medicamentos WHERE id = ?', [id]);
+  return rows[0] || null;
 }
 
-// Registrar administración
-async function registrarAdministracion(medicamentoId, fecha, efectos = null) {
-    const [result] = await pool.query(
-        `INSERT INTO administracion_medicamentos (medicamento_id, fecha_administracion, efectos)
-         VALUES (?, ?, ?)`,
-        [medicamentoId, fecha, efectos]
-    );
-    return result.insertId;
+/**
+ * Obtiene todos los medicamentos
+ * @returns {Promise<Array>} Lista de medicamentos
+ */
+async function getAll() {
+  const [rows] = await pool.query('SELECT * FROM medicamentos');
+  return rows;
+}
+
+/**
+ * Obtiene los medicamentos por admisión
+ * @param {number} admision_id 
+ * @returns {Promise<Array>} Lista de medicamentos
+ */
+async function findByAdmision(admision_id) {
+  const [rows] = await pool.query('SELECT * FROM medicamentos WHERE admision_id = ?', [admision_id]);
+  return rows;
+}
+
+/**
+ * Actualiza el estado de un medicamento
+ * @param {number} id 
+ * @param {string} estado 
+ * @returns {Promise<boolean>} true si se actualizó correctamente
+ */
+async function updateEstado(id, estado) {
+  const [result] = await pool.query(
+    'UPDATE medicamentos SET estado = ? WHERE id = ?',
+    [estado, id]
+  );
+  return result.affectedRows > 0;
 }
 
 module.exports = {
-    prescribirMedicamento,
-    getMedicamentosByAdmision,
-    registrarAdministracion
+  create,
+  findById,
+  getAll,
+  findByAdmision,
+  updateEstado
 };

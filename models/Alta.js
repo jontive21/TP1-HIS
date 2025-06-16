@@ -1,55 +1,84 @@
+// models/Alta.js
+
 const pool = require('../config/db');
 
-// Procesar alta de un paciente
-async function procesarAlta(admisionId, data) {
-    const {
-        medico_id,
-        tipo_alta,
-        instrucciones_cuidado_posterior,
-        recetas_medicas,
-        seguimiento_recomendado,
-        observaciones
-    } = data;
-
-    // Insertar registro de alta
-    const [result] = await pool.query(
-        `INSERT INTO altas (admision_id, medico_id, tipo_alta, instrucciones_cuidado_posterior, recetas_medicas, seguimiento_recomendado, observaciones)
-         VALUES (?, ?, ?, ?, ?, ?, ?)`,
-        [admisionId, medico_id, tipo_alta, instrucciones_cuidado_posterior, recetas_medicas, seguimiento_recomendado, observaciones]
-    );
-
-    // Cambiar estado de la admisión a 'alta'
-    await pool.query(
-        `UPDATE admisiones SET estado = 'alta' WHERE id = ?`,
-        [admisionId]
-    );
-
-    return result.insertId;
+/**
+ * Registra un alta hospitalaria
+ * @param {number} admision_id 
+ * @param {number} medico_id 
+ * @param {string} fecha_alta 
+ * @param {string} tipo_alta 
+ * @param {string} [diagnostico_final] 
+ * @param {string} [instrucciones_alta] 
+ * @param {string} [medicacion_domicilio] 
+ * @param {string} [seguimiento_requerido] 
+ * @param {string} [observaciones] 
+ * @returns {Promise<number>} ID del alta creada
+ */
+async function create(
+  admision_id,
+  medico_id,
+  fecha_alta,
+  tipo_alta,
+  diagnostico_final = null,
+  instrucciones_alta = null,
+  medicacion_domicilio = null,
+  seguimiento_requerido = null,
+  observaciones = null
+) {
+  const [result] = await pool.query(
+    `INSERT INTO altas (
+      admision_id, medico_id, fecha_alta, tipo_alta, 
+      diagnostico_final, instrucciones_alta, medicacion_domicilio, 
+      seguimiento_requerido, observaciones
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    [
+      admision_id,
+      medico_id,
+      fecha_alta,
+      tipo_alta,
+      diagnostico_final,
+      instrucciones_alta,
+      medicacion_domicilio,
+      seguimiento_requerido,
+      observaciones
+    ]
+  );
+  return result.insertId;
 }
 
-// Liberar cama asociada a la admisión
-async function liberarCama(camaId) {
-    await pool.query(
-        `UPDATE camas SET estado = 'libre', higienizada = FALSE WHERE id = ?`,
-        [camaId]
-    );
+/**
+ * Busca un alta por su ID
+ * @param {number} id 
+ * @returns {Promise<object|null>} Datos del alta o null si no existe
+ */
+async function findById(id) {
+  const [rows] = await pool.query('SELECT * FROM altas WHERE id = ?', [id]);
+  return rows[0] || null;
 }
 
-// Generar instrucciones de alta (puedes personalizar la lógica)
-async function generarInstruccionesAlta(admisionId) {
-    const [rows] = await pool.query(
-        `SELECT instrucciones_cuidado_posterior, recetas_medicas, seguimiento_recomendado
-         FROM altas WHERE admision_id = ? ORDER BY id DESC LIMIT 1`,
-        [admisionId]
-    );
-    if (rows.length) {
-        return rows[0];
-    }
-    return null;
+/**
+ * Obtiene todos los altas registradas
+ * @returns {Promise<Array>} Lista de altas
+ */
+async function getAll() {
+  const [rows] = await pool.query('SELECT * FROM altas');
+  return rows;
+}
+
+/**
+ * Obtiene el alta por admisión
+ * @param {number} admision_id 
+ * @returns {Promise<object|null>} Datos del alta o null si no existe
+ */
+async function findByAdmision(admision_id) {
+  const [rows] = await pool.query('SELECT * FROM altas WHERE admision_id = ?', [admision_id]);
+  return rows[0] || null;
 }
 
 module.exports = {
-    procesarAlta,
-    liberarCama,
-    generarInstruccionesAlta
+  create,
+  findById,
+  getAll,
+  findByAdmision
 };
