@@ -12,3 +12,4 @@ router.get('/usuarios', async (req, res) => {
     res.status(500).send('Error al cargar usuarios');
   }
 });
+module.exports = router;

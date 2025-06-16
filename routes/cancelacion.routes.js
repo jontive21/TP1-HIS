@@ -12,3 +12,4 @@ router.get('/cancelaciones_admision', async (req, res) => {
     res.status(500).send('Error al cargar cancelaciones');
   }
 });
+module.exports = router;

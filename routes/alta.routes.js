@@ -12,3 +12,4 @@ router.get('/altas', async (req, res) => {
     res.status(500).send('Error al cargar altas');
   }
 });
+module.exports = router;

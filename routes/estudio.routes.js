@@ -12,3 +12,4 @@ router.get('/estudios', async (req, res) => {
     res.status(500).send('Error al cargar estudios');
   }
 });
+module.exports = router;

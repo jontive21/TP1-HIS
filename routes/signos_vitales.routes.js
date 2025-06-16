@@ -12,3 +12,4 @@ router.get('/signos_vitales', async (req, res) => {
     res.status(500).send('Error al cargar signos vitales');
   }
 });
+module.exports = router;

@@ -12,3 +12,4 @@ router.get('/medicamentos', async (req, res) => {
     res.status(500).send('Error al cargar medicamentos');
   }
 });
+module.exports = router;

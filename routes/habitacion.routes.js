@@ -12,3 +12,4 @@ router.get('/habitaciones', async (req, res) => {
     res.status(500).send('Error al cargar habitaciones');
   }
 });
+module.exports = router;

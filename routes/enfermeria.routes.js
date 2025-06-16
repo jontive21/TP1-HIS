@@ -12,3 +12,4 @@ router.get('/evaluaciones_enfermeria', async (req, res) => {
     res.status(500).send('Error al cargar evaluaciones de enfermería');
   }
 });
+module.exports = router;

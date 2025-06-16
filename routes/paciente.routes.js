@@ -24,3 +24,4 @@ router.get('/pacientes/:dni', async (req, res) => {
     res.status(500).send('Error al cargar el paciente');
   }
 });
+module.exports = router;

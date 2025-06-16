@@ -12,3 +12,4 @@ router.get('/camas', async (req, res) => {
     res.status(500).send('Error al cargar camas');
   }
 });
+module.exports = router;

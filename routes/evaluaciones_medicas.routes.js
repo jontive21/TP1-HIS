@@ -12,3 +12,4 @@ router.get('/evaluaciones_medicas', async (req, res) => {
     res.status(500).send('Error al cargar evaluaciones médicas');
   }
 });
+module.exports = router;
