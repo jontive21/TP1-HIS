@@ -1,17 +1,20 @@
 // app.js - VERSIÓN QUE FUNCIONA 100% GARANTIZADO
-const express = require('express');
-const path = require('path');
-const mysql = require('mysql2/promise');
+const express = require("express");
+const path = require("path");
+const mysql = require("mysql2/promise");
 const app = express();
+
 // Configuración básica
-app.set('view engine', 'pug');
-app.set('views', path.join(__dirname, 'views'));
-app.use(express.static(path.join(__dirname, 'public')));
+app.set("view engine", "pug");
+app.set("views", path.join(__dirname, "views"));
+app.use(express.static(path.join(__dirname, "public")));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+
 // Base de datos simple (funciona sin Railway en local)
 const isLocal = !process.env.MYSQLHOST;
 let db;
+
 if (!isLocal) {
     // Configuración Railway
     db = mysql.createPool({
@@ -21,12 +24,47 @@ if (!isLocal) {
         password: process.env.MYSQLPASSWORD,
         database: process.env.MYSQLDATABASE
     });
+} else {
+    // Para desarrollo local - Pool falso para que funcione sin base de datos
+    db = {
+        query: async (sql, params) => {
+            console.log("📝 Query simulada:", sql.substring(0, 50) + "...");
+            if (sql.includes("SELECT") && sql.includes("pacientes")) {
+                return [[
+                    {
+                        id: 1,
+                        dni: "12345678",
+                        nombre: "Juan",
+                        apellido: "Pérez",
+                        fecha: "2025-01-01",
+                        motivo: "Consulta general",
+                        estado: "activo"
+                    },
+                    {
+                        id: 2,
+                        dni: "87654321",
+                        nombre: "Ana",
+                        apellido: "Gómez",
+                        fecha: "2025-01-02",
+                        motivo: "Revisión",
+                        estado: "activo"
+                    }
+                ]];
+            }
+            if (sql.includes("INSERT")) {
+                console.log("✅ Simulando inserción exitosa");
+                return [{ insertId: 1, affectedRows: 1 }];
+            }
+            return [[]];
+        }
+    };
 }
+
 // RUTAS INTEGRADAS - NO DEPENDEN DE ARCHIVOS EXTERNOS
 // ================================
 // RUTA PRINCIPAL
 // ================================
-app.get('/', (req, res) => {
+app.get("/", (req, res) => {
     res.send(`
         <!DOCTYPE html>
         <html lang="es">
@@ -99,7 +137,7 @@ app.get('/', (req, res) => {
 // ================================
 // MÓDULO DE ADMISIONES - ENDPOINT PRINCIPAL
 // ================================
-app.get('/admisiones', async (req, res) => {
+app.get("/admisiones", async (req, res) => {
     try {
         let admisiones = [];
         
@@ -116,7 +154,7 @@ app.get('/admisiones', async (req, res) => {
                 `);
                 admisiones = rows;
             } catch (error) {
-                console.log('No hay datos en Railway, usando datos de ejemplo');
+                console.log("No hay datos en Railway, usando datos de ejemplo");
             }
         }
         
@@ -126,11 +164,11 @@ app.get('/admisiones', async (req, res) => {
                 {
                     id: 1,
                     fecha_admision: new Date(),
-                    motivo_internacion: 'Ejemplo - Consulta médica',
-                    estado: 'activa',
-                    nombre: 'Juan',
-                    apellido: 'Pérez',
-                    dni: '12345678'
+                    motivo_internacion: "Ejemplo - Consulta médica",
+                    estado: "activa",
+                    nombre: "Juan",
+                    apellido: "Pérez",
+                    dni: "12345678"
                 }
             ];
         }
@@ -191,15 +229,15 @@ app.get('/admisiones', async (req, res) => {
                                                 <td>${admision.id}</td>
                                                 <td>${admision.nombre} ${admision.apellido}</td>
                                                 <td>${admision.dni}</td>
-                                                <td>${new Date(admision.fecha_admision).toLocaleDateString('es-AR')}</td>
+                                                <td>${new Date(admision.fecha_admision).toLocaleDateString("es-AR")}</td>
                                                 <td>${admision.motivo_internacion}</td>
                                                 <td>
-                                                    <span class="badge ${admision.estado === 'activa' ? 'bg-success' : 'bg-secondary'}">
+                                                    <span class="badge ${admision.estado === "activa" ? "bg-success" : "bg-secondary"}">
                                                         ${admision.estado}
                                                     </span>
                                                 </td>
                                             </tr>
-                                        `).join('')}
+                                        `).join("")}
                                     </tbody>
                                 </table>
                             </div>
@@ -221,12 +259,12 @@ app.get('/admisiones', async (req, res) => {
         `);
         
     } catch (error) {
-        console.error('Error en /admisiones:', error);
-        res.status(500).send('Error en el servidor');
+        console.error("Error en /admisiones:", error);
+        res.status(500).send("Error en el servidor");
     }
 });
 // Nueva admisión
-app.get('/admisiones/nueva', (req, res) => {
+app.get("/admisiones/nueva", (req, res) => {
     res.send(`
         <!DOCTYPE html>
         <html lang="es">
@@ -244,8 +282,7 @@ app.get('/admisiones/nueva', (req, res) => {
                         <a class="nav-link" href="/admisiones">Admisiones</a>
                         <a class="nav-link" href="/pacientes">Pacientes</a>
                     </div>
-                </div>
-            </nav>
+                </nav>
             
             <div class="container mt-4">
                 <h1>Nueva Admisión</h1>
@@ -313,63 +350,132 @@ app.get('/admisiones/nueva', (req, res) => {
     `);
 });
 // Crear admisión
-app.post('/admisiones/crear', (req, res) => {
-    console.log('Datos recibidos:', req.body);
-    res.redirect('/admisiones?success=Admisión creada correctamente');
+app.post("/admisiones/crear", (req, res) => {
+    console.log("Datos recibidos:", req.body);
+    res.redirect("/admisiones?success=Admisión creada correctamente");
 });
 // ================================
 // MÓDULO DE PACIENTES
 // ================================
-app.get('/pacientes', (req, res) => {
-    res.send(`
-        <!DOCTYPE html>
-        <html lang="es">
-        <head>
-            <meta charset="UTF-8">
-            <title>Pacientes - Sistema HIS</title>
-            <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-        </head>
-        <body>
-            <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-                <div class="container">
-                    <a class="navbar-brand" href="/">Sistema HIS</a>
-                    <div class="navbar-nav">
-                        <a class="nav-link" href="/admisiones">Admisiones</a>
-                        <a class="nav-link active" href="/pacientes">Pacientes</a>
+app.get("/pacientes", async (req, res) => {
+    try {
+        let pacientes = [];
+        if (!isLocal && db) {
+            const [rows] = await db.query("SELECT id, nombre, dni, fecha, motivo, estado FROM pacientes");
+            pacientes = rows;
+        }
+        // Si no hay datos, usar ejemplos (o si es local)
+        if (pacientes.length === 0) {
+            pacientes = [
+                { id: 1, nombre: "Juan Pérez", dni: "12345678", fecha: "2025-06-16", motivo: "Consulta general", estado: "activo" },
+                { id: 2, nombre: "Ana Rodríguez", dni: "55443322", fecha: "2025-06-17", motivo: "Examen de sangre", estado: "activo" }
+            ];
+        }
+        res.send(`
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>Lista de Pacientes</title>
+                <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+                <style>
+                    body {
+                        font-family: Arial, sans-serif;
+                        padding: 20px;
+                        background-color: #f0f8ff;
+                    }
+                    .container {
+                        max-width: 800px;
+                        margin: 0 auto;
+                    }
+                    h1 {
+                        color: #0066cc;
+                        text-align: center;
+                    }
+                    table {
+                        width: 100%;
+                        border-collapse: collapse;
+                        margin-top: 20px;
+                    }
+                    th, td {
+                        border: 1px solid #ddd;
+                        padding: 10px;
+                        text-align: left;
+                    }
+                    th {
+                        background-color: #4CAF50;
+                        color: white;
+                    }
+                    tr:nth-child(even) {
+                        background-color: #f2f2f2;
+                    }
+                    .activo {
+                        color: green;
+                        font-weight: bold;
+                    }
+                </style>
+            </head>
+            <body>
+                <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+                    <div class="container">
+                        <a class="navbar-brand" href="/">Sistema HIS</a>
+                        <div class="navbar-nav">
+                            <a class="nav-link" href="/admisiones">Admisiones</a>
+                            <a class="nav-link active" href="/pacientes">Pacientes</a>
+                        </div>
                     </div>
+                </nav>
+                <div class="container">
+                    <h1>📋 Lista de Pacientes</h1>
+                    
+                    <table id="tabla-pacientes">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Paciente</th>
+                                <th>DNI</th>
+                                <th>Fecha</th>
+                                <th>Motivo</th>
+                                <th>Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${pacientes.map(paciente => `
+                                <tr>
+                                    <td>${paciente.id}</td>
+                                    <td>${paciente.nombre}</td>
+                                    <td>${paciente.dni}</td>
+                                    <td>${paciente.fecha}</td>
+                                    <td>${paciente.motivo}</td>
+                                    <td class="activo">${paciente.estado}</td>
+                                </tr>
+                            `).join("")}
+                        </tbody>
+                    </table>
                 </div>
-            </nav>
-            
-            <div class="container mt-4">
-                <h1>Lista de Pacientes</h1>
-                <div class="alert alert-info">
-                    ✅ Módulo de pacientes funcionando
-                </div>
-                <p><a href="/admisiones">← Volver a admisiones</a></p>
-            </div>
-        </body>
-        </html>
-    `);
+            </body>
+            </html>
+        `);
+    } catch (error) {
+        console.error("Error al obtener pacientes:", error);
+        res.status(500).send("Error interno del servidor al obtener pacientes");
+    }
 });
-// Error 404
-app.use((req, res) => {
-    res.status(404).send(`
-        <h1>❌ Página no encontrada</h1>
-        <p>La ruta <strong>${req.url}</strong> no existe.</p>
-        <p><a href="/">🏠 Ir al inicio</a></p>
-        <p><a href="/admisiones">🎯 Ir a Admisiones</a></p>
-    `);
+
+app.post("/pacientes/crear", async (req, res) => {
+    const { nombre, dni, fecha, motivo, estado } = req.body;
+    try {
+        const [result] = await db.query(
+            "INSERT INTO pacientes (nombre, dni, fecha, motivo, estado) VALUES (?, ?, ?, ?, ?)",
+            [nombre, dni, fecha, motivo, estado]
+        );
+        res.status(201).json({ message: "Paciente agregado exitosamente", id: result.insertId });
+    } catch (error) {
+        console.error("Error al agregar paciente:", error);
+        res.status(500).json({ message: "Error interno del servidor al agregar paciente" });
+    }
 });
-// Servidor
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-    console.log('='.repeat(60));
-    console.log('🏥 SISTEMA HIS - FUNCIONANDO 100%');
-    console.log('='.repeat(60));
-    console.log(`📍 Puerto: ${PORT}`);
-    console.log(`🌐 URL: http://localhost:${PORT}`);
-    console.log(`🎯 ENDPOINT PRINCIPAL: http://localhost:${PORT}/admisiones`);
-    console.log('✅ Listo para entregar al profesor');
-    console.log('='.repeat(60));
+
+app.listen(process.env.PORT || 3000, () => {
+    console.log(`Servidor funcionando en http://localhost:${process.env.PORT || 3000}`);
 });
-module.exports = app;
+
