@@ -19,10 +19,18 @@ Permite registrar pacientes, asignar camas, realizar evaluaciones médicas y de 
 - Pug
 - Sesiones con `express-session`
 - Bootstrap 5
+# 🏥 Sistema de Admisión Hospitalaria 
 
-## 📥 Requisitos para Instalación
+## 🌐 Enlaces Importantes
 
-### 1. Clonar repositorio
-```bash
-git clone https://github.com/jontive21/TP1-HIS 
-cd TP1-HIS
+| Descripción | Enlace |
+|-------------|--------|
+| **Repositorio GitHub** |  |https://github.com/jontive21/TP1-HIS
+| **Endpoint Principal** | [mysql://root:PozCPOCLtbAWlgtFQXOHBXYPrhXUQGSQ@gondola.proxy.rlwy.net:36920/railway
+| **Video Demostración** | [youtube.com/tuvideo](https://youtube.com/tuvideo) |
+
+**Funcionalidades básicas:**
+   - Ver lista de pacientes
+   - Agregar nuevos pacientes
+   - Ver detalles de admisión
+
