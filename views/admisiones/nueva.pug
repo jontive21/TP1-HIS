@@ -1,11 +1,12 @@
 extends ../layout
+
 block content
   .row
     .col-12
       h1 Nueva Admisión
       p.text-muted Registrar admisión y recepción de paciente
-      
       a.btn.btn-secondary.mb-3(href='/admisiones') ← Volver a lista
+
   form(method='POST', action='/admisiones/crear')
     .row
       // Datos del Paciente
@@ -49,6 +50,7 @@ block content
             .mb-3
               label.form-label Email
               input.form-control(name='email', type='email')
+
       // Contacto de Emergencia y Datos Médicos
       .col-md-6
         .card.mb-4
@@ -93,6 +95,7 @@ block content
             .mb-3
               label.form-label Medicamentos Actuales
               textarea.form-control(name='medicamentos', rows='2')
+
     // Datos de la Admisión
     .row
       .col-12
@@ -126,38 +129,10 @@ block content
                         option(value=cama.id)= `Habitación ${cama.habitacion_numero} (${cama.ala}) - Cama ${cama.cama_numero}`
                     else
                       option(value='') No hay camas disponibles
+
     // Botones
     .row
       .col-12.text-center
         button.btn.btn-primary.btn-lg.me-3(type='submit') Crear Admisión
         a.btn.btn-secondary.btn-lg(href='/admisiones') Cancelar
-block append head
-  script.
-    // Buscar paciente por DNI
-    document.addEventListener('DOMContentLoaded', function() {
-      const dniInput = document.getElementById('dni');
-      
-      dniInput.addEventListener('blur', function() {
-        const dni = this.value.trim();
-        if (dni.length >= 7) {
-          fetch(`/admisiones/buscar-paciente/${dni}`)
-            .then(response => response.json())
-            .then(data => {
-              if (data.encontrado) {
-                const p = data.paciente;
-                document.querySelector('input[name="nombre"]').value = p.nombre;
-                document.querySelector('input[name="apellido"]').value = p.apellido;
-                document.querySelector('input[name="fecha_nacimiento"]').value = p.fecha_nacimiento.split('T')[0];
-                document.querySelector('select[name="sexo"]').value = p.sexo;
-                document.querySelector('textarea[name="direccion"]').value = p.direccion || '';
-                document.querySelector('input[name="telefono"]').value = p.telefono || '';
-                document.querySelector('input[name="email"]').value = p.email || '';
-                
-                // Mostrar mensaje
-                alert('Paciente encontrado. Datos cargados automáticamente.');
-              }
-            })
-            .catch(error => console.log('Error al buscar paciente'));
-        }
-      });
-    });
+
