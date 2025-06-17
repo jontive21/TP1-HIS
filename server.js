@@ -2,19 +2,38 @@
 const express = require('express');
 const app = express();
 const port = 4000;
+const pool = require('./config/db'); 
 
-// Datos de ejemplo
-const pacientes = [
-  { id: 1, nombre: "Juan Pérez", dni: "12345678", fecha: "2025-06-16", motivo: "Consulta general", estado: "activo" },
-  { id: 2, nombre: "Ana Rodríguez", dni: "55443322", fecha: "2025-06-17", motivo: "Examen de sangre", estado: "activo" }
-];
 
-// Ruta para listar pacientes (API)
-app.get('/pacientes', (req, res) => {
-  res.json(pacientes);
+app.use(express.json());
+
+
+app.get('/pacientes', async (req, res) => {
+  try {
+    const [rows] = await pool.query('SELECT * FROM pacientes');
+    res.json(rows);
+  } catch (error) {
+    console.error('Error al obtener pacientes:', error);
+    res.status(500).json({ message: 'Error interno del servidor al obtener pacientes' });
+  }
 });
 
-// Iniciar servidor
+app.post('/pacientes', async (req, res) => {
+  const { nombre, dni, fecha, motivo, estado } = req.body;
+  try {
+    const [result] = await pool.query(
+      'INSERT INTO pacientes (nombre, dni, fecha, motivo, estado) VALUES (?, ?, ?, ?, ?)',
+      [nombre, dni, fecha, motivo, estado]
+    );
+    res.status(201).json({ message: 'Paciente agregado exitosamente', id: result.insertId });
+  } catch (error) {
+    console.error('Error al agregar paciente:', error);
+    res.status(500).json({ message: 'Error interno del servidor al agregar paciente' });
+  }
+});
+
+
 app.listen(port, () => {
   console.log(`Servidor funcionando en http://localhost:${port}`);
 });
+

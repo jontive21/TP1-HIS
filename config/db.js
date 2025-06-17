@@ -1,13 +1,13 @@
-// Configuración simple de base de datos - FUNCIONA LOCAL Y RAILWAY
+
 const mysql = require('mysql2/promise');
 
-// Detectar si estamos en Railway o en local
+
 const isRailway = process.env.MYSQLHOST || process.env.RAILWAY_ENVIRONMENT;
 
 let pool;
 
 if (isRailway) {
-    // Configuración para Railway
+    
     pool = mysql.createPool({
         host: process.env.MYSQLHOST || 'mysql.railway.internal',
         port: process.env.MYSQLPORT || 3306,
@@ -21,7 +21,7 @@ if (isRailway) {
     
     console.log('🌐 Configuración: Railway MySQL');
     
-    // Probar conexión a Railway
+    
     pool.getConnection()
         .then(connection => {
             console.log('✅ Conectado a MySQL de Railway');
@@ -31,15 +31,15 @@ if (isRailway) {
             console.error('❌ Error de conexión a Railway:', error.message);
         });
 } else {
-    // Para desarrollo local - SIN BASE DE DATOS REAL
+    
     console.log('💻 Configuración: Desarrollo local (datos simulados)');
     
-    // Pool falso para que funcione sin base de datos
+    
     pool = {
         query: async (sql, params) => {
             console.log('📝 Query simulada:', sql.substring(0, 50) + '...');
             
-            // Simular respuestas según el tipo de query
+            
             if (sql.includes('SELECT') && sql.includes('admisiones')) {
                 return [[
                     {
@@ -106,7 +106,7 @@ if (isRailway) {
                 return [{ affectedRows: 1 }];
             }
             
-            return [[]]; // Por defecto, array vacío
+            return [[]]; 
         }
     };
     
