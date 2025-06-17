@@ -1,17 +1,17 @@
-// app.js - VERSIÓN QUE FUNCIONA 100% GARANTIZADO
+
 const express = require("express");
 const path = require("path");
 const mysql = require("mysql2/promise");
 const app = express();
 
-// Configuración básica
+
 app.set("view engine", "pug");
 app.set("views", path.join(__dirname, "views"));
 app.use(express.static(path.join(__dirname, "public")));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-// Base de datos simple (funciona sin Railway en local)
+
 const isLocal = !process.env.MYSQLHOST;
 let db;
 
@@ -25,7 +25,7 @@ if (!isLocal) {
         database: process.env.MYSQLDATABASE
     });
 } else {
-    // Para desarrollo local - Pool falso para que funcione sin base de datos
+    
     db = {
         query: async (sql, params) => {
             console.log("📝 Query simulada:", sql.substring(0, 50) + "...");
@@ -60,10 +60,7 @@ if (!isLocal) {
     };
 }
 
-// RUTAS INTEGRADAS - NO DEPENDEN DE ARCHIVOS EXTERNOS
-// ================================
-// RUTA PRINCIPAL
-// ================================
+
 app.get("/", (req, res) => {
     res.send(`
         <!DOCTYPE html>
@@ -134,9 +131,7 @@ app.get("/", (req, res) => {
         </html>
     `);
 });
-// ================================
-// MÓDULO DE ADMISIONES - ENDPOINT PRINCIPAL
-// ================================
+
 app.get("/admisiones", async (req, res) => {
     try {
         let admisiones = [];
@@ -158,7 +153,7 @@ app.get("/admisiones", async (req, res) => {
             }
         }
         
-        // Si no hay datos, usar ejemplos
+        
         if (admisiones.length === 0) {
             admisiones = [
                 {
@@ -354,9 +349,7 @@ app.post("/admisiones/crear", (req, res) => {
     console.log("Datos recibidos:", req.body);
     res.redirect("/admisiones?success=Admisión creada correctamente");
 });
-// ================================
-// MÓDULO DE PACIENTES
-// ================================
+
 app.get("/pacientes", async (req, res) => {
     try {
         let pacientes = [];
