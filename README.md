@@ -19,10 +19,19 @@ Permite registrar pacientes, asignar camas, realizar evaluaciones médicas y de 
 - Pug
 - Sesiones con `express-session`
 - Bootstrap 5
+# 🏥 Sistema de Admisión Hospitalaria 
 
-## 📥 Requisitos para Instalación
+## 🌐 Enlaces Importantes
 
-### 1. Clonar repositorio
-```bash
-git clone https://github.com/jontive21/TP1-HIS 
-cd TP1-HIS
+| Descripción | Enlace |
+|-------------|--------|
+| **Repositorio GitHub** | [github.com/tuusuario/TP1-HIS](https://github.com/tuusuario/TP1-HIS) |
+| **Endpoint Principal** | [tudominio-railway.app/admisiones](https://tudominio-railway.app/admisiones) |
+| **Video Demostración** | [youtube.com/tuvideo](https://youtube.com/tuvideo) |
+| **Lista de Pacientes** | [tudominio-railway.app/pacientes.html](https://tudominio-railway.app/pacientes.html) |
+
+**Funcionalidades básicas:**
+   - Ver lista de pacientes
+   - Agregar nuevos pacientes
+   - Ver detalles de admisión
+
