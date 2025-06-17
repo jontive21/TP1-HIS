@@ -25,7 +25,7 @@ Permite registrar pacientes, asignar camas, realizar evaluaciones médicas y de 
 
 | Descripción | Enlace |
 |-------------|--------|
-| **Repositorio GitHub** | [github.com/tuusuario/TP1-HIS](https://github.com/tuusuario/TP1-HIS) |
+| **Repositorio GitHub** |  |https://github.com/jontive21/TP1-HIS
 | **Endpoint Principal** | [mysql://root:PozCPOCLtbAWlgtFQXOHBXYPrhXUQGSQ@gondola.proxy.rlwy.net:36920/railway
 | **Video Demostración** | [youtube.com/tuvideo](https://youtube.com/tuvideo) |
 
