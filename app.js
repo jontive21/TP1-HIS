@@ -61,8 +61,8 @@ app.use('/', authRoutes);                 // Rutas: /, /login (POST)
 
 
 
-app.listen(process.env.PORT || 3001, () => {
-    console.log(`Servidor funcionando en http://localhost:${process.env.PORT || 3001}`);
+app.listen(process.env.PORT || 3000, () => {
+    console.log(`Servidor funcionando en http://localhost:${process.env.PORT || 3000}`);
 });
 
 module.exports = app;
