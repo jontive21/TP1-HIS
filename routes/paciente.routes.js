@@ -51,4 +51,5 @@ router.get('/:id', async (req, res) => {
         res.redirect('/pacientes?error=Error al cargar paciente');
     }
 });
+
 module.exports = router;
